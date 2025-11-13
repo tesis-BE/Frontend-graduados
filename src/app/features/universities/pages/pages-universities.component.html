@@ -1,0 +1,18 @@
+<div class="container-fluid py-4">
+  <div class="row g-4">
+    <div class="col-12 col-xl-4">
+      <app-create-university-form
+        (created)="handleCreated()"
+      ></app-create-university-form>
+    </div>
+
+    <div class="col-12 col-xl-8">
+      <app-universities-card-grid
+        [universities]="universities$ | async"
+        [isLoading]="isLoading"
+        [errorMessage]="errorMessage"
+        (refresh)="refresh()"
+      ></app-universities-card-grid>
+    </div>
+  </div>
+</div>

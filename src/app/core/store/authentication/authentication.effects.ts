@@ -34,7 +34,15 @@ export class AuthenticationEffects {
             }
             return loginSuccess({ user });
           }),
-          catchError((error) => of(loginFailure({ error }))),
+          catchError((error) => {
+            const errorMessage =
+              (error?.error?.error?.message as string) ||
+              (error?.error?.message as string) ||
+              (error?.message as string) ||
+              'Error al iniciar sesión';
+
+            return of(loginFailure({ error: errorMessage }));
+          }),
         );
       }),
     ),

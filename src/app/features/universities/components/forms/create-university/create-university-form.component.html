@@ -1,0 +1,71 @@
+<form class="card shadow-sm" [formGroup]="form" (ngSubmit)="submit()">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="card-title mb-0">Registrar nueva extensión</h5>
+      <button type="submit" class="btn btn-primary" [disabled]="isSubmitting">
+        <span
+          *ngIf="isSubmitting"
+          class="spinner-border spinner-border-sm me-2"
+          role="status"
+        ></span>
+        Guardar
+      </button>
+    </div>
+
+    <div class="row g-3">
+      <div class="col-12 col-md-6">
+        <label class="form-label">Nombre *</label>
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Extensión Lima Centro"
+          formControlName="name"
+          [class.is-invalid]="nameInvalid"
+        />
+        <div class="invalid-feedback">El nombre es obligatorio.</div>
+      </div>
+
+      <div class="col-12 col-md-6">
+        <label class="form-label">Código interno</label>
+        <input
+          type="text"
+          class="form-control"
+          placeholder="EXT-LC"
+          formControlName="code"
+        />
+      </div>
+
+      <div class="col-12">
+        <label class="form-label">Descripción</label>
+        <textarea
+          rows="3"
+          class="form-control"
+          placeholder="Describe la ubicación o el enfoque de la extensión"
+          formControlName="description"
+        ></textarea>
+      </div>
+
+      <div class="col-12">
+        <div class="form-check form-switch">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            id="isActiveSwitch"
+            formControlName="isActive"
+          />
+          <label class="form-check-label" for="isActiveSwitch">
+            Extensión activa
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div
+      *ngIf="feedbackMessage"
+      class="alert mt-3"
+      [ngClass]="'alert-' + feedbackVariant"
+    >
+      {{ feedbackMessage }}
+    </div>
+  </div>
+</form>

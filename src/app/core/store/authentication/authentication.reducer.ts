@@ -1,23 +1,23 @@
-import { createReducer, on } from '@ngrx/store'
+import { createReducer, on } from '@ngrx/store';
 import {
   login,
   loginFailure,
   loginSuccess,
   logout,
-} from './authentication.actions'
-import type { User } from './auth.model'
+} from './authentication.actions';
+import type { User } from './auth.model';
 
 export type AuthenticationState = {
-  isLoggedIn: boolean
-  user: User | null
-  error: any | null
-}
+  isLoggedIn: boolean;
+  user: User | null;
+  error: any | null;
+};
 
 const initialState: AuthenticationState = {
   isLoggedIn: false,
   user: null,
   error: null,
-}
+};
 
 export const authenticationReducer = createReducer(
   initialState,
@@ -30,5 +30,10 @@ export const authenticationReducer = createReducer(
   })),
   on(loginFailure, (state, { error }) => ({ ...state, error })),
 
-  on(logout, (state) => ({ ...state, user: null }))
-)
+  on(logout, (state) => ({
+    ...state,
+    isLoggedIn: false,
+    user: null,
+    error: null,
+  })),
+);

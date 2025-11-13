@@ -32,6 +32,13 @@ export const routes: Routes = [
             (m) => m.GESTION_USUARIOS_ROUTES,
           ),
       },
+      {
+        path: 'universities',
+        loadChildren: () =>
+          import('./features/universities/universities.route').then(
+            (m) => m.UNIVERSITIES_ROUTES,
+          ),
+      },
     ],
   },
   {

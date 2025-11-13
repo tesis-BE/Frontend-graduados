@@ -182,4 +182,10 @@ export const MENU_ITEMS: MenuItemType[] = [
       },
     ],
   },
+  {
+    key: 'universities-module',
+    label: 'Extensiones Universitarias',
+    icon: 'map-pin',
+    url: '/universities/list',
+  },
 ];

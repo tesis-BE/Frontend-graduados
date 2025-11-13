@@ -12,7 +12,7 @@ import { currentYear } from '@shared/constants/app.constants';
 import { Store } from '@ngrx/store';
 import { login } from '@core/store/authentication/authentication.actions';
 import { getError } from '@core/store/authentication/authentication.selector';
-import { AuthenticationService } from '@core/services/api/auth.service';
+import { take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-sign-in',
@@ -29,11 +29,12 @@ export class SignInComponent {
 
   public fb = inject(UntypedFormBuilder);
   public store = inject(Store);
-  public service = inject(AuthenticationService);
-
   ngOnInit(): void {
     this.signInForm = this.fb.group({
-      email: ['user@demo.com', [Validators.required, Validators.email]],
+      email: [
+        'fabriciozavala13@gmail.com',
+        [Validators.required, Validators.email],
+      ],
       password: ['123456', [Validators.required]],
     });
   }
@@ -45,35 +46,25 @@ export class SignInComponent {
   login() {
     this.submitted = true;
     if (this.signInForm.valid) {
-      // ⚠️ DESARROLLO: Login desactivado temporalmente para testing
-      // Redirige directamente al dashboard sin autenticación
-
-      console.log('🔧 Modo desarrollo: Login bypass activado');
-      console.log('📧 Email:', this.formValues['email'].value);
-      console.log('🔑 Password:', this.formValues['password'].value);
-
-      // Simular que el login fue exitoso y redirigir
-      window.location.href = '/dashboard/index';
-
-      // TODO: Descomentar cuando conectes el backend real
-      /*
       const email = this.formValues['email'].value;
       const password = this.formValues['password'].value;
 
       // Login Api
       this.store.dispatch(login({ email: email, password: password }));
 
-      this.store.select(getError).subscribe((data) => {
-        if (data) {
-          // Manejo seguro de errores con verificación de estructura
-          this.errorMessage = data?.error?.message || data?.message || 'Error de conexión con el servidor';
+      this.store
+        .select(getError)
+        .pipe(take(1))
+        .subscribe((data) => {
+          if (data) {
+            // Manejo seguro de errores con verificación de estructura
+            this.errorMessage = data || 'Error de conexión con el servidor';
 
-          setTimeout(() => {
-            this.errorMessage = '';
-          }, 3000);
-        }
-      });
-      */
+            setTimeout(() => {
+              this.errorMessage = '';
+            }, 3000);
+          }
+        });
     }
   }
 }
