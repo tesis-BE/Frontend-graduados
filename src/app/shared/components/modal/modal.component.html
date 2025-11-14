@@ -1,0 +1,27 @@
+<div
+  class="modal-overlay"
+  *ngIf="open"
+  (click)="handleBackdropClick($event)"
+  role="presentation"
+>
+  <div [ngClass]="dialogClasses()" role="dialog" aria-modal="true">
+    <div class="modal-content">
+      <div class="modal-header" *ngIf="showHeader">
+        <h5 class="modal-title">{{ title }}</h5>
+        <button
+          *ngIf="showCloseButton"
+          type="button"
+          class="btn-close"
+          aria-label="Cerrar"
+          (click)="close()"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <ng-content></ng-content>
+      </div>
+      <div class="modal-footer" *ngIf="showFooter">
+        <ng-content select="[modal-footer]"></ng-content>
+      </div>
+    </div>
+  </div>
+</div>

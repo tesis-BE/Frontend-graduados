@@ -1,18 +1,91 @@
 <div class="container-fluid py-4">
-  <div class="row g-4">
-    <div class="col-12 col-xl-4">
-      <app-create-university-form
-        (created)="handleCreated()"
-      ></app-create-university-form>
-    </div>
-
-    <div class="col-12 col-xl-8">
-      <app-universities-card-grid
-        [universities]="universities$ | async"
-        [isLoading]="isLoading"
-        [errorMessage]="errorMessage"
-        (refresh)="refresh()"
-      ></app-universities-card-grid>
+  <div class="page-header">
+    <div>
+      <p class="eyebrow text-uppercase mb-1">Extensiones universitarias</p>
+      <h2 class="page-title mb-2">Gestiona tus sedes</h2>
+      <p class="mb-0 text-muted">
+        Consulta, crea y edita las extensiones asociadas a la universidad.
+      </p>
     </div>
   </div>
+
+  <app-universities-card-grid
+    [universities]="universities$ | async"
+    [isLoading]="isLoading"
+    [errorMessage]="errorMessage"
+    (refresh)="refresh()"
+    (createRequested)="openCreateModal()"
+    (viewRequested)="openDetailsModal($event)"
+    (editRequested)="openEditModal($event)"
+    (deleteRequested)="confirmDelete($event)"
+  ></app-universities-card-grid>
 </div>
+
+<app-shared-modal
+  [open]="modalOpen"
+  [title]="modalTitle"
+  size="lg"
+  (closed)="closeModal()"
+>
+  <ng-container [ngSwitch]="modalContent">
+    <app-create-university-form
+      *ngSwitchCase="'form'"
+      [mode]="formMode"
+      [value]="formMode === 'edit' ? selectedUniversity : null"
+      (saved)="handleFormSaved()"
+      (cancel)="closeModal()"
+    ></app-create-university-form>
+
+    <ng-container *ngSwitchCase="'details'">
+      <div *ngIf="selectedUniversity as university" class="university-details">
+        <div class="details-grid">
+          <div class="detail-item">
+            <span class="detail-label">Código interno</span>
+            <span class="detail-value">{{ university.code || "—" }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Estado</span>
+            <span
+              class="badge"
+              [ngClass]="
+                university.isActive
+                  ? 'bg-success-subtle text-success'
+                  : 'bg-secondary-subtle text-muted'
+              "
+            >
+              {{ university.isActive ? "Activa" : "Inactiva" }}
+            </span>
+          </div>
+        </div>
+
+        <div class="detail-item">
+          <span class="detail-label">Descripción</span>
+          <p class="detail-description mb-0">
+            {{ university.description || "Sin descripción registrada." }}
+          </p>
+        </div>
+
+        <div class="meta">
+          <span>
+            <small class="text-muted">Creado</small>
+            <strong class="d-block">{{
+              university.createdAt | date: "medium"
+            }}</strong>
+          </span>
+          <span>
+            <small class="text-muted">Actualizado</small>
+            <strong class="d-block">{{
+              university.updatedAt | date: "medium"
+            }}</strong>
+          </span>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-4">
+          <button type="button" class="btn btn-light" (click)="closeModal()">
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </ng-container>
+  </ng-container>
+</app-shared-modal>

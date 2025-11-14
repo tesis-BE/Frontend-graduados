@@ -1,11 +1,14 @@
-<div class="card shadow-sm h-100">
-  <div class="card-body d-flex flex-column">
-    <div class="d-flex justify-content-between align-items-start mb-2">
-      <h5 class="card-title mb-0 text-truncate" [title]="university.name">
-        {{ university.name }}
-      </h5>
+<div class="card shadow-sm h-100" (click)="trigger('view')">
+  <div class="card-body d-flex flex-column h-100">
+    <div class="d-flex justify-content-between align-items-start mb-3">
+      <div>
+        <p class="text-muted mb-1 small">Código</p>
+        <h6 class="fw-semibold mb-0">
+          {{ university.code || "Sin código" }}
+        </h6>
+      </div>
       <span
-        class="badge"
+        class="badge status-badge"
         [ngClass]="{
           'bg-success-subtle text-success': university.isActive,
           'bg-danger-subtle text-danger': !university.isActive,
@@ -15,26 +18,39 @@
       </span>
     </div>
 
-    <p class="card-text text-muted small mb-2" *ngIf="university.code">
-      Código interno: <strong>{{ university.code }}</strong>
-    </p>
+    <div class="mb-3">
+      <h5 class="card-title mb-1 text-truncate" [title]="university.name">
+        {{ university.name }}
+      </h5>
+      <p class="card-text text-muted mb-0">
+        {{ university.description || "Sin descripción registrada." }}
+      </p>
+    </div>
 
-    <p
-      class="card-text flex-grow-1"
-      [class.text-muted]="!university.description"
-    >
-      {{ university.description || "Sin descripción registrada." }}
-    </p>
-
-    <div
-      class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top"
-    >
-      <small class="text-muted">
+    <div class="mt-auto pt-3">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="d-flex gap-2 card-actions">
+          <button
+            type="button"
+            class="btn btn-icon btn-sm bg-warning-subtle text-warning"
+            title="Editar"
+            (click)="trigger('edit'); $event.stopPropagation()"
+          >
+            <i class="mdi mdi-pencil-outline fs-16"></i>
+          </button>
+          <button
+            type="button"
+            class="btn btn-icon btn-sm bg-danger-subtle text-danger"
+            title="Eliminar"
+            (click)="trigger('delete'); $event.stopPropagation()"
+          >
+            <i class="mdi mdi-delete-outline fs-16"></i>
+          </button>
+        </div>
+      </div>
+      <div class="border-top pt-2 small text-muted">
         Creada el {{ university.createdAt | date: "dd/MM/yyyy" }}
-      </small>
-      <button type="button" class="btn btn-sm btn-outline-primary" disabled>
-        Ver detalles
-      </button>
+      </div>
     </div>
   </div>
 </div>

@@ -2,9 +2,21 @@
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease;
+  cursor: pointer;
 
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 0.5rem 1.5rem rgba(15, 23, 42, 0.08);
   }
+}
+
+.status-badge {
+  min-width: 5rem;
+  text-align: center;
+}
+
+.card-actions .btn {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: none;
 }

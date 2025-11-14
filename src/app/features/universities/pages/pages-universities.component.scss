@@ -1,7 +1,68 @@
-.container-fluid {
-  background-color: var(--bs-body-bg);
+.page-header {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
 }
 
-.card-title {
+.eyebrow {
+  letter-spacing: 0.08em;
+  font-size: 0.75rem;
   font-weight: 600;
+  color: var(--bs-primary);
+}
+
+.page-title {
+  font-weight: 700;
+}
+
+.university-details {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.detail-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--bs-gray-600);
+}
+
+.detail-value {
+  font-weight: 600;
+}
+
+.detail-description {
+  line-height: 1.5;
+  color: var(--bs-body-color);
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+
+  small {
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
 }

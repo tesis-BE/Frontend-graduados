@@ -30,11 +30,39 @@ export class UniversitiesCardGridComponent {
   @Output()
   readonly refresh = new EventEmitter<void>();
 
+  @Output()
+  readonly createRequested = new EventEmitter<void>();
+
+  @Output()
+  readonly viewRequested = new EventEmitter<University>();
+
+  @Output()
+  readonly editRequested = new EventEmitter<University>();
+
+  @Output()
+  readonly deleteRequested = new EventEmitter<University>();
+
   protected trackById(_: number, item: University): number {
     return item.id;
   }
 
   protected onRetry(): void {
     this.refresh.emit();
+  }
+
+  protected requestCreate(): void {
+    this.createRequested.emit();
+  }
+
+  protected onView(university: University): void {
+    this.viewRequested.emit(university);
+  }
+
+  protected onEdit(university: University): void {
+    this.editRequested.emit(university);
+  }
+
+  protected onDelete(university: University): void {
+    this.deleteRequested.emit(university);
   }
 }

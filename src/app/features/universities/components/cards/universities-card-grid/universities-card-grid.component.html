@@ -1,56 +1,79 @@
 <div class="row g-3">
-  <ng-container *ngIf="!isLoading; else loadingTemplate">
-    <ng-container *ngIf="!errorMessage; else errorTemplate">
-      <ng-container
-        *ngIf="universities && universities.length; else emptyTemplate"
+  <div class="col-12 col-sm-6 col-xl-4">
+    <button
+      type="button"
+      class="card create-card h-100 w-100 border-0"
+      (click)="requestCreate()"
+    >
+      <div
+        class="card-body text-center d-flex flex-column justify-content-center h-100"
       >
-        <div
-          class="col-12 col-md-6 col-xl-4"
-          *ngFor="let university of universities; trackBy: trackById"
-        >
-          <app-university-card [university]="university"></app-university-card>
+        <span class="create-card__icon mx-auto mb-3">
+          <i class="mdi mdi-plus fs-24"></i>
+        </span>
+        <h5 class="mb-1">Registrar nueva extensión</h5>
+        <p class="text-muted mb-0">
+          Crea una nueva sede o extensión universitaria.
+        </p>
+      </div>
+    </button>
+  </div>
+
+  <ng-container *ngIf="isLoading">
+    <div class="col-12">
+      <div class="card shadow-sm h-100">
+        <div class="card-body text-center py-5">
+          <div class="spinner-border text-primary mb-3" role="status"></div>
+          <p class="mb-0 text-muted">Cargando extensiones universitarias...</p>
         </div>
-      </ng-container>
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="!isLoading && errorMessage">
+    <div class="col-12">
+      <div
+        class="alert alert-danger d-flex justify-content-between align-items-center"
+        role="alert"
+      >
+        <span>{{ errorMessage }}</span>
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-light"
+          (click)="onRetry()"
+        >
+          Reintentar
+        </button>
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="!isLoading && !errorMessage">
+    <ng-container
+      *ngIf="universities && universities.length; else emptyTemplate"
+    >
+      <div
+        class="col-12 col-sm-6 col-xl-4"
+        *ngFor="let university of universities; trackBy: trackById"
+      >
+        <app-university-card
+          [university]="university"
+          (view)="onView($event)"
+          (edit)="onEdit($event)"
+          (delete)="onDelete($event)"
+        ></app-university-card>
+      </div>
     </ng-container>
   </ng-container>
 </div>
 
-<ng-template #loadingTemplate>
-  <div class="col-12">
-    <div class="card shadow-sm">
-      <div class="card-body text-center py-5">
-        <div class="spinner-border text-primary mb-3" role="status"></div>
-        <p class="mb-0 text-muted">Cargando extensiones universitarias...</p>
-      </div>
-    </div>
-  </div>
-</ng-template>
-
-<ng-template #errorTemplate>
-  <div class="col-12">
-    <div
-      class="alert alert-danger d-flex justify-content-between align-items-center"
-      role="alert"
-    >
-      <span>{{ errorMessage }}</span>
-      <button
-        type="button"
-        class="btn btn-sm btn-outline-light"
-        (click)="onRetry()"
-      >
-        Reintentar
-      </button>
-    </div>
-  </div>
-</ng-template>
-
 <ng-template #emptyTemplate>
   <div class="col-12">
-    <div class="card shadow-sm">
+    <div class="card shadow-sm empty-state h-100">
       <div class="card-body text-center py-5">
         <p class="mb-2 fw-semibold">Aún no tienes extensiones registradas</p>
         <p class="mb-0 text-muted">
-          Crea una nueva extensión universitaria para comenzar a gestionarla.
+          Utiliza el botón de creación para agregar tu primera extensión.
         </p>
       </div>
     </div>
