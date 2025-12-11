@@ -1,0 +1,31 @@
+<app-shared-modal [open]="open" [title]="title" (closed)="onClose()">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="modal-form">
+    <ng-container
+      *ngIf="formTemplate"
+      [ngTemplateOutlet]="formTemplate"
+    ></ng-container>
+
+    <div class="form-actions">
+      <button
+        type="button"
+        class="btn btn-secondary"
+        (click)="onClose()"
+        [disabled]="isLoading"
+      >
+        Cancelar
+      </button>
+      <button
+        type="submit"
+        class="btn btn-primary"
+        [disabled]="!form.valid || isLoading"
+        [class.loading]="isLoading"
+      >
+        <span *ngIf="!isLoading">{{ submitButtonText }}</span>
+        <span *ngIf="isLoading">
+          <i class="bi bi-hourglass-split"></i>
+          Guardando...
+        </span>
+      </button>
+    </div>
+  </form>
+</app-shared-modal>

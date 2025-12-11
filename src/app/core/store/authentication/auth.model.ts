@@ -9,5 +9,6 @@ export class User {
   lastName?: string;
   role?: UserRole;
   roles?: UserRole[];
+  userType?: 'admin' | 'graduate' | 'recruiter';
   token?: string;
 }

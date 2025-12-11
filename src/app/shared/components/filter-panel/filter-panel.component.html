@@ -1,0 +1,106 @@
+<div class="filter-panel" [class.collapsed]="isCollapsed">
+  <div class="filter-header">
+    <h4 class="filter-title">
+      <i class="bi bi-funnel"></i>
+      Filtros
+      <span *ngIf="getActiveFiltersCount() > 0" class="badge">
+        {{ getActiveFiltersCount() }}
+      </span>
+    </h4>
+    <button class="btn-toggle" (click)="toggleCollapse()">
+      <i [class]="isCollapsed ? 'bi bi-chevron-down' : 'bi bi-chevron-up'"></i>
+    </button>
+  </div>
+
+  <div class="filter-content" *ngIf="!isCollapsed">
+    <div class="filter-group" *ngFor="let filter of filters">
+      <!-- Text Input -->
+      <div *ngIf="filter.type === 'text'" class="form-group">
+        <label [for]="filter.key" class="form-label">{{ filter.label }}</label>
+        <input
+          [id]="filter.key"
+          type="text"
+          class="form-input"
+          [(ngModel)]="filterValues[filter.key]"
+          [placeholder]="filter.placeholder"
+          (change)="onFilterChange()"
+        />
+      </div>
+
+      <!-- Select -->
+      <div *ngIf="filter.type === 'select'" class="form-group">
+        <label [for]="filter.key" class="form-label">{{ filter.label }}</label>
+        <select
+          [id]="filter.key"
+          class="form-select"
+          [(ngModel)]="filterValues[filter.key]"
+          (change)="onFilterChange()"
+        >
+          <option value="">Seleccionar...</option>
+          <option *ngFor="let option of filter.options" [value]="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Date -->
+      <div *ngIf="filter.type === 'date'" class="form-group">
+        <label [for]="filter.key" class="form-label">{{ filter.label }}</label>
+        <input
+          [id]="filter.key"
+          type="date"
+          class="form-input"
+          [(ngModel)]="filterValues[filter.key]"
+          (change)="onFilterChange()"
+        />
+      </div>
+
+      <!-- Checkbox -->
+      <div *ngIf="filter.type === 'checkbox'" class="form-group">
+        <label class="form-label">
+          <input
+            type="checkbox"
+            [(ngModel)]="filterValues[filter.key]"
+            (change)="onFilterChange()"
+          />
+          {{ filter.label }}
+        </label>
+      </div>
+
+      <!-- Range -->
+      <div *ngIf="filter.type === 'range'" class="form-group">
+        <label [for]="filter.key" class="form-label">{{ filter.label }}</label>
+        <div class="range-inputs">
+          <input
+            type="number"
+            class="form-input"
+            placeholder="Min"
+            [ngModel]="getRangeMin(filter.key)"
+            (ngModelChange)="setRangeMin(filter.key, $event)"
+            (change)="onFilterChange()"
+          />
+          <span class="range-separator">-</span>
+          <input
+            type="number"
+            class="form-input"
+            placeholder="Max"
+            [ngModel]="getRangeMax(filter.key)"
+            (ngModelChange)="setRangeMax(filter.key, $event)"
+            (change)="onFilterChange()"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-actions">
+      <button class="btn btn-primary" (click)="onFilterChange()">
+        <i class="bi bi-search"></i>
+        Buscar
+      </button>
+      <button class="btn btn-secondary" (click)="onReset()">
+        <i class="bi bi-arrow-clockwise"></i>
+        Limpiar
+      </button>
+    </div>
+  </div>
+</div>

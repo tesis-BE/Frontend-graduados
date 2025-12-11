@@ -1,9 +1,8 @@
-import { Router, Routes } from '@angular/router';
+import { Routes } from '@angular/router';
 import { LayoutComponent } from './core/layout/layout.component';
 import { AuthLayoutComponent } from './core/auth-layout/auth-layout.component';
 import { ErrorLayoutComponent } from './core/error-layout/error-layout.component';
-import { AuthenticationService } from './core/services/api/auth.service';
-import { inject } from '@angular/core';
+import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -14,15 +13,55 @@ export const routes: Routes = [
   {
     path: '',
     component: LayoutComponent,
-    // ⚠️ DESARROLLO: canActivate desactivado temporalmente para testing
-    // canActivate: [...],
-    // TODO: Descomentar cuando conectes el backend real
+    canActivate: [authGuard],
     children: [
       {
         path: 'dashboard',
         loadChildren: () =>
           import('./features/dashboard/dashboard.routes').then(
             (m) => m.DASHBOARD_ROUTES,
+          ),
+      },
+      {
+        path: 'job-board',
+        loadComponent: () =>
+          import(
+            './features/job-board-dashboard/job-board-dashboard.component'
+          ).then((m) => m.JobBoardDashboardComponent),
+      },
+      {
+        path: 'companies',
+        loadChildren: () =>
+          import('./features/companies/companies.routes').then(
+            (m) => m.COMPANIES_ROUTES,
+          ),
+      },
+      {
+        path: 'job-offers',
+        loadChildren: () =>
+          import('./features/job-offers/job-offers.routes').then(
+            (m) => m.JOB_OFFERS_ROUTES,
+          ),
+      },
+      {
+        path: 'applications',
+        loadChildren: () =>
+          import('./features/applications/applications.routes').then(
+            (m) => m.APPLICATIONS_ROUTES,
+          ),
+      },
+      {
+        path: 'graduates',
+        loadChildren: () =>
+          import(
+            './features/graduates-directory/graduates-directory.routes'
+          ).then((m) => m.GRADUATES_DIRECTORY_ROUTES),
+      },
+      {
+        path: 'profile',
+        loadChildren: () =>
+          import('./features/user-profile/user-profile.routes').then(
+            (m) => m.USER_PROFILE_ROUTES,
           ),
       },
       {

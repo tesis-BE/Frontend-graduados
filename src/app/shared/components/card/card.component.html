@@ -1,0 +1,29 @@
+<div class="card-container">
+  <div *ngIf="showHeader && (title || headerTemplate)" class="card-header">
+    <div class="header-content">
+      <h3 *ngIf="title" class="card-title">{{ title }}</h3>
+      <p *ngIf="subtitle" class="card-subtitle">{{ subtitle }}</p>
+      <ng-container
+        *ngIf="headerTemplate"
+        [ngTemplateOutlet]="headerTemplate"
+      ></ng-container>
+    </div>
+  </div>
+
+  <div class="card-body" [class.loading]="isLoading">
+    <div *ngIf="isLoading" class="spinner-overlay">
+      <div class="spinner"></div>
+    </div>
+    <ng-container
+      *ngIf="bodyTemplate"
+      [ngTemplateOutlet]="bodyTemplate"
+    ></ng-container>
+  </div>
+
+  <div *ngIf="showFooter" class="card-footer" [class]="'align-' + footerAlign">
+    <ng-container
+      *ngIf="footerTemplate"
+      [ngTemplateOutlet]="footerTemplate"
+    ></ng-container>
+  </div>
+</div>

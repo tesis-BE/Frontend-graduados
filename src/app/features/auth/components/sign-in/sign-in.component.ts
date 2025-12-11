@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import {
   FormsModule,
   ReactiveFormsModule,
@@ -8,11 +8,16 @@ import {
   Validators,
 } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { currentYear } from '@shared/constants/app.constants';
 import { Store } from '@ngrx/store';
-import { login } from '@core/store/authentication/authentication.actions';
-import { getError } from '@core/store/authentication/authentication.selector';
-import { take } from 'rxjs/operators';
+import {
+  login,
+  clearError,
+} from '@core/store/authentication/authentication.actions';
+import {
+  getError,
+  getLoading,
+} from '@core/store/authentication/authentication.selector';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-sign-in',
@@ -20,23 +25,48 @@ import { take } from 'rxjs/operators';
   templateUrl: './sign-in.component.html',
   styleUrl: './sign-in.component.scss',
 })
-export class SignInComponent {
-  currentYear = currentYear;
+export class SignInComponent implements OnInit, OnDestroy {
   signInForm!: UntypedFormGroup;
-  submitted: boolean = false;
+  submitted = false;
+  errorMessage = '';
+  loading = false;
 
-  errorMessage: string = '';
+  private fb = inject(UntypedFormBuilder);
+  private store = inject(Store);
+  private destroy$ = new Subject<void>();
 
-  public fb = inject(UntypedFormBuilder);
-  public store = inject(Store);
   ngOnInit(): void {
     this.signInForm = this.fb.group({
-      email: [
-        'fabriciozavala13@gmail.com',
-        [Validators.required, Validators.email],
-      ],
-      password: ['123456', [Validators.required]],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required]],
     });
+
+    // Escuchar errores del store
+    this.store
+      .select(getError)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((error) => {
+        if (error) {
+          this.errorMessage = error;
+          setTimeout(() => {
+            this.errorMessage = '';
+            this.store.dispatch(clearError());
+          }, 5000);
+        }
+      });
+
+    // Escuchar estado de loading
+    this.store
+      .select(getLoading)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((loading) => {
+        this.loading = loading;
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   get formValues() {
@@ -48,23 +78,7 @@ export class SignInComponent {
     if (this.signInForm.valid) {
       const email = this.formValues['email'].value;
       const password = this.formValues['password'].value;
-
-      // Login Api
-      this.store.dispatch(login({ email: email, password: password }));
-
-      this.store
-        .select(getError)
-        .pipe(take(1))
-        .subscribe((data) => {
-          if (data) {
-            // Manejo seguro de errores con verificación de estructura
-            this.errorMessage = data || 'Error de conexión con el servidor';
-
-            setTimeout(() => {
-              this.errorMessage = '';
-            }, 3000);
-          }
-        });
+      this.store.dispatch(login({ email, password }));
     }
   }
 }

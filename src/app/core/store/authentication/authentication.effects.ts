@@ -1,4 +1,4 @@
-import { inject, Inject, Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { catchError, exhaustMap, map, of } from 'rxjs';
@@ -8,6 +8,9 @@ import {
   loginSuccess,
   logout,
   logoutSuccess,
+  register,
+  registerSuccess,
+  registerFailure,
 } from './authentication.actions';
 import { AuthenticationService } from '@core/services/api/auth.service';
 
@@ -29,19 +32,42 @@ export class AuthenticationEffects {
           map((user) => {
             if (user) {
               const returnUrl =
-                this.route.snapshot.queryParams['returnUrl'] || '/';
+                this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
               this.router.navigateByUrl(returnUrl);
             }
             return loginSuccess({ user });
           }),
           catchError((error) => {
             const errorMessage =
-              (error?.error?.error?.message as string) ||
-              (error?.error?.message as string) ||
-              (error?.message as string) ||
+              error?.error?.message ||
+              error?.message ||
               'Error al iniciar sesión';
 
             return of(loginFailure({ error: errorMessage }));
+          }),
+        );
+      }),
+    ),
+  );
+
+  register$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(register),
+      exhaustMap(({ data }) => {
+        return this.authService.register(data).pipe(
+          map((user) => {
+            if (user) {
+              this.router.navigateByUrl('/dashboard');
+            }
+            return registerSuccess({ user });
+          }),
+          catchError((error) => {
+            const errorMessage =
+              error?.error?.message ||
+              error?.message ||
+              'Error al registrar usuario';
+
+            return of(registerFailure({ error: errorMessage }));
           }),
         );
       }),
