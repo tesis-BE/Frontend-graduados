@@ -3,7 +3,7 @@ import { Routes } from '@angular/router';
 export const GESTION_USUARIOS_ROUTES: Routes = [
   {
     path: '',
-    redirectTo: 'usuarios/listado',
+    redirectTo: 'usuarios',
     pathMatch: 'full',
   },
   {

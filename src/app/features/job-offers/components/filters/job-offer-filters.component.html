@@ -1,0 +1,88 @@
+<div class="filters-container">
+  <form [formGroup]="filtersForm" class="filters-form">
+    <div class="filters-row">
+      <div class="filter-group filter-search">
+        <label class="filter-label">
+          <i class="bi bi-search"></i>
+          Buscar
+        </label>
+        <input
+          type="text"
+          class="filter-input"
+          formControlName="search"
+          placeholder="Título, empresa o ubicación..."
+        />
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">Tipo de Empleo</label>
+        <select class="filter-select" formControlName="jobType">
+          <option value="">Todos</option>
+          <option *ngFor="let type of jobTypes" [value]="type.value">
+            {{ type.label }}
+          </option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">Modalidad</label>
+        <select class="filter-select" formControlName="workMode">
+          <option value="">Todas</option>
+          <option *ngFor="let mode of workModes" [value]="mode.value">
+            {{ mode.label }}
+          </option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">Estado</label>
+        <select class="filter-select" formControlName="status">
+          <option value="">Todos</option>
+          <option *ngFor="let status of statuses" [value]="status.value">
+            {{ status.label }}
+          </option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">Ubicación</label>
+        <input
+          type="text"
+          class="filter-input"
+          formControlName="location"
+          placeholder="Ciudad o país..."
+        />
+      </div>
+
+      <div class="filter-group-salary">
+        <label class="filter-label">Salario</label>
+        <div class="salary-inputs">
+          <input
+            type="number"
+            class="filter-input"
+            formControlName="salaryMin"
+            placeholder="Mínimo"
+          />
+          <span class="salary-separator">-</span>
+          <input
+            type="number"
+            class="filter-input"
+            formControlName="salaryMax"
+            placeholder="Máximo"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div class="filters-actions">
+      <button type="button" class="btn btn-primary" (click)="onApplyFilters()">
+        <i class="bi bi-funnel"></i>
+        Aplicar Filtros
+      </button>
+      <button type="button" class="btn btn-outline" (click)="onClearFilters()">
+        <i class="bi bi-x-circle"></i>
+        Limpiar
+      </button>
+    </div>
+  </form>
+</div>

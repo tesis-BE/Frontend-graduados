@@ -17,8 +17,8 @@ import {
 } from '@shared/components/filter-panel/filter-panel.component';
 import { ModalFormComponent } from '@shared/components/modal-form/modal-form.component';
 import { SweetAlertService } from '@shared/services/sweet-alert.service';
-import { JobOfferService } from '../services/job-offer.service';
-import { JobOffer } from '../models/job-offer.model';
+import { JobOfferService } from '@core/services/api/job-offer.service';
+import { JobOffer } from '@core/interfaces/api/job-offer.interface';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { selectAuthUser } from '@core/store/authentication/authentication.selector';

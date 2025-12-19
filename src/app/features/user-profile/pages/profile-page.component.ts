@@ -8,7 +8,7 @@ import {
 } from '@angular/forms';
 import { CardComponent } from '@shared/components/card/card.component';
 import { SweetAlertService } from '@shared/services/sweet-alert.service';
-import { UserProfileService } from '../services/user-profile.service';
+import { UserProfileService } from '@core/services/api/user-profile.service';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { selectAuthUser } from '@core/store/authentication/authentication.selector';

@@ -1,0 +1,141 @@
+.filters-container {
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  margin-bottom: 24px;
+}
+
+.filters-form {
+  .filters-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 16px;
+
+    .filter-search {
+      grid-column: span 2;
+    }
+  }
+
+  .filter-group,
+  .filter-group-salary {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    .filter-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #495057;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+
+      i {
+        font-size: 14px;
+        color: #006b3f;
+      }
+    }
+
+    .filter-input,
+    .filter-select {
+      padding: 8px 12px;
+      border: 1px solid #dee2e6;
+      border-radius: 6px;
+      font-size: 14px;
+      color: #495057;
+      transition: all 0.2s;
+
+      &:focus {
+        outline: none;
+        border-color: #006b3f;
+        box-shadow: 0 0 0 3px rgba(0, 107, 63, 0.1);
+      }
+
+      &::placeholder {
+        color: #adb5bd;
+      }
+    }
+  }
+
+  .filter-group-salary {
+    .salary-inputs {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .filter-input {
+        flex: 1;
+      }
+
+      .salary-separator {
+        color: #6c757d;
+        font-weight: 600;
+      }
+    }
+  }
+
+  .filters-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      i {
+        font-size: 16px;
+      }
+
+      &.btn-primary {
+        background: #006b3f;
+        color: #fff;
+
+        &:hover {
+          background: #005230;
+        }
+      }
+
+      &.btn-outline {
+        background: transparent;
+        color: #495057;
+        border: 1px solid #dee2e6;
+
+        &:hover {
+          background: #f8f9fa;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .filters-form {
+    .filters-row {
+      grid-template-columns: 1fr;
+
+      .filter-search {
+        grid-column: span 1;
+      }
+    }
+
+    .filters-actions {
+      flex-direction: column;
+
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  }
+}

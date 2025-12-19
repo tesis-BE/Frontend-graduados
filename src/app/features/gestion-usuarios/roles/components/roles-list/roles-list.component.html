@@ -1,0 +1,68 @@
+<div class="roles-container">
+  <!-- Header -->
+  <div class="roles-header">
+    <div class="header-content">
+      <h1>Gestión de Roles y Permisos</h1>
+      <p>Administra los roles y permisos del sistema</p>
+    </div>
+    <button
+      class="btn-crear"
+      (click)="openCreateModal()"
+      disabled
+      title="Función próximamente"
+    >
+      <i class="bi bi-plus"></i>
+      Nuevo Rol
+    </button>
+  </div>
+
+  <!-- Contenido -->
+  <div class="roles-content">
+    @if (isLoading) {
+      <div class="estado-loading">
+        <div class="spinner"></div>
+        <p>Cargando roles...</p>
+      </div>
+    } @else if (roles.length === 0) {
+      <div class="estado-vacio">
+        <i class="bi bi-shield"></i>
+        <h3>No hay roles definidos</h3>
+        <p>Los roles se configuran en el sistema</p>
+      </div>
+    } @else {
+      <div class="roles-grid">
+        @for (role of roles; track role.id) {
+          <div class="role-card">
+            <div class="role-card-header">
+              <div class="role-icon">
+                <i class="bi bi-shield-check"></i>
+              </div>
+              <div class="role-info">
+                <h3>{{ role.name }}</h3>
+                <p>{{ role.description }}</p>
+              </div>
+            </div>
+
+            @if (role.permissions && role.permissions.length > 0) {
+              <div class="role-permissions">
+                <span class="permisos-label">
+                  {{ role.permissions.length }} permisos
+                </span>
+                <div class="permisos-preview">
+                  @for (perm of role.permissions.slice(0, 3); track perm.id) {
+                    <span class="permiso-tag">{{ perm.name }}</span>
+                  }
+                  @if (role.permissions.length > 3) {
+                    <span class="permiso-tag more"
+                      >+{{ role.permissions.length - 3 }}</span
+                    >
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

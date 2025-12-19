@@ -1,0 +1,173 @@
+<div class="job-offer-form-container">
+  <div class="form-header">
+    <h2>{{ jobOffer ? "Editar Oferta" : "Nueva Oferta de Empleo" }}</h2>
+  </div>
+
+  <form
+    [formGroup]="jobOfferForm"
+    (ngSubmit)="onSubmit()"
+    class="job-offer-form"
+  >
+    <!-- Título -->
+    <div class="form-group">
+      <label for="title" class="form-label">
+        Título de la Oferta <span class="required">*</span>
+      </label>
+      <input
+        type="text"
+        id="title"
+        formControlName="title"
+        class="form-input"
+        [class.invalid]="isFieldInvalid('title')"
+        placeholder="Ej: Desarrollador Frontend Angular"
+      />
+      @if (isFieldInvalid("title")) {
+        <span class="error-message">{{ getErrorMessage("title") }}</span>
+      }
+    </div>
+
+    <!-- Tipo de Trabajo y Modalidad -->
+    <div class="form-row">
+      <div class="form-group">
+        <label for="jobType" class="form-label">
+          Tipo de Empleo <span class="required">*</span>
+        </label>
+        <select
+          id="jobType"
+          formControlName="jobType"
+          class="form-select"
+          [class.invalid]="isFieldInvalid('jobType')"
+        >
+          <option value="">Seleccionar tipo</option>
+          @for (type of jobTypes; track type.value) {
+            <option [value]="type.value">{{ type.label }}</option>
+          }
+        </select>
+        @if (isFieldInvalid("jobType")) {
+          <span class="error-message">{{ getErrorMessage("jobType") }}</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="workMode" class="form-label">
+          Modalidad <span class="required">*</span>
+        </label>
+        <select
+          id="workMode"
+          formControlName="workMode"
+          class="form-select"
+          [class.invalid]="isFieldInvalid('workMode')"
+        >
+          <option value="">Seleccionar modalidad</option>
+          @for (mode of workModes; track mode.value) {
+            <option [value]="mode.value">{{ mode.label }}</option>
+          }
+        </select>
+        @if (isFieldInvalid("workMode")) {
+          <span class="error-message">{{ getErrorMessage("workMode") }}</span>
+        }
+      </div>
+    </div>
+
+    <!-- Ubicación -->
+    <div class="form-group">
+      <label for="location" class="form-label">
+        Ubicación <span class="required">*</span>
+      </label>
+      <input
+        type="text"
+        id="location"
+        formControlName="location"
+        class="form-input"
+        [class.invalid]="isFieldInvalid('location')"
+        placeholder="Ej: Manta, Manabí"
+      />
+      @if (isFieldInvalid("location")) {
+        <span class="error-message">{{ getErrorMessage("location") }}</span>
+      }
+    </div>
+
+    <!-- Rango Salarial -->
+    <div class="form-row">
+      <div class="form-group">
+        <label for="salaryMin" class="form-label">Salario Mínimo (USD)</label>
+        <input
+          type="number"
+          id="salaryMin"
+          formControlName="salaryMin"
+          class="form-input"
+          placeholder="800"
+          min="0"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="salaryMax" class="form-label">Salario Máximo (USD)</label>
+        <input
+          type="number"
+          id="salaryMax"
+          formControlName="salaryMax"
+          class="form-input"
+          placeholder="1500"
+          min="0"
+        />
+      </div>
+    </div>
+
+    <!-- Descripción -->
+    <div class="form-group">
+      <label for="description" class="form-label">
+        Descripción <span class="required">*</span>
+      </label>
+      <textarea
+        id="description"
+        formControlName="description"
+        class="form-textarea"
+        [class.invalid]="isFieldInvalid('description')"
+        rows="6"
+        placeholder="Describe la posición, responsabilidades y beneficios..."
+      ></textarea>
+      @if (isFieldInvalid("description")) {
+        <span class="error-message">{{ getErrorMessage("description") }}</span>
+      }
+    </div>
+
+    <!-- Requisitos -->
+    <div class="form-group">
+      <label for="requirements" class="form-label">
+        Requisitos <span class="required">*</span>
+      </label>
+      <textarea
+        id="requirements"
+        formControlName="requirements"
+        class="form-textarea"
+        [class.invalid]="isFieldInvalid('requirements')"
+        rows="6"
+        placeholder="Lista los requisitos necesarios para el puesto..."
+      ></textarea>
+      @if (isFieldInvalid("requirements")) {
+        <span class="error-message">{{ getErrorMessage("requirements") }}</span>
+      }
+    </div>
+
+    <!-- Botones de Acción -->
+    <div class="form-actions">
+      <button
+        type="button"
+        class="btn btn-secondary"
+        (click)="onCancel()"
+        [disabled]="isLoading"
+      >
+        Cancelar
+      </button>
+      <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+        @if (isLoading) {
+          <span class="spinner"></span>
+          Guardando...
+        } @else {
+          {{ jobOffer ? "Actualizar" : "Publicar" }} Oferta
+        }
+      </button>
+    </div>
+  </form>
+</div>

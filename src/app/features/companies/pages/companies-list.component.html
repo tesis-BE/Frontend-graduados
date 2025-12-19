@@ -22,6 +22,7 @@
   </app-card>
 
   <app-modal-form
+    *ngIf="showModal"
     [open]="showModal"
     [title]="isEditMode ? 'Editar Empresa' : 'Nueva Empresa'"
     [form]="form"

@@ -2,6 +2,11 @@ import { Routes } from '@angular/router';
 
 export const USUARIOS_ROUTES: Routes = [
   {
+    path: '',
+    redirectTo: 'listado',
+    pathMatch: 'full',
+  },
+  {
     path: 'listado',
     loadComponent: () =>
       import('./components/usuarios-list/usuarios-list.component').then(

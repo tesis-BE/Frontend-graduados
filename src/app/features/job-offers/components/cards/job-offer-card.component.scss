@@ -1,0 +1,220 @@
+.job-card {
+  background: var(--bs-card-bg);
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  border: 1px solid var(--bs-border-color);
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+  }
+
+  &.draft {
+    opacity: 0.8;
+    border-left: 4px solid #ffc107;
+  }
+}
+
+.job-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--bs-border-color);
+
+  .company-logo {
+    width: 48px;
+    height: 48px;
+    background: var(--bs-secondary-bg);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    i {
+      font-size: 24px;
+      color: var(--bs-secondary-color);
+    }
+  }
+
+  .job-header-info {
+    flex: 1;
+    min-width: 0;
+
+    .job-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--bs-heading-color);
+      margin: 0 0 4px 0;
+      cursor: pointer;
+      transition: color 0.2s;
+
+      &:hover {
+        color: #006b3f; /* branding */
+      }
+    }
+
+    .company-name {
+      font-size: 14px;
+      color: var(--bs-secondary-color);
+      margin: 0;
+    }
+  }
+
+  .job-status {
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 600;
+    flex-shrink: 0;
+
+    &.status-published {
+      background: var(--bs-success-bg-subtle);
+      color: var(--bs-success);
+    }
+
+    &.status-draft {
+      background: var(--bs-warning-bg-subtle);
+      color: var(--bs-warning);
+    }
+
+    &.status-closed {
+      background: var(--bs-danger-bg-subtle);
+      color: var(--bs-danger);
+    }
+
+    &.status-paused {
+      background: var(--bs-info-bg-subtle);
+      color: var(--bs-info);
+    }
+
+    &.status-expired {
+      background: var(--bs-secondary-bg);
+      color: var(--bs-secondary-color);
+    }
+  }
+}
+
+.job-card-body {
+  .job-info-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 12px;
+
+    .info-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--bs-body-color);
+
+      i {
+        font-size: 16px;
+        color: #006b3f; /* branding */
+      }
+    }
+  }
+
+  .job-description {
+    font-size: 14px;
+    color: var(--bs-body-color);
+    line-height: 1.5;
+    margin: 12px 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .job-salary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #006b3f; /* branding */
+    margin-top: 12px;
+
+    i {
+      font-size: 18px;
+    }
+  }
+}
+
+.job-card-footer {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--bs-border-color);
+
+  .btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    i {
+      font-size: 14px;
+    }
+
+    &.btn-primary {
+      background: #006b3f;
+      color: var(--bs-light);
+
+      &:hover {
+        background: #005230;
+      }
+    }
+
+    &.btn-secondary {
+      background: #f2b800;
+      color: var(--bs-body-color);
+
+      &:hover {
+        background: #d9a700;
+      }
+    }
+
+    &.btn-outline {
+      background: transparent;
+      color: var(--bs-body-color);
+      border: 1px solid var(--bs-border-color);
+
+      &:hover {
+        background: var(--bs-secondary-bg);
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .job-card-header {
+    flex-wrap: wrap;
+
+    .job-status {
+      width: 100%;
+      text-align: center;
+    }
+  }
+
+  .job-card-footer {
+    flex-direction: column;
+
+    .btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}

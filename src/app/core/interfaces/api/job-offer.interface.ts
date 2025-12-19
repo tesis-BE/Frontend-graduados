@@ -8,9 +8,10 @@ export interface JobOffer {
   location: string;
   salaryMin?: number;
   salaryMax?: number;
-  status: 'borrador' | 'publicado' | 'cerrado' | 'pausado' | 'expirado';
+  status: 'active' | 'closed' | 'paused' | 'draft';
   companyId: number;
   companyName?: string;
+  company?: { id: number; name: string };
   createdAt: string;
   updatedAt: string;
 }

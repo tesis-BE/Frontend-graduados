@@ -70,9 +70,33 @@ export const MENU_ITEMS: MenuItemType[] = [
     isTitle: true,
   },
   {
+    key: 'job-offers',
+    label: 'Ofertas de Empleo',
+    icon: 'briefcase',
+    url: '/job-offers',
+  },
+  {
+    key: 'applications',
+    label: 'Postulaciones',
+    icon: 'file-text',
+    url: '/applications',
+  },
+  {
+    key: 'companies',
+    label: 'Empresas',
+    icon: 'building',
+    url: '/companies',
+  },
+  {
+    key: 'graduates',
+    label: 'Directorio de Graduados',
+    icon: 'users',
+    url: '/graduates',
+  },
+  {
     key: 'gestion-usuarios',
     label: 'Gestión de Usuarios',
-    icon: 'users',
+    icon: 'user-check',
     collapsed: true,
     children: [
       {

@@ -1,0 +1,67 @@
+<div class="job-card" [class.draft]="jobOffer.status === 'draft'">
+  <div class="job-card-header">
+    <div class="company-logo">
+      <i class="bi bi-building"></i>
+    </div>
+    <div class="job-header-info">
+      <h3 class="job-title" (click)="onViewDetails()">{{ jobOffer.title }}</h3>
+      <p class="company-name">{{ jobOffer.companyName || "Sin empresa" }}</p>
+    </div>
+    <span class="job-status" [ngClass]="getStatusClass()">
+      {{ getStatusLabel() }}
+    </span>
+  </div>
+
+  <div class="job-card-body">
+    <div class="job-info-row">
+      <div class="info-item">
+        <i class="bi bi-briefcase"></i>
+        <span>{{ getJobTypeLabel() }}</span>
+      </div>
+      <div class="info-item">
+        <i class="bi bi-geo-alt"></i>
+        <span>{{ jobOffer.location || "Sin especificar" }}</span>
+      </div>
+      <div class="info-item">
+        <i class="bi bi-laptop"></i>
+        <span>{{ getWorkModeLabel() }}</span>
+      </div>
+    </div>
+
+    <p class="job-description" *ngIf="jobOffer.description">
+      {{ jobOffer.description }}
+    </p>
+
+    <div class="job-salary" *ngIf="jobOffer.salaryMin || jobOffer.salaryMax">
+      <i class="bi bi-cash-stack"></i>
+      <span *ngIf="jobOffer.salaryMin && jobOffer.salaryMax">
+        ${{ jobOffer.salaryMin }} - ${{ jobOffer.salaryMax }}
+      </span>
+      <span *ngIf="jobOffer.salaryMin && !jobOffer.salaryMax">
+        Desde ${{ jobOffer.salaryMin }}
+      </span>
+      <span *ngIf="!jobOffer.salaryMin && jobOffer.salaryMax">
+        Hasta ${{ jobOffer.salaryMax }}
+      </span>
+    </div>
+  </div>
+
+  <div class="job-card-footer" *ngIf="showActions">
+    <button
+      *ngIf="canApply && jobOffer.status === 'active'"
+      class="btn btn-primary"
+      (click)="onApply()"
+    >
+      <i class="bi bi-send"></i>
+      Postular
+    </button>
+    <button *ngIf="canEdit" class="btn btn-secondary" (click)="onEdit()">
+      <i class="bi bi-pencil"></i>
+      Editar
+    </button>
+    <button class="btn btn-outline" (click)="onViewDetails()">
+      <i class="bi bi-eye"></i>
+      Ver detalles
+    </button>
+  </div>
+</div>

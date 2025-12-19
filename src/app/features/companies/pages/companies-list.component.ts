@@ -2,6 +2,7 @@ import {
   Component,
   OnInit,
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   ViewChild,
   TemplateRef,
 } from '@angular/core';
@@ -19,8 +20,8 @@ import {
 import { CardComponent } from '@shared/components/card/card.component';
 import { ModalFormComponent } from '@shared/components/modal-form/modal-form.component';
 import { SweetAlertService } from '@shared/services/sweet-alert.service';
-import { CompanyService } from '../services/company.service';
-import { Company } from '../models/company.model';
+import { CompanyService } from '@core/services/api/company.service';
+import { Company } from '@core/interfaces/api/company.interface';
 
 @Component({
   selector: 'app-companies-list',
@@ -54,13 +55,20 @@ export class CompaniesListComponent implements OnInit {
     { key: 'name', label: 'Nombre', sortable: true, width: '30%' },
     { key: 'industry', label: 'Industria', sortable: true, width: '20%' },
     { key: 'location', label: 'Ubicación', sortable: true, width: '20%' },
-    { key: 'size', label: 'Tamaño', sortable: false, width: '15%' },
+    {
+      key: 'size',
+      label: 'Tamaño',
+      sortable: false,
+      width: '15%',
+      render: (value: any) => value ?? '—',
+    },
   ];
 
   constructor(
     private companyService: CompanyService,
     private sweetAlert: SweetAlertService,
     private fb: FormBuilder,
+    private cdr: ChangeDetectorRef,
   ) {
     this.form = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
@@ -78,18 +86,26 @@ export class CompaniesListComponent implements OnInit {
 
   loadCompanies(): void {
     this.isLoading = true;
+    this.cdr.markForCheck();
+
     this.companyService
       .getCompanies(this.currentPage, this.pageSize)
       .subscribe({
         next: (response) => {
-          this.companies = response.data;
-          this.total = response.total;
+          this.companies = response?.data ?? [];
+          this.total =
+            response?.pagination?.total ??
+            response?.total ??
+            this.companies.length ??
+            0;
           this.isLoading = false;
+          this.cdr.markForCheck();
         },
         error: (error) => {
           console.error(error);
           this.sweetAlert.error('Error', 'No se pudieron cargar las empresas');
           this.isLoading = false;
+          this.cdr.markForCheck();
         },
       });
   }

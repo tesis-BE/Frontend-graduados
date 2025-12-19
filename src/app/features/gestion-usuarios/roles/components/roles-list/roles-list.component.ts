@@ -1,26 +1,65 @@
-import { Component } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RoleService } from '@core/services/api/role.service';
+
+interface Permission {
+  id: number;
+  name: string;
+  module?: string;
+}
+
+interface Role {
+  id: number;
+  name: string;
+  description: string;
+  permissions?: Permission[];
+}
 
 @Component({
   selector: 'app-roles-list',
   standalone: true,
   imports: [CommonModule],
-  template: `
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col-12">
-          <div class="card">
-            <div class="card-body">
-              <h4 class="card-title">Listado de Roles</h4>
-              <p class="card-text">
-                Este es un componente de ejemplo para el listado de roles.
-              </p>
-              <!-- Aquí irá la tabla de roles -->
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  `,
+  templateUrl: './roles-list.component.html',
+  styleUrl: './roles-list.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class RolesListComponent {}
+export class RolesListComponent implements OnInit {
+  roles: Role[] = [];
+  isLoading = false;
+
+  constructor(
+    private roleService: RoleService,
+    private cdr: ChangeDetectorRef,
+  ) {}
+
+  ngOnInit(): void {
+    this.loadRoles();
+  }
+
+  loadRoles(): void {
+    this.isLoading = true;
+    this.cdr.markForCheck();
+
+    this.roleService.getRoles().subscribe({
+      next: (response: any) => {
+        this.roles = response.data || response || [];
+        this.isLoading = false;
+        this.cdr.markForCheck();
+      },
+      error: (error) => {
+        console.error(error);
+        this.isLoading = false;
+        this.cdr.markForCheck();
+      },
+    });
+  }
+
+  openCreateModal(): void {
+    // Próximamente
+  }
+}

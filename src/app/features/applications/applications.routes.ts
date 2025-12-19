@@ -4,7 +4,7 @@ export const APPLICATIONS_ROUTES: Routes = [
   {
     path: '',
     loadComponent: () =>
-      import('./pages/applications-list.component').then(
+      import('./pages/applications-list/applications-list.component').then(
         (m) => m.ApplicationsListComponent,
       ),
   },

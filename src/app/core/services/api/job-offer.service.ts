@@ -2,7 +2,10 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '@/environments/environment';
-import { JobOffer, CreateJobOfferRequest } from '../models/job-offer.model';
+import {
+  JobOffer,
+  CreateJobOfferRequest,
+} from '@core/interfaces/api/job-offer.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -11,6 +14,16 @@ export class JobOfferService {
   private apiUrl = `${environment.apiUrl}/jobs`;
 
   constructor(private http: HttpClient) {}
+
+  getAllJobOffers(): Observable<any> {
+    // Backend expone listado público en /jobs/search
+    return this.http.get<any>(`${this.apiUrl}/search`);
+  }
+
+  getMyJobOffers(): Observable<any> {
+    // Backend define /jobs/my/jobs para ofertas del reclutador
+    return this.http.get<any>(`${this.apiUrl}/my/jobs`);
+  }
 
   getJobOffers(params: any = {}): Observable<any> {
     let httpParams = new HttpParams()

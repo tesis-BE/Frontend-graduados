@@ -2,6 +2,11 @@ import { Routes } from '@angular/router';
 
 export const ROLES_ROUTES: Routes = [
   {
+    path: '',
+    redirectTo: 'listado',
+    pathMatch: 'full',
+  },
+  {
     path: 'listado',
     loadComponent: () =>
       import('./components/roles-list/roles-list.component').then(

@@ -13,8 +13,8 @@ import {
 import { CardComponent } from '@shared/components/card/card.component';
 import { ModalFormComponent } from '@shared/components/modal-form/modal-form.component';
 import { SweetAlertService } from '@shared/services/sweet-alert.service';
-import { RoleService } from '../services/role.service';
-import { Role, Permission } from '../models/role.model';
+import { RoleService } from '@core/services/api/role.service';
+import { Role, Permission } from '@core/interfaces/api/role.interface';
 
 @Component({
   selector: 'app-roles-list',
