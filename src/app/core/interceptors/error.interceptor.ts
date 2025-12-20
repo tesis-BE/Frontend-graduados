@@ -23,8 +23,7 @@ export class ErrorInterceptor implements HttpInterceptor {
     return next.handle(request).pipe(
       catchError((err) => {
         if (err.status === 401) {
-          authenticationService.removeSession();
-          window.location.reload();
+          authenticationService.logout();
         }
 
         const error =
