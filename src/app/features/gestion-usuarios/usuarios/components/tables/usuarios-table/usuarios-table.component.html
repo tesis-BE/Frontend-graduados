@@ -18,14 +18,14 @@
       <input
         type="text"
         placeholder="Buscar por nombre o email..."
-        [value]="searchTerm"
+        [value]="searchTerm()"
         (input)="onSearch($event)"
       />
     </div>
     <div class="filtros-group">
       <select
         (change)="onFilterType($event)"
-        [value]="filterUserType"
+        [value]="filterUserType()"
         class="filter-select"
       >
         <option value="">Todos los tipos</option>
@@ -35,7 +35,7 @@
       </select>
       <select
         (change)="onFilterStatus($event)"
-        [value]="filterStatus"
+        [value]="filterStatus()"
         class="filter-select"
       >
         <option value="">Todos los estados</option>
@@ -47,12 +47,12 @@
 
   <!-- Contenido -->
   <div class="usuarios-content">
-    @if (isLoading) {
+    @if (isLoading()) {
       <div class="estado-loading">
         <div class="spinner"></div>
         <p>Cargando usuarios...</p>
       </div>
-    } @else if (users.length === 0) {
+    } @else if (users().length === 0) {
       <div class="estado-vacio">
         <i class="bi bi-people"></i>
         <h3>No hay usuarios</h3>
@@ -72,7 +72,7 @@
             </tr>
           </thead>
           <tbody>
-            @for (user of users; track user.id) {
+            @for (user of users(); track user.id) {
               <tr>
                 <td>
                   <div class="user-nombre">
@@ -105,7 +105,7 @@
                 <td class="acciones-cell">
                   <button
                     class="btn-accion edit"
-                    (click)="editUser(user)"
+                    (click)="openEditModal(user)"
                     title="Editar"
                   >
                     <i class="bi bi-pencil"></i>
@@ -136,18 +136,18 @@
       </div>
 
       <!-- Paginación -->
-      @if (totalPages > 1) {
+      @if (totalPages() > 1) {
         <div class="paginacion">
           <button
-            [disabled]="currentPage === 1"
-            (click)="goToPage(currentPage - 1)"
+            [disabled]="currentPage() === 1"
+            (click)="goToPage(currentPage() - 1)"
             class="btn-pag"
           >
             <i class="bi bi-chevron-left"></i>
           </button>
           @for (page of getPages(); track page) {
             <button
-              [class.activa]="page === currentPage"
+              [class.activa]="page === currentPage()"
               (click)="goToPage(page)"
               class="btn-pag numero"
             >
@@ -155,8 +155,8 @@
             </button>
           }
           <button
-            [disabled]="currentPage === totalPages"
-            (click)="goToPage(currentPage + 1)"
+            [disabled]="currentPage() === totalPages()"
+            (click)="goToPage(currentPage() + 1)"
             class="btn-pag"
           >
             <i class="bi bi-chevron-right"></i>
@@ -167,86 +167,11 @@
   </div>
 </div>
 
-<!-- Modal -->
-@if (showModal) {
-  <div class="modal-overlay">
-    <div class="modal-dialog" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h2>{{ isEditMode ? "Editar Usuario" : "Nuevo Usuario" }}</h2>
-        <button class="btn-close" (click)="closeModal()">
-          <i class="bi bi-x-lg"></i>
-        </button>
-      </div>
-
-      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="modal-body">
-        <div class="form-group">
-          <label>Nombre *</label>
-          <input type="text" formControlName="firstName" placeholder="Nombre" />
-          @if (
-            form.get("firstName")?.invalid && form.get("firstName")?.touched
-          ) {
-            <span class="error">Campo requerido (mín. 2 caracteres)</span>
-          }
-        </div>
-
-        <div class="form-group">
-          <label>Apellido *</label>
-          <input
-            type="text"
-            formControlName="lastName"
-            placeholder="Apellido"
-          />
-          @if (form.get("lastName")?.invalid && form.get("lastName")?.touched) {
-            <span class="error">Campo requerido (mín. 2 caracteres)</span>
-          }
-        </div>
-
-        <div class="form-group">
-          <label>Email *</label>
-          <input
-            type="email"
-            formControlName="email"
-            placeholder="email@ejemplo.com"
-          />
-          @if (form.get("email")?.invalid && form.get("email")?.touched) {
-            <span class="error">Email inválido</span>
-          }
-        </div>
-
-        <div class="form-group">
-          <label>Tipo *</label>
-          <select formControlName="userType">
-            <option value="graduate">Egresado</option>
-            <option value="recruiter">Reclutador</option>
-            <option value="admin">Administrador</option>
-          </select>
-        </div>
-
-        @if (!isEditMode) {
-          <div class="form-group">
-            <label>Contraseña *</label>
-            <input
-              type="password"
-              formControlName="password"
-              placeholder="Contraseña"
-            />
-            @if (
-              form.get("password")?.invalid && form.get("password")?.touched
-            ) {
-              <span class="error">Campo requerido (mín. 6 caracteres)</span>
-            }
-          </div>
-        }
-
-        <div class="modal-actions">
-          <button type="button" class="btn-cancelar" (click)="closeModal()">
-            Cancelar
-          </button>
-          <button type="submit" class="btn-guardar" [disabled]="form.invalid">
-            {{ isEditMode ? "Actualizar" : "Crear" }}
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
+<!-- Modal de formulario -->
+@if (showFormModal()) {
+  <app-usuario-form
+    [user]="editingUser()"
+    (saved)="onFormSaved()"
+    (cancelled)="closeModal()"
+  />
 }

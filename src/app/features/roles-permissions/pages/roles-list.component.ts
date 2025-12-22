@@ -61,48 +61,50 @@ import { Role, Permission } from '@core/interfaces/api/role.interface';
         (closed)="closeModal()"
         (submitted)="onFormSubmit($event)"
       >
-        <ng-template #formTemplate>
-          <div class="form-group">
-            <label for="name" class="form-label">Nombre del Rol *</label>
-            <input
-              id="name"
-              type="text"
-              class="form-control"
-              formControlName="name"
-              placeholder="Ej: Reclutador Senior"
-            />
-          </div>
+        <ng-template #formTemplate let-form="form">
+          <div [formGroup]="form">
+            <div class="form-group">
+              <label for="name" class="form-label">Nombre del Rol *</label>
+              <input
+                id="name"
+                type="text"
+                class="form-control"
+                formControlName="name"
+                placeholder="Ej: Reclutador Senior"
+              />
+            </div>
 
-          <div class="form-group">
-            <label for="description" class="form-label">Descripción *</label>
-            <textarea
-              id="description"
-              class="form-control"
-              formControlName="description"
-              rows="3"
-              placeholder="Descripción del rol"
-            ></textarea>
-          </div>
+            <div class="form-group">
+              <label for="description" class="form-label">Descripción *</label>
+              <textarea
+                id="description"
+                class="form-control"
+                formControlName="description"
+                rows="3"
+                placeholder="Descripción del rol"
+              ></textarea>
+            </div>
 
-          <div class="form-group">
-            <label class="form-label">Permisos</label>
-            <div class="permissions-grid">
-              <div
-                *ngFor="let permission of allPermissions"
-                class="permission-item"
-              >
-                <label>
-                  <input
-                    type="checkbox"
-                    [value]="permission.id"
-                    [checked]="isPermissionSelected(permission.id)"
-                    (change)="togglePermission(permission.id, $event)"
-                  />
-                  <span>{{ permission.name }}</span>
-                  <small
-                    >{{ permission.module }} - {{ permission.action }}</small
-                  >
-                </label>
+            <div class="form-group">
+              <label class="form-label">Permisos</label>
+              <div class="permissions-grid">
+                <div
+                  *ngFor="let permission of allPermissions"
+                  class="permission-item"
+                >
+                  <label>
+                    <input
+                      type="checkbox"
+                      [value]="permission.id"
+                      [checked]="isPermissionSelected(permission.id)"
+                      (change)="togglePermission(permission.id, $event)"
+                    />
+                    <span>{{ permission.name }}</span>
+                    <small
+                      >{{ permission.module }} - {{ permission.action }}</small
+                    >
+                  </label>
+                </div>
               </div>
             </div>
           </div>

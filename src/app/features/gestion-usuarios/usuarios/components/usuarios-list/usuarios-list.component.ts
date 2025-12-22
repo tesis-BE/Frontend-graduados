@@ -30,7 +30,7 @@ interface UserItem {
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './usuarios-list.component.html',
   styleUrl: './usuarios-list.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.Default,
 })
 export class UsuariosListComponent implements OnInit {
   users: UserItem[] = [];

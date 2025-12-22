@@ -1,8 +1,10 @@
-<div class="card-container">
+<div class="card overflow-hidden">
   <div *ngIf="showHeader && (title || headerTemplate)" class="card-header">
-    <div class="header-content">
-      <h3 *ngIf="title" class="card-title">{{ title }}</h3>
-      <p *ngIf="subtitle" class="card-subtitle">{{ subtitle }}</p>
+    <div class="d-flex align-items-center">
+      <div>
+        <h5 *ngIf="title" class="card-title mb-0">{{ title }}</h5>
+        <p *ngIf="subtitle" class="text-muted fs-13 mb-0">{{ subtitle }}</p>
+      </div>
       <ng-container
         *ngIf="headerTemplate"
         [ngTemplateOutlet]="headerTemplate"
@@ -10,9 +12,15 @@
     </div>
   </div>
 
-  <div class="card-body" [class.loading]="isLoading">
-    <div *ngIf="isLoading" class="spinner-overlay">
-      <div class="spinner"></div>
+  <div class="card-body position-relative" [class.opacity-50]="isLoading">
+    <div
+      *ngIf="isLoading"
+      class="position-absolute top-0 start-0 end-0 bottom-0 d-flex align-items-center justify-content-center bg-body bg-opacity-75"
+      style="z-index: 10"
+    >
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
     </div>
     <ng-container
       *ngIf="bodyTemplate"
@@ -20,7 +28,15 @@
     ></ng-container>
   </div>
 
-  <div *ngIf="showFooter" class="card-footer" [class]="'align-' + footerAlign">
+  <div
+    *ngIf="showFooter"
+    class="card-footer d-flex"
+    [ngClass]="{
+      'justify-content-start': footerAlign === 'left',
+      'justify-content-center': footerAlign === 'center',
+      'justify-content-end': footerAlign === 'right',
+    }"
+  >
     <ng-container
       *ngIf="footerTemplate"
       [ngTemplateOutlet]="footerTemplate"

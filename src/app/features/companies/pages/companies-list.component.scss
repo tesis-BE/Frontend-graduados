@@ -9,21 +9,23 @@
       margin-bottom: 6px;
       font-size: 13px;
       font-weight: 600;
-      color: #495057;
+      color: var(--bs-body-color);
     }
 
     .form-control {
       width: 100%;
       padding: 8px 12px;
-      border: 1px solid #dee2e6;
+      border: 1px solid var(--bs-border-color);
       border-radius: 4px;
       font-size: 13px;
+      background: var(--bs-body-bg);
+      color: var(--bs-body-color);
       transition: border-color 0.2s;
 
       &:focus {
         outline: none;
-        border-color: #007bff;
-        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+        border-color: var(--bs-primary);
+        box-shadow: 0 0 0 2px var(--bs-primary-bg-subtle);
       }
     }
 
@@ -34,7 +36,7 @@
 
     .form-error {
       display: block;
-      color: #dc3545;
+      color: var(--bs-danger);
       font-size: 12px;
       margin-top: 4px;
     }
@@ -53,20 +55,20 @@
     gap: 6px;
 
     &.btn-primary {
-      background: #007bff;
-      color: white;
+      background: var(--bs-primary);
+      color: var(--bs-primary-text, white);
 
       &:hover {
-        background: #0056b3;
+        background: var(--bs-primary-dark, #0056b3);
       }
     }
 
     &.btn-secondary {
-      background: #e9ecef;
-      color: #495057;
+      background: var(--bs-secondary-bg);
+      color: var(--bs-body-color);
 
       &:hover {
-        background: #dee2e6;
+        background: var(--bs-border-color);
       }
     }
 

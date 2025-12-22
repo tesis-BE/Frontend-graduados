@@ -164,7 +164,7 @@ export class UserService {
 
   // Cambiar estado del usuario (admin)
   toggleUserStatus(id: number): Observable<any> {
-    return this.http.patch<any>(`${this.apiUrl}/${id}/toggle-status`, {});
+    return this.http.patch<any>(`${this.apiUrl}/${id}/status`, {});
   }
 
   // Cambiar tipo de usuario (admin)

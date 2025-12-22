@@ -29,7 +29,7 @@ export class ModalComponent {
   size: ModalSize = 'md';
 
   @Input()
-  closeOnBackdrop = true;
+  closeOnBackdrop = false;
 
   @Input()
   showHeader = true;
@@ -51,14 +51,13 @@ export class ModalComponent {
   }
 
   protected handleBackdropClick(event: MouseEvent): void {
-    if (!this.closeOnBackdrop) {
-      return;
-    }
-
-    const target = event.target as HTMLElement;
-    if (target?.classList.contains('modal-overlay')) {
+    if (this.closeOnBackdrop) {
       this.close();
     }
+  }
+
+  protected onDialogClick(event: MouseEvent): void {
+    event.stopPropagation();
   }
 
   protected close(): void {

@@ -10,7 +10,7 @@
   justify-content: flex-end;
   margin-top: 16px;
   padding-top: 16px;
-  border-top: 1px solid #e9ecef;
+  border-top: 1px solid var(--bs-border-color);
 
   .btn {
     padding: 8px 16px;
@@ -30,20 +30,20 @@
     }
 
     &.btn-secondary {
-      background: #e9ecef;
-      color: #495057;
+      background: var(--bs-secondary-bg);
+      color: var(--bs-body-color);
 
       &:hover:not(:disabled) {
-        background: #dee2e6;
+        background: var(--bs-border-color);
       }
     }
 
     &.btn-primary {
-      background: #007bff;
-      color: white;
+      background: var(--bs-primary);
+      color: var(--bs-primary-text, white);
 
       &:hover:not(:disabled) {
-        background: #0056b3;
+        background: var(--bs-primary-dark, #0056b3);
       }
 
       &.loading {

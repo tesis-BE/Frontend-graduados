@@ -112,19 +112,20 @@
   justify-content: center;
 
   .btn-action {
-    background: none;
-    border: none;
-    padding: 6px 8px;
+    background: var(--bs-tertiary-bg);
+    border: 1px solid var(--bs-border-color);
+    padding: 6px 10px;
     cursor: pointer;
-    border-radius: 4px;
+    border-radius: 6px;
     transition: all 0.2s;
     font-size: 14px;
 
     &.btn-edit {
-      color: var(--bs-primary);
+      color: var(--bs-info);
 
       &:hover {
-        background: var(--bs-primary-bg-subtle);
+        background: var(--bs-info-bg-subtle);
+        border-color: var(--bs-info);
       }
     }
 
@@ -133,6 +134,7 @@
 
       &:hover {
         background: var(--bs-danger-bg-subtle);
+        border-color: var(--bs-danger);
       }
     }
   }

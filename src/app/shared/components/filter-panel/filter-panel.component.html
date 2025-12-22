@@ -1,104 +1,125 @@
-<div class="filter-panel" [class.collapsed]="isCollapsed">
-  <div class="filter-header">
-    <h4 class="filter-title">
-      <i class="bi bi-funnel"></i>
+<div class="card mb-3">
+  <div
+    class="card-header d-flex justify-content-between align-items-center py-2"
+  >
+    <h6 class="card-title mb-0 d-flex align-items-center gap-2">
+      <i class="bi bi-funnel text-primary"></i>
       Filtros
-      <span *ngIf="getActiveFiltersCount() > 0" class="badge">
+      <span
+        *ngIf="getActiveFiltersCount() > 0"
+        class="badge bg-danger rounded-circle"
+      >
         {{ getActiveFiltersCount() }}
       </span>
-    </h4>
-    <button class="btn-toggle" (click)="toggleCollapse()">
+    </h6>
+    <button
+      type="button"
+      class="btn btn-sm btn-icon"
+      (click)="toggleCollapse()"
+    >
       <i [class]="isCollapsed ? 'bi bi-chevron-down' : 'bi bi-chevron-up'"></i>
     </button>
   </div>
 
-  <div class="filter-content" *ngIf="!isCollapsed">
-    <div class="filter-group" *ngFor="let filter of filters">
-      <!-- Text Input -->
-      <div *ngIf="filter.type === 'text'" class="form-group">
-        <label [for]="filter.key" class="form-label">{{ filter.label }}</label>
-        <input
-          [id]="filter.key"
-          type="text"
-          class="form-input"
-          [(ngModel)]="filterValues[filter.key]"
-          [placeholder]="filter.placeholder"
-          (change)="onFilterChange()"
-        />
-      </div>
-
-      <!-- Select -->
-      <div *ngIf="filter.type === 'select'" class="form-group">
-        <label [for]="filter.key" class="form-label">{{ filter.label }}</label>
-        <select
-          [id]="filter.key"
-          class="form-select"
-          [(ngModel)]="filterValues[filter.key]"
-          (change)="onFilterChange()"
-        >
-          <option value="">Seleccionar...</option>
-          <option *ngFor="let option of filter.options" [value]="option.value">
-            {{ option.label }}
-          </option>
-        </select>
-      </div>
-
-      <!-- Date -->
-      <div *ngIf="filter.type === 'date'" class="form-group">
-        <label [for]="filter.key" class="form-label">{{ filter.label }}</label>
-        <input
-          [id]="filter.key"
-          type="date"
-          class="form-input"
-          [(ngModel)]="filterValues[filter.key]"
-          (change)="onFilterChange()"
-        />
-      </div>
-
-      <!-- Checkbox -->
-      <div *ngIf="filter.type === 'checkbox'" class="form-group">
-        <label class="form-label">
+  <div class="card-body" *ngIf="!isCollapsed">
+    <div class="row g-3">
+      <ng-container *ngFor="let filter of filters">
+        <div *ngIf="filter.type === 'text'" class="col-12 col-md-6">
+          <label [for]="filter.key" class="form-label">{{
+            filter.label
+          }}</label>
           <input
-            type="checkbox"
+            [id]="filter.key"
+            type="text"
+            class="form-control"
             [(ngModel)]="filterValues[filter.key]"
-            (change)="onFilterChange()"
-          />
-          {{ filter.label }}
-        </label>
-      </div>
-
-      <!-- Range -->
-      <div *ngIf="filter.type === 'range'" class="form-group">
-        <label [for]="filter.key" class="form-label">{{ filter.label }}</label>
-        <div class="range-inputs">
-          <input
-            type="number"
-            class="form-input"
-            placeholder="Min"
-            [ngModel]="getRangeMin(filter.key)"
-            (ngModelChange)="setRangeMin(filter.key, $event)"
-            (change)="onFilterChange()"
-          />
-          <span class="range-separator">-</span>
-          <input
-            type="number"
-            class="form-input"
-            placeholder="Max"
-            [ngModel]="getRangeMax(filter.key)"
-            (ngModelChange)="setRangeMax(filter.key, $event)"
+            [placeholder]="filter.placeholder"
             (change)="onFilterChange()"
           />
         </div>
-      </div>
+
+        <div *ngIf="filter.type === 'select'" class="col-12 col-md-6">
+          <label [for]="filter.key" class="form-label">{{
+            filter.label
+          }}</label>
+          <select
+            [id]="filter.key"
+            class="form-select"
+            [(ngModel)]="filterValues[filter.key]"
+            (change)="onFilterChange()"
+          >
+            <option value="">Seleccionar...</option>
+            <option
+              *ngFor="let option of filter.options"
+              [value]="option.value"
+            >
+              {{ option.label }}
+            </option>
+          </select>
+        </div>
+
+        <div *ngIf="filter.type === 'date'" class="col-12 col-md-6">
+          <label [for]="filter.key" class="form-label">{{
+            filter.label
+          }}</label>
+          <input
+            [id]="filter.key"
+            type="date"
+            class="form-control"
+            [(ngModel)]="filterValues[filter.key]"
+            (change)="onFilterChange()"
+          />
+        </div>
+
+        <div *ngIf="filter.type === 'checkbox'" class="col-12 col-md-6">
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              [id]="filter.key"
+              [(ngModel)]="filterValues[filter.key]"
+              (change)="onFilterChange()"
+            />
+            <label class="form-check-label" [for]="filter.key">
+              {{ filter.label }}
+            </label>
+          </div>
+        </div>
+
+        <div *ngIf="filter.type === 'range'" class="col-12 col-md-6">
+          <label [for]="filter.key" class="form-label">{{
+            filter.label
+          }}</label>
+          <div class="d-flex gap-2 align-items-center">
+            <input
+              type="number"
+              class="form-control"
+              placeholder="Min"
+              [ngModel]="getRangeMin(filter.key)"
+              (ngModelChange)="setRangeMin(filter.key, $event)"
+              (change)="onFilterChange()"
+            />
+            <span class="text-muted">-</span>
+            <input
+              type="number"
+              class="form-control"
+              placeholder="Max"
+              [ngModel]="getRangeMax(filter.key)"
+              (ngModelChange)="setRangeMax(filter.key, $event)"
+              (change)="onFilterChange()"
+            />
+          </div>
+        </div>
+      </ng-container>
     </div>
 
-    <div class="filter-actions">
-      <button class="btn btn-primary" (click)="onFilterChange()">
-        <i class="bi bi-search"></i>
+    <div class="d-flex gap-2 justify-content-end mt-3 pt-3 border-top">
+      <button type="button" class="btn btn-primary" (click)="onFilterChange()">
+        <i class="bi bi-search me-1"></i>
         Buscar
       </button>
-      <button class="btn btn-secondary" (click)="onReset()">
-        <i class="bi bi-arrow-clockwise"></i>
+      <button type="button" class="btn btn-secondary" (click)="onReset()">
+        <i class="bi bi-arrow-clockwise me-1"></i>
         Limpiar
       </button>
     </div>

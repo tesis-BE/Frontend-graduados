@@ -1,8 +1,8 @@
 <app-shared-modal [open]="open" [title]="title" (closed)="onClose()">
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="modal-form">
     <ng-container
-      *ngIf="formTemplate"
       [ngTemplateOutlet]="formTemplate"
+      [ngTemplateOutletContext]="{ $implicit: form, form: form }"
     ></ng-container>
 
     <div class="form-actions">

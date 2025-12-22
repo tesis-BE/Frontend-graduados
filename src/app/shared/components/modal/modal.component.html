@@ -4,7 +4,12 @@
   (click)="handleBackdropClick($event)"
   role="presentation"
 >
-  <div [ngClass]="dialogClasses()" role="dialog" aria-modal="true">
+  <div
+    [ngClass]="dialogClasses()"
+    role="dialog"
+    aria-modal="true"
+    (click)="onDialogClick($event)"
+  >
     <div class="modal-content">
       <div class="modal-header" *ngIf="showHeader">
         <h5 class="modal-title">{{ title }}</h5>

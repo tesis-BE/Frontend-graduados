@@ -40,98 +40,104 @@
     (closed)="closeModal()"
     (submitted)="onFormSubmit($event)"
   >
-    <ng-template #formTemplate>
-      <div class="form-group">
-        <label for="title" class="form-label">Título del Puesto *</label>
-        <input
-          id="title"
-          type="text"
-          class="form-control"
-          formControlName="title"
-          placeholder="Ej: Desarrollador Frontend"
-        />
-      </div>
-
-      <div class="form-row">
+    <ng-template #formTemplate let-form="form">
+      <div [formGroup]="form">
         <div class="form-group">
-          <label for="jobType" class="form-label">Tipo de Empleo *</label>
-          <select id="jobType" class="form-control" formControlName="jobType">
-            <option value="">Seleccionar</option>
-            <option value="full-time">Tiempo Completo</option>
-            <option value="part-time">Medio Tiempo</option>
-            <option value="contract">Contrato</option>
-            <option value="internship">Pasantía</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="workMode" class="form-label">Modalidad *</label>
-          <select id="workMode" class="form-control" formControlName="workMode">
-            <option value="">Seleccionar</option>
-            <option value="remote">Remoto</option>
-            <option value="on-site">Presencial</option>
-            <option value="hybrid">Híbrido</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label for="location" class="form-label">Ubicación *</label>
+          <label for="title" class="form-label">Título del Puesto *</label>
           <input
-            id="location"
+            id="title"
             type="text"
             class="form-control"
-            formControlName="location"
-            placeholder="Ej: Quito, Ecuador"
+            formControlName="title"
+            placeholder="Ej: Desarrollador Frontend"
           />
         </div>
-      </div>
 
-      <div class="form-row">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="jobType" class="form-label">Tipo de Empleo *</label>
+            <select id="jobType" class="form-control" formControlName="jobType">
+              <option value="">Seleccionar</option>
+              <option value="full-time">Tiempo Completo</option>
+              <option value="part-time">Medio Tiempo</option>
+              <option value="contract">Contrato</option>
+              <option value="internship">Pasantía</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="workMode" class="form-label">Modalidad *</label>
+            <select
+              id="workMode"
+              class="form-control"
+              formControlName="workMode"
+            >
+              <option value="">Seleccionar</option>
+              <option value="remote">Remoto</option>
+              <option value="on-site">Presencial</option>
+              <option value="hybrid">Híbrido</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="location" class="form-label">Ubicación *</label>
+            <input
+              id="location"
+              type="text"
+              class="form-control"
+              formControlName="location"
+              placeholder="Ej: Quito, Ecuador"
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="salaryMin" class="form-label">Salario Mínimo</label>
+            <input
+              id="salaryMin"
+              type="number"
+              class="form-control"
+              formControlName="salaryMin"
+              placeholder="Ej: 1000"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="salaryMax" class="form-label">Salario Máximo</label>
+            <input
+              id="salaryMax"
+              type="number"
+              class="form-control"
+              formControlName="salaryMax"
+              placeholder="Ej: 2000"
+            />
+          </div>
+        </div>
+
         <div class="form-group">
-          <label for="salaryMin" class="form-label">Salario Mínimo</label>
-          <input
-            id="salaryMin"
-            type="number"
+          <label for="description" class="form-label">Descripción *</label>
+          <textarea
+            id="description"
             class="form-control"
-            formControlName="salaryMin"
-            placeholder="Ej: 1000"
-          />
+            formControlName="description"
+            placeholder="Describa los detalles de la posición"
+            rows="4"
+          ></textarea>
         </div>
 
         <div class="form-group">
-          <label for="salaryMax" class="form-label">Salario Máximo</label>
-          <input
-            id="salaryMax"
-            type="number"
+          <label for="requirements" class="form-label">Requisitos *</label>
+          <textarea
+            id="requirements"
             class="form-control"
-            formControlName="salaryMax"
-            placeholder="Ej: 2000"
-          />
+            formControlName="requirements"
+            placeholder="Listar los requisitos necesarios"
+            rows="4"
+          ></textarea>
         </div>
-      </div>
-
-      <div class="form-group">
-        <label for="description" class="form-label">Descripción *</label>
-        <textarea
-          id="description"
-          class="form-control"
-          formControlName="description"
-          placeholder="Describa los detalles de la posición"
-          rows="4"
-        ></textarea>
-      </div>
-
-      <div class="form-group">
-        <label for="requirements" class="form-label">Requisitos *</label>
-        <textarea
-          id="requirements"
-          class="form-control"
-          formControlName="requirements"
-          placeholder="Listar los requisitos necesarios"
-          rows="4"
-        ></textarea>
       </div>
     </ng-template>
   </app-modal-form>

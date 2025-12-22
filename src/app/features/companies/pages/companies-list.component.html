@@ -31,102 +31,119 @@
     (closed)="closeModal()"
     (submitted)="onFormSubmit($event)"
   >
-    <ng-template #formTemplate>
-      <div class="form-group">
-        <label for="name" class="form-label">Nombre de la Empresa *</label>
-        <input
-          id="name"
-          type="text"
-          class="form-control"
-          formControlName="name"
-          placeholder="Ej: Tech Solutions"
-        />
-        <small
-          class="form-error"
-          *ngIf="form.get('name')?.hasError('required')"
-        >
-          El nombre es requerido
-        </small>
-      </div>
+    <ng-template #formTemplate let-form="form">
+      <div [formGroup]="form">
+        <div class="form-group">
+          <label for="name" class="form-label">Nombre de la Empresa *</label>
+          <input
+            id="name"
+            type="text"
+            class="form-control"
+            formControlName="name"
+            placeholder="Ej: Tech Solutions"
+          />
+          <small
+            class="form-error"
+            *ngIf="
+              form.get('name')?.hasError('required') &&
+              form.get('name')?.touched
+            "
+          >
+            El nombre es requerido
+          </small>
+        </div>
 
-      <div class="form-group">
-        <label for="industry" class="form-label">Industria *</label>
-        <select id="industry" class="form-control" formControlName="industry">
-          <option value="">Seleccionar industria</option>
-          <option value="technology">Tecnología</option>
-          <option value="finance">Finanzas</option>
-          <option value="healthcare">Salud</option>
-          <option value="education">Educación</option>
-          <option value="other">Otra</option>
-        </select>
-        <small
-          class="form-error"
-          *ngIf="form.get('industry')?.hasError('required')"
-        >
-          La industria es requerida
-        </small>
-      </div>
+        <div class="form-group">
+          <label for="industry" class="form-label">Industria *</label>
+          <select id="industry" class="form-control" formControlName="industry">
+            <option value="">Seleccionar industria</option>
+            <option value="technology">Tecnología</option>
+            <option value="finance">Finanzas</option>
+            <option value="healthcare">Salud</option>
+            <option value="education">Educación</option>
+            <option value="other">Otra</option>
+          </select>
+          <small
+            class="form-error"
+            *ngIf="
+              form.get('industry')?.hasError('required') &&
+              form.get('industry')?.touched
+            "
+          >
+            La industria es requerida
+          </small>
+        </div>
 
-      <div class="form-group">
-        <label for="size" class="form-label">Tamaño de la Empresa *</label>
-        <select id="size" class="form-control" formControlName="size">
-          <option value="">Seleccionar tamaño</option>
-          <option value="startup">Startup (1-10)</option>
-          <option value="small">Pequeña (11-50)</option>
-          <option value="medium">Mediana (51-250)</option>
-          <option value="large">Grande (250+)</option>
-        </select>
-        <small
-          class="form-error"
-          *ngIf="form.get('size')?.hasError('required')"
-        >
-          El tamaño es requerido
-        </small>
-      </div>
+        <div class="form-group">
+          <label for="size" class="form-label">Tamaño de la Empresa *</label>
+          <select id="size" class="form-control" formControlName="size">
+            <option value="">Seleccionar tamaño</option>
+            <option value="startup">Startup (1-10)</option>
+            <option value="small">Pequeña (11-50)</option>
+            <option value="medium">Mediana (51-250)</option>
+            <option value="large">Grande (250+)</option>
+          </select>
+          <small
+            class="form-error"
+            *ngIf="
+              form.get('size')?.hasError('required') &&
+              form.get('size')?.touched
+            "
+          >
+            El tamaño es requerido
+          </small>
+        </div>
 
-      <div class="form-group">
-        <label for="location" class="form-label">Ubicación *</label>
-        <input
-          id="location"
-          type="text"
-          class="form-control"
-          formControlName="location"
-          placeholder="Ej: Quito, Ecuador"
-        />
-        <small
-          class="form-error"
-          *ngIf="form.get('location')?.hasError('required')"
-        >
-          La ubicación es requerida
-        </small>
-      </div>
+        <div class="form-group">
+          <label for="location" class="form-label">Ubicación *</label>
+          <input
+            id="location"
+            type="text"
+            class="form-control"
+            formControlName="location"
+            placeholder="Ej: Quito, Ecuador"
+          />
+          <small
+            class="form-error"
+            *ngIf="
+              form.get('location')?.hasError('required') &&
+              form.get('location')?.touched
+            "
+          >
+            La ubicación es requerida
+          </small>
+        </div>
 
-      <div class="form-group">
-        <label for="website" class="form-label">Sitio Web</label>
-        <input
-          id="website"
-          type="url"
-          class="form-control"
-          formControlName="website"
-          placeholder="https://example.com"
-        />
-      </div>
+        <div class="form-group">
+          <label for="website" class="form-label">Sitio Web</label>
+          <input
+            id="website"
+            type="url"
+            class="form-control"
+            formControlName="website"
+            placeholder="https://example.com"
+          />
+        </div>
 
-      <div class="form-group">
-        <label for="description" class="form-label">Descripción *</label>
-        <textarea
-          id="description"
-          class="form-control"
-          formControlName="description"
-          placeholder="Describir la empresa"
-          rows="4"
-        ></textarea>
-        <small
-          class="form-error"
-          *ngIf="form.get('description')?.hasError('required')"
-        >
-          La descripción es requerida
-        </small>
+        <div class="form-group">
+          <label for="description" class="form-label">Descripción *</label>
+          <textarea
+            id="description"
+            class="form-control"
+            formControlName="description"
+            placeholder="Describir la empresa"
+            rows="4"
+          ></textarea>
+          <small
+            class="form-error"
+            *ngIf="
+              form.get('description')?.hasError('required') &&
+              form.get('description')?.touched
+            "
+          >
+            La descripción es requerida
+          </small>
+        </div>
       </div>
     </ng-template>
   </app-modal-form>

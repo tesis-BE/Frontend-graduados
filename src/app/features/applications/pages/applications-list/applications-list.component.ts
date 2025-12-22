@@ -12,11 +12,11 @@ import {
   FormGroup,
   Validators,
 } from '@angular/forms';
-import { CardComponent } from '@shared/components/card/card.component';
 import {
   FilterPanelComponent,
   FilterOption,
 } from '@shared/components/filter-panel/filter-panel.component';
+import { BreadcrumbComponent } from '@shared/components/breadcrumb/breadcrumb.component';
 import { SweetAlertService } from '@shared/services/sweet-alert.service';
 import { ApplicationService } from '@core/services/api/application.service';
 import { JobOfferService } from '@core/services/api/job-offer.service';
@@ -34,8 +34,8 @@ import Swal from 'sweetalert2';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    CardComponent,
     FilterPanelComponent,
+    BreadcrumbComponent,
   ],
   templateUrl: './applications-list.component.html',
   styleUrls: ['./applications-list.component.scss'],
