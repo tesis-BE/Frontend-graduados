@@ -4,9 +4,9 @@ export const USUARIOS_ROUTES: Routes = [
   {
     path: '',
     loadComponent: () =>
-      import(
-        './components/tables/usuarios-table/usuarios-table.component'
-      ).then((m) => m.UsuariosTableComponent),
+      import('./pages/usuarios-page.component').then(
+        (m) => m.UsuariosPageComponent
+      ),
     data: { title: 'Gestión de Usuarios' },
   },
 ];

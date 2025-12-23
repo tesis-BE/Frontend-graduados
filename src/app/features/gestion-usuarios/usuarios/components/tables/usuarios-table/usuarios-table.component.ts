@@ -1,11 +1,20 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  inject,
+  signal,
+  computed,
+  ChangeDetectorRef,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserService } from '@core/services/api/user.service';
 import { SweetAlertService } from '@shared/services/sweet-alert.service';
 import { UsuarioFormComponent } from '../../forms/usuario-form/usuario-form.component';
+import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
 
-interface User {
+export interface User {
   id: number;
   firstName: string;
   lastName: string;
@@ -20,13 +29,16 @@ interface User {
   standalone: true,
   imports: [CommonModule, FormsModule, UsuarioFormComponent],
   templateUrl: './usuarios-table.component.html',
-  styleUrl: './usuarios-table.component.scss',
+  styleUrls: ['./usuarios-table.component.scss'],
 })
-export class UsuariosTableComponent implements OnInit {
+export class UsuariosTableComponent implements OnInit, OnDestroy {
   private userService = inject(UserService);
   private sweetAlert = inject(SweetAlertService);
+  private cdr = inject(ChangeDetectorRef);
+  private destroy$ = new Subject<void>();
+  private searchSubject$ = new Subject<string>();
 
-  // Estado
+  // Estado con signals
   users = signal<User[]>([]);
   isLoading = signal(false);
   currentPage = signal(1);
@@ -42,9 +54,29 @@ export class UsuariosTableComponent implements OnInit {
 
   // Computed
   totalPages = computed(() => Math.ceil(this.total() / this.pageSize()));
+  startIndex = computed(() => (this.currentPage() - 1) * this.pageSize() + 1);
+  endIndex = computed(() =>
+    Math.min(this.currentPage() * this.pageSize(), this.total())
+  );
 
   ngOnInit(): void {
+    this.setupSearchDebounce();
     this.loadUsers();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private setupSearchDebounce(): void {
+    this.searchSubject$
+      .pipe(debounceTime(400), distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe((term) => {
+        this.searchTerm.set(term);
+        this.currentPage.set(1);
+        this.loadUsers();
+      });
   }
 
   loadUsers(): void {
@@ -57,25 +89,30 @@ export class UsuariosTableComponent implements OnInit {
 
     if (this.searchTerm()) params.search = this.searchTerm();
     if (this.filterUserType()) params.userType = this.filterUserType();
-    if (this.filterStatus()) params.isActive = this.filterStatus() === 'active';
+    if (this.filterStatus())
+      params.isActive = this.filterStatus() === 'active';
 
-    this.userService.getAllUsers(params).subscribe({
-      next: (response: any) => {
-        this.users.set(response.data || response || []);
-        this.total.set(response.pagination?.total || this.users().length);
-        this.isLoading.set(false);
-      },
-      error: () => {
-        this.sweetAlert.error('Error', 'No se pudieron cargar los usuarios');
-        this.isLoading.set(false);
-      },
-    });
+    this.userService
+      .getAllUsers(params)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response: any) => {
+          this.users.set(response.data || []);
+          this.total.set(response.pagination?.total || 0);
+          this.isLoading.set(false);
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          this.sweetAlert.error('Error', 'No se pudieron cargar los usuarios');
+          this.isLoading.set(false);
+          this.cdr.markForCheck();
+        },
+      });
   }
 
-  onSearch(event: Event): void {
-    this.searchTerm.set((event.target as HTMLInputElement).value);
-    this.currentPage.set(1);
-    this.loadUsers();
+  onSearchInput(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.searchSubject$.next(value);
   }
 
   onFilterType(event: Event): void {
@@ -92,17 +129,17 @@ export class UsuariosTableComponent implements OnInit {
 
   openCreateModal(): void {
     this.editingUser.set(null);
-    this.showFormModal.set(true);
+    setTimeout(() => this.showFormModal.set(true), 0);
   }
 
   openEditModal(user: User): void {
-    this.editingUser.set(user);
-    this.showFormModal.set(true);
+    this.editingUser.set({ ...user });
+    setTimeout(() => this.showFormModal.set(true), 0);
   }
 
   closeModal(): void {
     this.showFormModal.set(false);
-    this.editingUser.set(null);
+    setTimeout(() => this.editingUser.set(null), 300);
   }
 
   onFormSaved(): void {
@@ -120,15 +157,21 @@ export class UsuariosTableComponent implements OnInit {
     });
 
     if (confirmed) {
-      this.userService.toggleUserStatus(user.id).subscribe({
-        next: () => {
-          this.sweetAlert.success('Éxito', `Usuario ${action}do correctamente`);
-          this.loadUsers();
-        },
-        error: () => {
-          this.sweetAlert.error('Error', `No se pudo ${action} el usuario`);
-        },
-      });
+      this.userService
+        .toggleUserStatus(user.id)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            this.sweetAlert.success(
+              'Éxito',
+              `Usuario ${action}do correctamente`
+            );
+            this.loadUsers();
+          },
+          error: () => {
+            this.sweetAlert.error('Error', `No se pudo ${action} el usuario`);
+          },
+        });
     }
   }
 
@@ -140,15 +183,18 @@ export class UsuariosTableComponent implements OnInit {
     });
 
     if (confirmed) {
-      this.userService.deleteUser(user.id).subscribe({
-        next: () => {
-          this.sweetAlert.success('Éxito', 'Usuario eliminado correctamente');
-          this.loadUsers();
-        },
-        error: () => {
-          this.sweetAlert.error('Error', 'No se pudo eliminar el usuario');
-        },
-      });
+      this.userService
+        .deleteUser(user.id)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            this.sweetAlert.success('Éxito', 'Usuario eliminado correctamente');
+            this.loadUsers();
+          },
+          error: () => {
+            this.sweetAlert.error('Error', 'No se pudo eliminar el usuario');
+          },
+        });
     }
   }
 
@@ -161,22 +207,22 @@ export class UsuariosTableComponent implements OnInit {
     return types[type] || type;
   }
 
-  getUserTypeIcon(type: string): string {
-    const icons: Record<string, string> = {
-      graduate: 'bi-mortarboard',
-      recruiter: 'bi-briefcase',
-      admin: 'bi-shield-check',
+  getUserTypeBadgeClass(type: string): string {
+    const classes: Record<string, string> = {
+      graduate: 'bg-success-subtle text-success',
+      recruiter: 'bg-primary-subtle text-primary',
+      admin: 'bg-danger-subtle text-danger',
     };
-    return icons[type] || 'bi-person';
+    return classes[type] || 'bg-secondary-subtle text-secondary';
   }
 
-  getUserTypeColor(type: string): string {
-    const colors: Record<string, string> = {
-      graduate: '#006b3f',
-      recruiter: '#0d6efd',
-      admin: '#dc3545',
+  getUserTypeIcon(type: string): string {
+    const icons: Record<string, string> = {
+      graduate: 'mdi mdi-school',
+      recruiter: 'mdi mdi-briefcase',
+      admin: 'mdi mdi-shield-account',
     };
-    return colors[type] || '#6c757d';
+    return icons[type] || 'mdi mdi-account';
   }
 
   goToPage(page: number): void {
@@ -203,5 +249,9 @@ export class UsuariosTableComponent implements OnInit {
       pages.push(i);
     }
     return pages;
+  }
+
+  getInitials(firstName: string, lastName: string): string {
+    return `${firstName?.charAt(0) || ''}${lastName?.charAt(0) || ''}`.toUpperCase();
   }
 }

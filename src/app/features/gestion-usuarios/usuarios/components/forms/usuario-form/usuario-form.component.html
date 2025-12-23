@@ -1,115 +1,192 @@
-<div class="modal-backdrop">
-  <div class="modal-dialog" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <h2>{{ isEditMode ? "Editar Usuario" : "Nuevo Usuario" }}</h2>
-      <button type="button" class="btn-close" (click)="onCancel()">
-        <i class="bi bi-x-lg"></i>
+<!-- Modal Backdrop -->
+<div class="modal-backdrop-custom" (click)="onBackdropClick($event)">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <!-- Header -->
+    <div class="modal-header-custom">
+      <div class="d-flex align-items-center gap-3">
+        <div class="modal-icon" [class]="isEditMode ? 'bg-primary-subtle' : 'bg-success-subtle'">
+          <i class="mdi" [class]="isEditMode ? 'mdi-account-edit text-primary' : 'mdi-account-plus text-success'"></i>
+        </div>
+        <div>
+          <h5 class="modal-title mb-0">{{ isEditMode ? 'Editar Usuario' : 'Nuevo Usuario' }}</h5>
+          <small class="text-muted">{{ isEditMode ? 'Modifica los datos del usuario' : 'Completa los datos para crear un nuevo usuario' }}</small>
+        </div>
+      </div>
+      <button type="button" class="btn-close-custom" (click)="onCancel()">
+        <i class="mdi mdi-close"></i>
       </button>
     </div>
 
-    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="modal-body">
-      <div class="form-row">
-        <div class="form-group">
-          <label for="firstName">Nombre *</label>
-          <input
-            type="text"
-            id="firstName"
-            formControlName="firstName"
-            placeholder="Ingresa el nombre"
-            [class.is-invalid]="
-              form.get('firstName')?.invalid && form.get('firstName')?.touched
-            "
-          />
-          @if (
-            form.get("firstName")?.invalid && form.get("firstName")?.touched
-          ) {
-            <span class="error-msg"
-              >El nombre es requerido (mín. 2 caracteres)</span
-            >
+    <!-- Body -->
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="modal-body-custom">
+      <div class="row g-3">
+        <!-- Nombre -->
+        <div class="col-12 col-sm-6">
+          <label for="firstName" class="form-label">
+            Nombre <span class="text-danger">*</span>
+          </label>
+          <div class="input-group">
+            <span class="input-group-text bg-light">
+              <i class="mdi mdi-account-outline text-muted"></i>
+            </span>
+            <input
+              type="text"
+              id="firstName"
+              class="form-control"
+              formControlName="firstName"
+              placeholder="Ingresa el nombre"
+              [class.is-invalid]="isFieldInvalid('firstName')"
+            />
+          </div>
+          @if (isFieldInvalid('firstName')) {
+            <div class="invalid-feedback d-block">{{ getFieldError('firstName') }}</div>
           }
         </div>
 
-        <div class="form-group">
-          <label for="lastName">Apellido *</label>
-          <input
-            type="text"
-            id="lastName"
-            formControlName="lastName"
-            placeholder="Ingresa el apellido"
-            [class.is-invalid]="
-              form.get('lastName')?.invalid && form.get('lastName')?.touched
-            "
-          />
-          @if (form.get("lastName")?.invalid && form.get("lastName")?.touched) {
-            <span class="error-msg"
-              >El apellido es requerido (mín. 2 caracteres)</span
-            >
+        <!-- Apellido -->
+        <div class="col-12 col-sm-6">
+          <label for="lastName" class="form-label">
+            Apellido <span class="text-danger">*</span>
+          </label>
+          <div class="input-group">
+            <span class="input-group-text bg-light">
+              <i class="mdi mdi-account-outline text-muted"></i>
+            </span>
+            <input
+              type="text"
+              id="lastName"
+              class="form-control"
+              formControlName="lastName"
+              placeholder="Ingresa el apellido"
+              [class.is-invalid]="isFieldInvalid('lastName')"
+            />
+          </div>
+          @if (isFieldInvalid('lastName')) {
+            <div class="invalid-feedback d-block">{{ getFieldError('lastName') }}</div>
           }
         </div>
-      </div>
 
-      <div class="form-group">
-        <label for="email">Correo electrónico *</label>
-        <input
-          type="email"
-          id="email"
-          formControlName="email"
-          placeholder="correo@ejemplo.com"
-          [class.is-invalid]="
-            form.get('email')?.invalid && form.get('email')?.touched
-          "
-        />
-        @if (form.get("email")?.invalid && form.get("email")?.touched) {
-          <span class="error-msg">Ingresa un correo electrónico válido</span>
+        <!-- Email -->
+        <div class="col-12">
+          <label for="email" class="form-label">
+            Correo electrónico <span class="text-danger">*</span>
+          </label>
+          <div class="input-group">
+            <span class="input-group-text bg-light">
+              <i class="mdi mdi-email-outline text-muted"></i>
+            </span>
+            <input
+              type="email"
+              id="email"
+              class="form-control"
+              formControlName="email"
+              placeholder="correo@ejemplo.com"
+              [class.is-invalid]="isFieldInvalid('email')"
+            />
+          </div>
+          @if (isFieldInvalid('email')) {
+            <div class="invalid-feedback d-block">{{ getFieldError('email') }}</div>
+          }
+        </div>
+
+        <!-- Tipo de usuario -->
+        <div class="col-12">
+          <label for="userType" class="form-label">
+            Tipo de usuario <span class="text-danger">*</span>
+          </label>
+          <div class="user-type-selector">
+            <label class="user-type-option" [class.selected]="form.get('userType')?.value === 'graduate'">
+              <input type="radio" formControlName="userType" value="graduate" class="d-none" />
+              <div class="option-content">
+                <div class="option-icon bg-success-subtle">
+                  <i class="mdi mdi-school text-success"></i>
+                </div>
+                <div class="option-info">
+                  <span class="option-title">Egresado</span>
+                  <small class="text-muted">Busca oportunidades laborales</small>
+                </div>
+              </div>
+            </label>
+            <label class="user-type-option" [class.selected]="form.get('userType')?.value === 'recruiter'">
+              <input type="radio" formControlName="userType" value="recruiter" class="d-none" />
+              <div class="option-content">
+                <div class="option-icon bg-primary-subtle">
+                  <i class="mdi mdi-briefcase text-primary"></i>
+                </div>
+                <div class="option-info">
+                  <span class="option-title">Reclutador</span>
+                  <small class="text-muted">Publica ofertas de empleo</small>
+                </div>
+              </div>
+            </label>
+            <label class="user-type-option" [class.selected]="form.get('userType')?.value === 'admin'">
+              <input type="radio" formControlName="userType" value="admin" class="d-none" />
+              <div class="option-content">
+                <div class="option-icon bg-danger-subtle">
+                  <i class="mdi mdi-shield-account text-danger"></i>
+                </div>
+                <div class="option-info">
+                  <span class="option-title">Administrador</span>
+                  <small class="text-muted">Gestiona el sistema</small>
+                </div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Contraseña -->
+        @if (!isEditMode) {
+          <div class="col-12">
+            <label for="password" class="form-label">
+              Contraseña <span class="text-danger">*</span>
+            </label>
+            <div class="input-group">
+              <span class="input-group-text bg-light">
+                <i class="mdi mdi-lock-outline text-muted"></i>
+              </span>
+              <input
+                [type]="showPassword() ? 'text' : 'password'"
+                id="password"
+                class="form-control"
+                formControlName="password"
+                placeholder="Mínimo 6 caracteres"
+                [class.is-invalid]="isFieldInvalid('password')"
+              />
+              <button
+                type="button"
+                class="btn btn-outline-secondary"
+                (click)="togglePasswordVisibility()"
+              >
+                <i class="mdi" [class]="showPassword() ? 'mdi-eye-off-outline' : 'mdi-eye-outline'"></i>
+              </button>
+            </div>
+            @if (isFieldInvalid('password')) {
+              <div class="invalid-feedback d-block">{{ getFieldError('password') }}</div>
+            }
+          </div>
         }
       </div>
-
-      <div class="form-group">
-        <label for="userType">Tipo de usuario *</label>
-        <select id="userType" formControlName="userType">
-          <option value="graduate">Egresado</option>
-          <option value="recruiter">Reclutador</option>
-          <option value="admin">Administrador</option>
-        </select>
-      </div>
-
-      @if (!isEditMode) {
-        <div class="form-group">
-          <label for="password">Contraseña *</label>
-          <input
-            type="password"
-            id="password"
-            formControlName="password"
-            placeholder="Mínimo 6 caracteres"
-            [class.is-invalid]="
-              form.get('password')?.invalid && form.get('password')?.touched
-            "
-          />
-          @if (form.get("password")?.invalid && form.get("password")?.touched) {
-            <span class="error-msg"
-              >La contraseña es requerida (mín. 6 caracteres)</span
-            >
-          }
-        </div>
-      }
-
-      <div class="modal-footer">
-        <button type="button" class="btn-cancel" (click)="onCancel()">
-          Cancelar
-        </button>
-        <button
-          type="submit"
-          class="btn-submit"
-          [disabled]="form.invalid || isSubmitting()"
-        >
-          @if (isSubmitting()) {
-            <span class="spinner-sm"></span>
-            Guardando...
-          } @else {
-            {{ isEditMode ? "Actualizar" : "Crear Usuario" }}
-          }
-        </button>
-      </div>
     </form>
+
+    <!-- Footer -->
+    <div class="modal-footer-custom">
+      <button type="button" class="btn btn-light" (click)="onCancel()" [disabled]="isSubmitting()">
+        Cancelar
+      </button>
+      <button
+        type="submit"
+        class="btn btn-primary d-flex align-items-center gap-2"
+        (click)="onSubmit()"
+        [disabled]="form.invalid || isSubmitting()"
+      >
+        @if (isSubmitting()) {
+          <span class="spinner-border spinner-border-sm"></span>
+          Guardando...
+        } @else {
+          <i class="mdi" [class]="isEditMode ? 'mdi-content-save' : 'mdi-plus'"></i>
+          {{ isEditMode ? 'Guardar Cambios' : 'Crear Usuario' }}
+        }
+      </button>
+    </div>
   </div>
 </div>

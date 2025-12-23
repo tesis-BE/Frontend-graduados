@@ -1,133 +1,123 @@
-<div class="usuarios-container">
-  <!-- Header -->
-  <div class="usuarios-header">
-    <div class="header-content">
-      <h1>Gestión de Usuarios</h1>
-      <p>Administra los usuarios del sistema</p>
-    </div>
-    <button class="btn-crear" (click)="openCreateModal()">
-      <i class="bi bi-plus"></i>
-      Nuevo Usuario
-    </button>
-  </div>
-
-  <!-- Filtros -->
-  <div class="filtros-section">
-    <div class="search-input">
-      <i class="bi bi-search"></i>
-      <input
-        type="text"
-        placeholder="Buscar por nombre o email..."
-        [value]="searchTerm()"
-        (input)="onSearch($event)"
-      />
-    </div>
-    <div class="filtros-group">
-      <select
-        (change)="onFilterType($event)"
-        [value]="filterUserType()"
-        class="filter-select"
-      >
-        <option value="">Todos los tipos</option>
-        <option value="graduate">Egresado</option>
-        <option value="recruiter">Reclutador</option>
-        <option value="admin">Administrador</option>
-      </select>
-      <select
-        (change)="onFilterStatus($event)"
-        [value]="filterStatus()"
-        class="filter-select"
-      >
-        <option value="">Todos los estados</option>
-        <option value="active">Activos</option>
-        <option value="inactive">Inactivos</option>
-      </select>
+<div class="card overflow-hidden">
+  <!-- Card Header con título y botón -->
+  <div class="card-header">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+      <div>
+        <h5 class="card-title mb-1">Gestión de Usuarios</h5>
+        <p class="text-muted fs-13 mb-0">Administra los usuarios del sistema</p>
+      </div>
+      <button class="btn btn-primary d-flex align-items-center gap-2" (click)="openCreateModal()">
+        <i class="mdi mdi-plus"></i>
+        <span class="d-none d-sm-inline">Nuevo Usuario</span>
+      </button>
     </div>
   </div>
 
-  <!-- Contenido -->
-  <div class="usuarios-content">
+  <div class="card-body">
+    <!-- Filtros -->
+    <div class="row g-3 mb-4">
+      <div class="col-12 col-md-4">
+        <div class="position-relative">
+          <input
+            type="text"
+            class="form-control ps-5"
+            placeholder="Buscar por nombre o email..."
+            [value]="searchTerm()"
+            (input)="onSearchInput($event)"
+          />
+          <i class="mdi mdi-magnify position-absolute top-50 translate-middle-y ms-3 text-muted"></i>
+        </div>
+      </div>
+      <div class="col-6 col-md-4 col-lg-3">
+        <select class="form-select" (change)="onFilterType($event)" [value]="filterUserType()">
+          <option value="">Todos los tipos</option>
+          <option value="graduate">Egresados</option>
+          <option value="recruiter">Reclutadores</option>
+          <option value="admin">Administradores</option>
+        </select>
+      </div>
+      <div class="col-6 col-md-4 col-lg-3">
+        <select class="form-select" (change)="onFilterStatus($event)" [value]="filterStatus()">
+          <option value="">Todos los estados</option>
+          <option value="active">Activos</option>
+          <option value="inactive">Inactivos</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Loading State -->
     @if (isLoading()) {
-      <div class="estado-loading">
-        <div class="spinner"></div>
-        <p>Cargando usuarios...</p>
+      <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+        <p class="text-muted mt-3 mb-0">Cargando usuarios...</p>
       </div>
     } @else if (users().length === 0) {
-      <div class="estado-vacio">
-        <i class="bi bi-people"></i>
-        <h3>No hay usuarios</h3>
-        <p>Intenta ajustar los filtros de búsqueda</p>
+      <!-- Empty State -->
+      <div class="text-center py-5">
+        <div class="avatar avatar-xl bg-light rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3">
+          <i class="mdi mdi-account-group fs-1 text-muted"></i>
+        </div>
+        <h5 class="text-dark">No hay usuarios</h5>
+        <p class="text-muted mb-0">Intenta ajustar los filtros o crea un nuevo usuario</p>
       </div>
     } @else {
-      <div class="tabla-wrapper">
-        <table class="usuarios-tabla">
-          <thead>
+      <!-- Tabla Desktop -->
+      <div class="table-responsive d-none d-lg-block">
+        <table class="table table-hover table-centered align-middle table-nowrap mb-0">
+          <thead class="table-light">
             <tr>
-              <th>Nombre</th>
+              <th>Usuario</th>
               <th>Email</th>
               <th>Tipo</th>
               <th>Estado</th>
-              <th>Registro</th>
-              <th>Acciones</th>
+              <th>Fecha de Registro</th>
+              <th class="text-end">Acciones</th>
             </tr>
           </thead>
           <tbody>
             @for (user of users(); track user.id) {
               <tr>
                 <td>
-                  <div class="user-nombre">
-                    <div class="avatar">
-                      <i class="bi bi-person-circle"></i>
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="avatar avatar-sm bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center">
+                      <span class="fw-semibold fs-12">{{ getInitials(user.firstName, user.lastName) }}</span>
                     </div>
-                    <span>{{ user.firstName }} {{ user.lastName }}</span>
+                    <span class="fw-medium text-dark">{{ user.firstName }} {{ user.lastName }}</span>
                   </div>
                 </td>
-                <td>{{ user.email }}</td>
+                <td class="text-muted">{{ user.email }}</td>
                 <td>
-                  <span
-                    class="badge-tipo"
-                    [style.--tipo-color]="getUserTypeColor(user.userType)"
-                  >
-                    <i [class]="'bi ' + getUserTypeIcon(user.userType)"></i>
+                  <span class="badge rounded-pill {{ getUserTypeBadgeClass(user.userType) }}">
+                    <i class="{{ getUserTypeIcon(user.userType) }} me-1"></i>
                     {{ getUserTypeLabel(user.userType) }}
                   </span>
                 </td>
                 <td>
-                  <span
-                    class="badge-estado"
-                    [class.activo]="user.isActive"
-                    [class.inactivo]="!user.isActive"
-                  >
-                    {{ user.isActive ? "Activo" : "Inactivo" }}
+                  <span class="badge rounded-pill" [class]="user.isActive ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary'">
+                    <i class="mdi" [class]="user.isActive ? 'mdi-check-circle' : 'mdi-close-circle'"></i>
+                    {{ user.isActive ? 'Activo' : 'Inactivo' }}
                   </span>
                 </td>
-                <td>{{ user.createdAt | date: "short" }}</td>
-                <td class="acciones-cell">
-                  <button
-                    class="btn-accion edit"
-                    (click)="openEditModal(user)"
-                    title="Editar"
-                  >
-                    <i class="bi bi-pencil"></i>
-                  </button>
-                  <button
-                    class="btn-accion status"
-                    (click)="toggleStatus(user)"
-                    title="Cambiar estado"
-                  >
-                    <i
-                      [class]="
-                        user.isActive ? 'bi bi-lock-fill' : 'bi bi-unlock-fill'
-                      "
-                    ></i>
-                  </button>
-                  <button
-                    class="btn-accion delete"
-                    (click)="deleteUser(user)"
-                    title="Eliminar"
-                  >
-                    <i class="bi bi-trash"></i>
-                  </button>
+                <td class="text-muted">{{ user.createdAt | date: 'dd/MM/yyyy' }}</td>
+                <td class="text-end">
+                  <div class="d-flex justify-content-end gap-1">
+                    <button class="btn btn-soft-primary btn-sm" (click)="openEditModal(user)" title="Editar">
+                      <i class="mdi mdi-pencil-outline"></i>
+                    </button>
+                    <button 
+                      class="btn btn-sm" 
+                      [class]="user.isActive ? 'btn-soft-warning' : 'btn-soft-success'"
+                      (click)="toggleStatus(user)" 
+                      [title]="user.isActive ? 'Desactivar' : 'Activar'"
+                    >
+                      <i class="mdi" [class]="user.isActive ? 'mdi-lock-outline' : 'mdi-lock-open-outline'"></i>
+                    </button>
+                    <button class="btn btn-soft-danger btn-sm" (click)="deleteUser(user)" title="Eliminar">
+                      <i class="mdi mdi-trash-can-outline"></i>
+                    </button>
+                  </div>
                 </td>
               </tr>
             }
@@ -135,32 +125,86 @@
         </table>
       </div>
 
+      <!-- Cards Mobile/Tablet -->
+      <div class="d-lg-none">
+        <div class="row g-3">
+          @for (user of users(); track user.id) {
+            <div class="col-12 col-sm-6">
+              <div class="card border shadow-none mb-0 h-100">
+                <div class="card-body">
+                  <div class="d-flex align-items-start justify-content-between mb-3">
+                    <div class="d-flex align-items-center gap-2">
+                      <div class="avatar avatar-md bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center">
+                        <span class="fw-semibold">{{ getInitials(user.firstName, user.lastName) }}</span>
+                      </div>
+                      <div>
+                        <h6 class="mb-0 text-dark">{{ user.firstName }} {{ user.lastName }}</h6>
+                        <small class="text-muted">{{ user.email }}</small>
+                      </div>
+                    </div>
+                    <span class="badge rounded-pill" [class]="user.isActive ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary'">
+                      {{ user.isActive ? 'Activo' : 'Inactivo' }}
+                    </span>
+                  </div>
+                  <div class="mb-3">
+                    <span class="badge rounded-pill {{ getUserTypeBadgeClass(user.userType) }}">
+                      <i class="{{ getUserTypeIcon(user.userType) }} me-1"></i>
+                      {{ getUserTypeLabel(user.userType) }}
+                    </span>
+                  </div>
+                  <div class="d-flex align-items-center justify-content-between">
+                    <small class="text-muted">
+                      <i class="mdi mdi-calendar-outline me-1"></i>
+                      {{ user.createdAt | date: 'dd/MM/yyyy' }}
+                    </small>
+                    <div class="d-flex gap-1">
+                      <button class="btn btn-soft-primary btn-sm" (click)="openEditModal(user)">
+                        <i class="mdi mdi-pencil-outline"></i>
+                      </button>
+                      <button 
+                        class="btn btn-sm" 
+                        [class]="user.isActive ? 'btn-soft-warning' : 'btn-soft-success'"
+                        (click)="toggleStatus(user)"
+                      >
+                        <i class="mdi" [class]="user.isActive ? 'mdi-lock-outline' : 'mdi-lock-open-outline'"></i>
+                      </button>
+                      <button class="btn btn-soft-danger btn-sm" (click)="deleteUser(user)">
+                        <i class="mdi mdi-trash-can-outline"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
       <!-- Paginación -->
       @if (totalPages() > 1) {
-        <div class="paginacion">
-          <button
-            [disabled]="currentPage() === 1"
-            (click)="goToPage(currentPage() - 1)"
-            class="btn-pag"
-          >
-            <i class="bi bi-chevron-left"></i>
-          </button>
-          @for (page of getPages(); track page) {
-            <button
-              [class.activa]="page === currentPage()"
-              (click)="goToPage(page)"
-              class="btn-pag numero"
-            >
-              {{ page }}
-            </button>
-          }
-          <button
-            [disabled]="currentPage() === totalPages()"
-            (click)="goToPage(currentPage() + 1)"
-            class="btn-pag"
-          >
-            <i class="bi bi-chevron-right"></i>
-          </button>
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mt-4 pt-3 border-top">
+          <div class="text-muted fs-13">
+            Mostrando {{ startIndex() }} - {{ endIndex() }} de {{ total() }} usuarios
+          </div>
+          <nav>
+            <ul class="pagination pagination-sm mb-0">
+              <li class="page-item" [class.disabled]="currentPage() === 1">
+                <button class="page-link" (click)="goToPage(currentPage() - 1)">
+                  <i class="mdi mdi-chevron-left"></i>
+                </button>
+              </li>
+              @for (page of getPages(); track page) {
+                <li class="page-item" [class.active]="page === currentPage()">
+                  <button class="page-link" (click)="goToPage(page)">{{ page }}</button>
+                </li>
+              }
+              <li class="page-item" [class.disabled]="currentPage() === totalPages()">
+                <button class="page-link" (click)="goToPage(currentPage() + 1)">
+                  <i class="mdi mdi-chevron-right"></i>
+                </button>
+              </li>
+            </ul>
+          </nav>
         </div>
       }
     }

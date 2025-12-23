@@ -4,8 +4,12 @@ import {
   Input,
   Output,
   OnInit,
+  OnDestroy,
+  OnChanges,
+  SimpleChanges,
   inject,
   signal,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
@@ -16,6 +20,7 @@ import {
 } from '@angular/forms';
 import { UserService } from '@core/services/api/user.service';
 import { SweetAlertService } from '@shared/services/sweet-alert.service';
+import { Subject, takeUntil } from 'rxjs';
 
 interface User {
   id: number;
@@ -31,9 +36,9 @@ interface User {
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './usuario-form.component.html',
-  styleUrl: './usuario-form.component.scss',
+  styleUrls: ['./usuario-form.component.scss'],
 })
-export class UsuarioFormComponent implements OnInit {
+export class UsuarioFormComponent implements OnInit, OnChanges, OnDestroy {
   @Input() user: User | null = null;
   @Output() saved = new EventEmitter<void>();
   @Output() cancelled = new EventEmitter<void>();
@@ -41,9 +46,12 @@ export class UsuarioFormComponent implements OnInit {
   private fb = inject(FormBuilder);
   private userService = inject(UserService);
   private sweetAlert = inject(SweetAlertService);
+  private cdr = inject(ChangeDetectorRef);
+  private destroy$ = new Subject<void>();
 
   form!: FormGroup;
   isSubmitting = signal(false);
+  showPassword = signal(false);
 
   get isEditMode(): boolean {
     return !!this.user;
@@ -51,6 +59,18 @@ export class UsuarioFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.initForm();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['user'] && this.form) {
+      this.initForm();
+      this.cdr.markForCheck();
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   private initForm(): void {
@@ -72,10 +92,19 @@ export class UsuarioFormComponent implements OnInit {
     });
   }
 
+  togglePasswordVisibility(): void {
+    this.showPassword.update((v) => !v);
+  }
+
   onSubmit(): void {
     if (this.form.invalid || this.isSubmitting()) return;
 
+    // Marcar todos los campos como tocados para mostrar errores
+    this.form.markAllAsTouched();
+
     this.isSubmitting.set(true);
+    this.cdr.markForCheck();
+
     const data = { ...this.form.value };
 
     // Si es edición y no hay password, lo quitamos
@@ -87,22 +116,47 @@ export class UsuarioFormComponent implements OnInit {
       ? this.userService.updateUser(this.user!.id, data)
       : this.userService.createUser(data);
 
-    request.subscribe({
+    request.pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         const message = this.isEditMode ? 'actualizado' : 'creado';
+        this.isSubmitting.set(false);
+        this.cdr.markForCheck();
         this.sweetAlert.success('Éxito', `Usuario ${message} correctamente`);
         this.saved.emit();
       },
       error: (error) => {
         const errorMsg =
           error.error?.message || 'No se pudo guardar el usuario';
-        this.sweetAlert.error('Error', errorMsg);
         this.isSubmitting.set(false);
+        this.cdr.markForCheck();
+        this.sweetAlert.error('Error', errorMsg);
       },
     });
   }
 
   onCancel(): void {
     this.cancelled.emit();
+  }
+
+  onBackdropClick(event: MouseEvent): void {
+    // No cerrar al hacer clic en el backdrop
+    event.stopPropagation();
+  }
+
+  isFieldInvalid(fieldName: string): boolean {
+    const field = this.form.get(fieldName);
+    return field ? field.invalid && field.touched : false;
+  }
+
+  getFieldError(fieldName: string): string {
+    const field = this.form.get(fieldName);
+    if (!field || !field.errors) return '';
+
+    if (field.errors['required']) return 'Este campo es requerido';
+    if (field.errors['minlength'])
+      return `Mínimo ${field.errors['minlength'].requiredLength} caracteres`;
+    if (field.errors['email']) return 'Ingresa un email válido';
+
+    return 'Campo inválido';
   }
 }
