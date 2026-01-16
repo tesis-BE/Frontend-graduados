@@ -62,13 +62,38 @@
 
             @if (graduate.skills && graduate.skills.length > 0) {
               <div class="skills">
-                @for (skill of graduate.skills.slice(0, 3); track skill.id) {
-                  <span class="skill-badge">{{ skill.name }}</span>
-                }
-                @if (graduate.skills.length > 3) {
-                  <span class="skill-badge more"
-                    >+{{ graduate.skills.length - 3 }}</span
+                <h6 class="skills-title">Habilidades:</h6>
+                @for (skill of graduate.skills.slice(0, 5); track skill.id) {
+                  <span
+                    class="skill-badge"
+                    [attr.data-level]="skill.level"
+                    [title]="skill.name + ' - ' + (skill.level || 'intermediate')"
                   >
+                    {{ skill.name }}
+                  </span>
+                }
+                @if (graduate.skills.length > 5) {
+                  <span class="skill-badge more"
+                    >+{{ graduate.skills.length - 5 }}</span
+                  >
+                }
+              </div>
+            }
+
+            @if (graduate.workExperiences && graduate.workExperiences.length > 0) {
+              <div class="experience">
+                <h6 class="experience-title">
+                  <i class="bi bi-briefcase"></i>
+                  Experiencia:
+                </h6>
+                @for (exp of graduate.workExperiences.slice(0, 2); track exp.id) {
+                  <div class="experience-item">
+                    <div class="exp-position">{{ exp.position }}</div>
+                    <div class="exp-company">{{ exp.company }}</div>
+                    @if (exp.isCurrent) {
+                      <span class="exp-badge current">Actual</span>
+                    }
+                  </div>
                 }
               </div>
             }
@@ -85,7 +110,11 @@
                 CV
               </button>
             }
-            <button class="btn btn-primary btn-sm" title="Ver perfil">
+            <button 
+              class="btn btn-primary btn-sm" 
+              (click)="viewProfile(graduate.id)"
+              title="Ver perfil"
+            >
               <i class="bi bi-eye"></i>
               Ver Perfil
             </button>

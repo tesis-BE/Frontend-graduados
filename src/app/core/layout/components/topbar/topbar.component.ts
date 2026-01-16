@@ -1,8 +1,6 @@
 import { ThemeService } from '@core/services/ui/theme.service';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import {
-  AfterViewChecked,
-  AfterViewInit,
   ChangeDetectorRef,
   Component,
   CUSTOM_ELEMENTS_SCHEMA,
@@ -12,11 +10,17 @@ import {
   OnInit,
   Renderer2,
   RendererFactory2,
+  signal,
+  OnDestroy,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import * as feather from 'feather-icons';
 import { SimplebarAngularModule } from 'simplebar-angular';
+import { ProfileService } from '@core/services/api/profile.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { environment } from '@/environments/environment';
 
 @Component({
   selector: 'app-topbar',
@@ -30,16 +34,23 @@ import { SimplebarAngularModule } from 'simplebar-angular';
   styles: ``,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class TopbarComponent {
+export class TopbarComponent implements OnInit, OnDestroy {
   isSidebarVisible = true;
   isFullscreen: boolean = false;
   private config = { theme: 'light' };
+
+  currentUser = signal<any>(null);
+  photoUrl = signal<string>('assets/images/users/user-13.jpg');
+
+  private destroy$ = new Subject<void>();
+
   constructor(
     private renderer: Renderer2,
     private el: ElementRef,
     @Inject(DOCUMENT) private document: any,
     private cdr: ChangeDetectorRef,
     private themeService: ThemeService,
+    private profileService: ProfileService,
     rendererFactory: RendererFactory2,
   ) {
     this.renderer = rendererFactory.createRenderer(null, null);
@@ -52,6 +63,40 @@ export class TopbarComponent {
     this.updateOnWindowResize();
     this.themeService.initTheme();
     feather.replace();
+
+    // Cargar datos del usuario
+    this.loadUserProfile();
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  loadUserProfile(): void {
+    this.profileService
+      .getProfile()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (profile) => {
+          console.log('Profile loaded:', profile);
+          console.log('Photo URL from backend:', profile.photoUrl);
+
+          this.currentUser.set(profile);
+
+          // Actualizar foto de perfil usando la URL correcta (sin /api/v1)
+          if (profile.photoUrl) {
+            const photoUrl = profile.photoUrl.startsWith('http')
+              ? profile.photoUrl
+              : `${environment.assetsUrl}${profile.photoUrl}`;
+            console.log('Final photo URL:', photoUrl);
+            this.photoUrl.set(photoUrl);
+          }
+        },
+        error: (error) => {
+          console.error('Error loading profile:', error);
+        },
+      });
   }
 
   get theme(): string {

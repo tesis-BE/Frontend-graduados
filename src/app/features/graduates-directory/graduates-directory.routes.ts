@@ -8,4 +8,11 @@ export const GRADUATES_DIRECTORY_ROUTES: Routes = [
         (m) => m.GraduatesListComponent,
       ),
   },
+  {
+    path: ':id',
+    loadComponent: () =>
+      import('./components/graduate-detail.component').then(
+        (m) => m.GraduateDetailComponent,
+      ),
+  },
 ];

@@ -7,6 +7,7 @@ export * from './services/api/job-offer.service';
 export * from './services/api/application.service';
 export * from './services/api/graduate.service';
 export * from './services/api/company.service';
+export * from './services/api/profile.service';
 
 export * from './services/ui/theme.service';
 export * from './services/ui/title.service';
@@ -27,6 +28,7 @@ export * from './interfaces/api/job-offer.interface';
 export * from './interfaces/api/application.interface';
 export * from './interfaces/api/graduate.interface';
 export * from './interfaces/api/company.interface';
+export * from './interfaces/api/profile.interface';
 
 export * from './store';
 

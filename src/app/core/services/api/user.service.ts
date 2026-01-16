@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '@/environments/environment';
 
 export interface Graduate {
@@ -8,12 +9,57 @@ export interface Graduate {
   firstName: string;
   lastName: string;
   email: string;
+  phone?: string;
+  institutionalEmail?: string;
+  bio?: string;
+  linkedinUrl?: string;
   facultyName?: string;
   careerName?: string;
   graduationYear?: number;
   isAvailable?: boolean;
-  skills?: Array<{ id: number; name: string }>;
+  availableForWork?: boolean;
+  skills?: Array<{ 
+    id: number; 
+    name: string; 
+    skillName?: string; 
+    level?: string; 
+    proficiencyLevel?: string; 
+    yearsExperience?: number;
+  }>;
   portfolio?: Array<{ id: number; title: string; url: string }>;
+  workExperiences?: Array<{ 
+    id: number; 
+    company: string; 
+    position: string; 
+    startDate: string; 
+    endDate?: string; 
+    isCurrent: boolean;
+    description?: string;
+  }>;
+  education?: Array<{
+    id: number;
+    degree: string;
+    institutionName?: string;
+    institution?: string;
+    startDate?: string;
+    endDate?: string;
+    isCurrent?: boolean;
+  }>;
+  certifications?: Array<{
+    id: number;
+    name: string;
+    issuingOrganization: string;
+    issueDate?: string;
+    credentialUrl?: string;
+  }>;
+  projects?: Array<{
+    id: number;
+    name: string;
+    description?: string;
+    technologies?: string[];
+    projectUrl?: string;
+    repositoryUrl?: string;
+  }>;
   photoUrl?: string;
   cvUrl?: string;
   createdAt: string;
@@ -63,7 +109,35 @@ export class UserService {
 
     return this.http.get<any>(`${this.apiUrl}/graduates`, {
       params: httpParams,
-    });
+    }).pipe(
+      map((response: any) => {
+        if (response.data) {
+          response.data = response.data.map((graduate: any) => ({
+            ...graduate,
+            isAvailable: graduate.availableForWork,
+            photoUrl: graduate.photoUrl?.startsWith('http') 
+              ? graduate.photoUrl 
+              : graduate.photoUrl 
+                ? `${environment.assetsUrl}${graduate.photoUrl}` 
+                : null,
+            cvUrl: graduate.cvUrl?.startsWith('http')
+              ? graduate.cvUrl
+              : graduate.cvUrl
+                ? `${environment.assetsUrl}${graduate.cvUrl}`
+                : null,
+            skills: graduate.skills?.map((skill: any) => ({
+              id: skill.id,
+              name: skill.skillName || skill.name,
+              level: this.normalizeProficiencyLevel(skill.proficiencyLevel || skill.level),
+              yearsExperience: skill.yearsExperience,
+            })) || [],
+            portfolio: graduate.portfolios || graduate.portfolio || [],
+            workExperiences: graduate.workExperiences || [],
+          }));
+        }
+        return response;
+      })
+    );
   }
 
   // Perfil de usuario por ID
@@ -175,5 +249,23 @@ export class UserService {
   // Eliminar usuario (admin)
   deleteUser(id: number): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/${id}`);
+  }
+
+  // Helper para normalizar niveles de competencia
+  private normalizeProficiencyLevel(level: string | undefined): string {
+    if (!level) return 'intermediate';
+    
+    const levelMap: { [key: string]: string } = {
+      'principiante': 'beginner',
+      'intermedio': 'intermediate',
+      'avanzado': 'advanced',
+      'experto': 'expert',
+      'beginner': 'beginner',
+      'intermediate': 'intermediate',
+      'advanced': 'advanced',
+      'expert': 'expert',
+    };
+
+    return levelMap[level.toLowerCase()] || 'intermediate';
   }
 }

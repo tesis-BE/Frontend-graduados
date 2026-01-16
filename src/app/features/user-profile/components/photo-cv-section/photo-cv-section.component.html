@@ -1,0 +1,114 @@
+<div class="d-flex flex-column gap-4">
+  <!-- Foto de Perfil -->
+  <div class="card">
+    <div class="card-header">
+      <h5 class="card-title mb-0">
+        <i class="mdi mdi-camera me-2"></i>
+        Foto de Perfil
+      </h5>
+    </div>
+    <div class="card-body text-center">
+      <div class="photo-container mb-3">
+        @if (photoUrl) {
+          <img [src]="photoUrl" alt="Foto de perfil" class="profile-photo" />
+        } @else {
+          <div class="photo-placeholder">
+            <i class="mdi mdi-account fs-1"></i>
+          </div>
+        }
+        @if (isUploadingPhoto()) {
+          <div class="upload-overlay">
+            <div class="spinner-border spinner-border-sm text-white"></div>
+          </div>
+        }
+      </div>
+
+      <input
+        type="file"
+        #photoInput
+        class="d-none"
+        accept="image/*"
+        (change)="onPhotoSelected($event)"
+      />
+
+      <button
+        type="button"
+        class="btn btn-outline-primary btn-sm"
+        (click)="triggerPhotoUpload()"
+        [disabled]="isUploadingPhoto()"
+      >
+        <i class="mdi mdi-upload me-1"></i>
+        {{ photoUrl ? "Cambiar Foto" : "Subir Foto" }}
+      </button>
+
+      <p class="text-muted small mt-2 mb-0">Formatos: JPG, PNG, GIF. Máx 5MB</p>
+    </div>
+  </div>
+
+  <!-- Curriculum Vitae -->
+  <div class="card">
+    <div class="card-header">
+      <h5 class="card-title mb-0">
+        <i class="mdi mdi-file-document me-2"></i>
+        Curriculum Vitae
+      </h5>
+    </div>
+    <div class="card-body">
+      @if (cvUrl) {
+        <div class="cv-info d-flex align-items-center gap-3 mb-3">
+          <div class="cv-icon">
+            <i class="mdi mdi-file-pdf-box text-danger fs-2"></i>
+          </div>
+          <div class="flex-grow-1">
+            <p class="mb-0 fw-medium">CV Cargado</p>
+            <small class="text-muted"
+              >Haz clic para descargar o actualizar</small
+            >
+          </div>
+          <button
+            type="button"
+            class="btn btn-outline-secondary btn-sm"
+            (click)="downloadCV()"
+            title="Descargar CV"
+          >
+            <i class="mdi mdi-download"></i>
+          </button>
+        </div>
+      } @else {
+        <div class="text-center py-3">
+          <i class="mdi mdi-file-upload-outline text-muted fs-1"></i>
+          <p class="text-muted mb-0">No has subido tu CV aún</p>
+        </div>
+      }
+
+      <input
+        type="file"
+        #cvInput
+        class="d-none"
+        accept=".pdf,.doc,.docx"
+        (change)="onCVSelected($event)"
+      />
+
+      <div class="d-grid">
+        <button
+          type="button"
+          class="btn btn-outline-primary btn-sm"
+          (click)="triggerCVUpload()"
+          [disabled]="isUploadingCV()"
+        >
+          @if (isUploadingCV()) {
+            <span class="spinner-border spinner-border-sm me-1"></span>
+            Subiendo...
+          } @else {
+            <i class="mdi mdi-upload me-1"></i>
+            {{ cvUrl ? "Actualizar CV" : "Subir CV" }}
+          }
+        </button>
+      </div>
+
+      <p class="text-muted small mt-2 mb-0 text-center">
+        Formatos: PDF, DOC, DOCX. Máx 10MB
+      </p>
+    </div>
+  </div>
+</div>

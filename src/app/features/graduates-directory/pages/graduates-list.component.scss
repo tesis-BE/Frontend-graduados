@@ -151,17 +151,121 @@
     gap: 6px;
     margin-top: 12px;
 
+    .skills-title {
+      width: 100%;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--bs-secondary-color);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 0 0 6px 0;
+    }
+
     .skill-badge {
-      padding: 4px 10px;
-      border-radius: 8px;
-      font-size: 11px;
+      padding: 5px 12px;
+      border-radius: 12px;
+      font-size: 12px;
       font-weight: 500;
       background: var(--bs-primary-bg-subtle);
       color: var(--bs-primary);
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+
+      &:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      // Colores según nivel de competencia
+      &[data-level='beginner'] {
+        background: #e3f2fd;
+        color: #1976d2;
+        border-color: #bbdefb;
+      }
+
+      &[data-level='intermediate'] {
+        background: #e8f5e9;
+        color: #388e3c;
+        border-color: #c8e6c9;
+      }
+
+      &[data-level='advanced'] {
+        background: #fff3e0;
+        color: #f57c00;
+        border-color: #ffe0b2;
+      }
+
+      &[data-level='expert'] {
+        background: #f3e5f5;
+        color: #7b1fa2;
+        border-color: #e1bee7;
+      }
 
       &.more {
         background: var(--bs-secondary-bg);
         color: var(--bs-secondary-color);
+        font-weight: 600;
+      }
+    }
+  }
+
+  .experience {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--bs-border-color-translucent);
+
+    .experience-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--bs-secondary-color);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 0 0 8px 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+
+      i {
+        font-size: 14px;
+      }
+    }
+
+    .experience-item {
+      margin-bottom: 8px;
+      padding: 8px;
+      background: var(--bs-secondary-bg);
+      border-radius: 6px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      .exp-position {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--bs-heading-color);
+        margin-bottom: 2px;
+      }
+
+      .exp-company {
+        font-size: 12px;
+        color: var(--bs-secondary-color);
+        margin-bottom: 4px;
+      }
+
+      .exp-badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 10px;
+        font-weight: 600;
+        background: var(--bs-success-bg-subtle);
+        color: var(--bs-success);
+
+        &.current {
+          background: var(--bs-success-bg-subtle);
+          color: var(--bs-success);
+        }
       }
     }
   }

@@ -1,0 +1,7 @@
+.container-fluid {
+  padding: 1.5rem;
+
+  @media (max-width: 767.98px) {
+    padding: 1rem;
+  }
+}

@@ -1,0 +1,10 @@
+export { PersonalInfoSectionComponent } from './personal-info-section/personal-info-section.component';
+export { PhotoCvSectionComponent } from './photo-cv-section/photo-cv-section.component';
+export { SkillsSectionComponent } from './skills-section/skills-section.component';
+export { PortfolioSectionComponent } from './portfolio-section/portfolio-section.component';
+export { WorkExperienceSectionComponent } from './work-experience-section/work-experience-section.component';
+export { EducationSectionComponent } from './education-section/education-section.component';
+export { CertificationsSectionComponent } from './certifications-section/certifications-section.component';
+export { ProjectsSectionComponent } from './projects-section/projects-section.component';
+export { PasswordSectionComponent } from './password-section/password-section.component';
+export { ProfileContainerComponent } from './profile-container/profile-container.component';

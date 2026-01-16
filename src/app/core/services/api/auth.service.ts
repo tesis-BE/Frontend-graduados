@@ -49,7 +49,6 @@ export interface RegisterData {
   firstName: string;
   lastName: string;
   email: string;
-  personalEmail?: string;
   institutionalEmail?: string;
   password: string;
   phone?: string;

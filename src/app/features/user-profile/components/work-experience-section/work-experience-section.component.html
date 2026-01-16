@@ -1,0 +1,213 @@
+<div class="card h-100">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h5 class="card-title mb-0">
+      <i class="mdi mdi-briefcase-outline me-2"></i>
+      Experiencia Laboral
+    </h5>
+    <button
+      type="button"
+      class="btn btn-sm"
+      [class.btn-primary]="!showForm()"
+      [class.btn-outline-secondary]="showForm()"
+      (click)="toggleForm()"
+    >
+      <i
+        class="mdi"
+        [class.mdi-plus]="!showForm()"
+        [class.mdi-close]="showForm()"
+      ></i>
+    </button>
+  </div>
+  <div class="card-body">
+    <!-- Formulario -->
+    @if (showForm()) {
+      <form
+        [formGroup]="experienceForm"
+        (ngSubmit)="saveExperience()"
+        class="mb-4"
+      >
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label small">Empresa *</label>
+            <input
+              type="text"
+              class="form-control"
+              formControlName="companyName"
+              placeholder="Nombre de la empresa"
+            />
+            @if (
+              experienceForm.get("companyName")?.touched &&
+              experienceForm.get("companyName")?.invalid
+            ) {
+              <div class="text-danger small mt-1">Campo requerido</div>
+            }
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small">Cargo *</label>
+            <input
+              type="text"
+              class="form-control"
+              formControlName="position"
+              placeholder="Tu cargo o posición"
+            />
+            @if (
+              experienceForm.get("position")?.touched &&
+              experienceForm.get("position")?.invalid
+            ) {
+              <div class="text-danger small mt-1">Campo requerido</div>
+            }
+          </div>
+          <div class="col-12">
+            <label class="form-label small">Ubicación</label>
+            <input
+              type="text"
+              class="form-control"
+              formControlName="location"
+              placeholder="Ciudad, País"
+            />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small">Fecha de Inicio *</label>
+            <input
+              type="date"
+              class="form-control"
+              formControlName="startDate"
+            />
+            @if (
+              experienceForm.get("startDate")?.touched &&
+              experienceForm.get("startDate")?.invalid
+            ) {
+              <div class="text-danger small mt-1">Campo requerido</div>
+            }
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small">Fecha de Fin</label>
+            <input
+              type="date"
+              class="form-control"
+              formControlName="endDate"
+              [class.disabled]="experienceForm.get('isCurrent')?.value"
+            />
+          </div>
+          <div class="col-12">
+            <div class="form-check">
+              <input
+                type="checkbox"
+                class="form-check-input"
+                id="isCurrent"
+                formControlName="isCurrent"
+              />
+              <label class="form-check-label small" for="isCurrent">
+                Trabajo actualmente aquí
+              </label>
+            </div>
+          </div>
+          <div class="col-12">
+            <label class="form-label small">Descripción</label>
+            <textarea
+              class="form-control"
+              formControlName="description"
+              rows="3"
+              placeholder="Describe tus responsabilidades y logros"
+            ></textarea>
+          </div>
+          <div class="col-12 d-flex gap-2">
+            <button
+              type="submit"
+              class="btn btn-primary flex-grow-1"
+              [disabled]="experienceForm.invalid || isSubmitting()"
+            >
+              @if (isSubmitting()) {
+                <span class="spinner-border spinner-border-sm me-1"></span>
+                Guardando...
+              } @else if (editingId()) {
+                <i class="mdi mdi-check me-1"></i>
+                Actualizar
+              } @else {
+                <i class="mdi mdi-plus me-1"></i>
+                Agregar
+              }
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              (click)="toggleForm()"
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      </form>
+    }
+
+    <!-- Lista de experiencias -->
+    @if (experiences.length > 0) {
+      <div class="experience-timeline">
+        @for (exp of experiences; track exp.id) {
+          <div class="timeline-item">
+            <div class="timeline-marker"></div>
+            <div class="timeline-content">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <h6 class="mb-1">{{ exp.position }}</h6>
+                  <p class="text-primary mb-1 small fw-medium">
+                    {{ exp.company }}
+                  </p>
+                  <p class="text-muted small mb-0">
+                    <i class="mdi mdi-calendar-range me-1"></i>
+                    {{ formatDate(exp.startDate) }} -
+                    {{
+                      exp.isCurrent
+                        ? "Presente"
+                        : formatDate(exp.endDate ?? null)
+                    }}
+                  </p>
+                  @if (exp.description) {
+                    <p class="text-muted small mt-2 mb-0">
+                      {{ exp.description }}
+                    </p>
+                  }
+                </div>
+                <div class="d-flex gap-1">
+                  <button
+                    type="button"
+                    class="btn btn-link btn-sm text-secondary p-0"
+                    (click)="editExperience(exp)"
+                    title="Editar"
+                  >
+                    <i class="mdi mdi-pencil"></i>
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-link btn-sm text-danger p-0"
+                    (click)="deleteExperience(exp)"
+                    [disabled]="deletingId() === exp.id"
+                    title="Eliminar"
+                  >
+                    @if (deletingId() === exp.id) {
+                      <span class="spinner-border spinner-border-sm"></span>
+                    } @else {
+                      <i class="mdi mdi-delete"></i>
+                    }
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    } @else if (!showForm()) {
+      <div class="text-center py-4">
+        <i class="mdi mdi-briefcase-remove-outline text-muted fs-1"></i>
+        <p class="text-muted mb-0">No tienes experiencia laboral registrada</p>
+        <button
+          type="button"
+          class="btn btn-link btn-sm"
+          (click)="toggleForm()"
+        >
+          Agregar experiencia
+        </button>
+      </div>
+    }
+  </div>
+</div>

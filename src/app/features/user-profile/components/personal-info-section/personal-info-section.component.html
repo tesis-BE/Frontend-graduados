@@ -1,0 +1,165 @@
+<div class="card">
+  <div class="card-header">
+    <h5 class="card-title mb-0">
+      <i class="mdi mdi-account-edit me-2"></i>
+      Información Personal
+    </h5>
+  </div>
+  <div class="card-body">
+    <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+      <div class="row g-3">
+        <!-- Nombre -->
+        <div class="col-12 col-md-6">
+          <label for="firstName" class="form-label"
+            >Nombre <span class="text-danger">*</span></label
+          >
+          <input
+            type="text"
+            id="firstName"
+            class="form-control"
+            [class.is-invalid]="hasError('firstName')"
+            formControlName="firstName"
+            placeholder="Ingrese su nombre"
+          />
+          @if (hasError("firstName")) {
+            <div class="invalid-feedback">{{ getError("firstName") }}</div>
+          }
+        </div>
+
+        <!-- Apellido -->
+        <div class="col-12 col-md-6">
+          <label for="lastName" class="form-label"
+            >Apellido <span class="text-danger">*</span></label
+          >
+          <input
+            type="text"
+            id="lastName"
+            class="form-control"
+            [class.is-invalid]="hasError('lastName')"
+            formControlName="lastName"
+            placeholder="Ingrese su apellido"
+          />
+          @if (hasError("lastName")) {
+            <div class="invalid-feedback">{{ getError("lastName") }}</div>
+          }
+        </div>
+
+        <!-- Email Institucional -->
+        <div class="col-12 col-md-6">
+          <label for="institutionalEmail" class="form-label"
+            >Correo Institucional</label
+          >
+          <input
+            type="email"
+            id="institutionalEmail"
+            class="form-control"
+            [class.is-invalid]="hasError('institutionalEmail')"
+            formControlName="institutionalEmail"
+            placeholder="correo@universidad.edu"
+          />
+          @if (hasError("institutionalEmail")) {
+            <div class="invalid-feedback">
+              {{ getError("institutionalEmail") }}
+            </div>
+          }
+        </div>
+
+        <!-- Teléfono -->
+        <div class="col-12 col-md-6">
+          <label for="phone" class="form-label">Teléfono</label>
+          <input
+            type="tel"
+            id="phone"
+            class="form-control"
+            [class.is-invalid]="hasError('phone')"
+            formControlName="phone"
+            placeholder="+593 999 999 999"
+          />
+          @if (hasError("phone")) {
+            <div class="invalid-feedback">{{ getError("phone") }}</div>
+          }
+        </div>
+
+        <!-- LinkedIn -->
+        <div class="col-12 col-md-6">
+          <label for="linkedinUrl" class="form-label">LinkedIn URL</label>
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="mdi mdi-linkedin"></i>
+            </span>
+            <input
+              type="url"
+              id="linkedinUrl"
+              class="form-control"
+              [class.is-invalid]="hasError('linkedinUrl')"
+              formControlName="linkedinUrl"
+              placeholder="https://linkedin.com/in/usuario"
+            />
+          </div>
+          @if (hasError("linkedinUrl")) {
+            <div class="text-danger small mt-1">
+              {{ getError("linkedinUrl") }}
+            </div>
+          }
+        </div>
+
+        <!-- Biografía -->
+        <div class="col-12">
+          <label for="bio" class="form-label">Biografía</label>
+          <textarea
+            id="bio"
+            class="form-control"
+            [class.is-invalid]="hasError('bio')"
+            formControlName="bio"
+            rows="4"
+            placeholder="Cuéntanos sobre ti, tus intereses y objetivos profesionales..."
+          ></textarea>
+          <div class="d-flex justify-content-between mt-1">
+            @if (hasError("bio")) {
+              <span class="text-danger small">{{ getError("bio") }}</span>
+            } @else {
+              <span></span>
+            }
+            <span class="text-muted small">{{ bioLength }}/500</span>
+          </div>
+        </div>
+
+        <!-- Disponibilidad -->
+        <div class="col-12">
+          <div class="form-check form-switch">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              id="availableForWork"
+              formControlName="availableForWork"
+            />
+            <label class="form-check-label" for="availableForWork">
+              <strong>Disponible para trabajar</strong>
+              <span class="text-muted d-block small">
+                Los reclutadores podrán ver que estás buscando oportunidades
+                laborales
+              </span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botón Guardar -->
+      <div class="d-flex justify-content-end mt-4">
+        <button
+          type="submit"
+          class="btn btn-primary d-flex align-items-center gap-2"
+          [disabled]="profileForm.invalid || isSaving()"
+        >
+          @if (isSaving()) {
+            <span class="spinner-border spinner-border-sm"></span>
+            Guardando...
+          } @else {
+            <i class="mdi mdi-content-save"></i>
+            Guardar Cambios
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,164 @@
+<!-- Loading State -->
+@if (isLoading()) {
+  <div class="d-flex justify-content-center align-items-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+  </div>
+} @else if (profile()) {
+  <div class="profile-container">
+    <!-- Header del perfil -->
+    <div class="card profile-header mb-4">
+      <div class="card-body">
+        <div class="row align-items-center">
+          <div class="col-auto">
+            <div class="avatar-wrapper">
+              @if (profile()?.photoUrl) {
+                <img
+                  [src]="avatarUrl()"
+                  alt="Foto de perfil"
+                  class="avatar-img"
+                />
+              } @else {
+                <div class="avatar-placeholder">
+                  <i class="mdi mdi-account fs-1"></i>
+                </div>
+              }
+            </div>
+          </div>
+          <div class="col">
+            <h4 class="mb-1">{{ fullName() }}</h4>
+            <p class="text-muted mb-2">{{ profile()?.email }}</p>
+            <div class="d-flex flex-wrap gap-2">
+              <span
+                class="badge"
+                [ngClass]="{
+                  'bg-success': profile()?.availableForWork,
+                  'bg-secondary': !profile()?.availableForWork,
+                }"
+              >
+                <i
+                  class="mdi"
+                  [ngClass]="{
+                    'mdi-check-circle': profile()?.availableForWork,
+                    'mdi-close-circle': !profile()?.availableForWork,
+                  }"
+                ></i>
+                {{
+                  profile()?.availableForWork
+                    ? "Disponible para trabajar"
+                    : "No disponible"
+                }}
+              </span>
+              <span class="badge bg-primary-subtle text-primary">
+                {{
+                  profile()?.userType === "graduate"
+                    ? "Graduado"
+                    : profile()?.userType === "recruiter"
+                      ? "Reclutador"
+                      : "Admin"
+                }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs de navegación -->
+    <div class="card mb-4">
+      <div class="card-body p-0">
+        <ul class="nav nav-tabs profile-tabs" role="tablist">
+          @for (tab of tabs; track tab.id) {
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link"
+                [class.active]="activeTab() === tab.id"
+                (click)="setActiveTab(tab.id)"
+                type="button"
+                role="tab"
+              >
+                <i class="mdi {{ tab.icon }} me-2"></i>
+                <span class="d-none d-md-inline">{{ tab.label }}</span>
+              </button>
+            </li>
+          }
+        </ul>
+      </div>
+    </div>
+
+    <!-- Contenido de las tabs -->
+    <div class="tab-content">
+      @switch (activeTab()) {
+        @case ("personal") {
+          <div class="row g-4">
+            <div class="col-12 col-lg-8">
+              <app-personal-info-section
+                [profile]="profile()!"
+                (profileUpdated)="onProfileUpdated($event)"
+              />
+            </div>
+            <div class="col-12 col-lg-4">
+              <app-photo-cv-section
+                [profile]="profile()!"
+                (photoUpdated)="onPhotoUpdated($event)"
+                (cvUpdated)="onCvUpdated($event)"
+              />
+            </div>
+          </div>
+        }
+        @case ("experience") {
+          <app-work-experience-section
+            [experiences]="profile()?.workExperiences || []"
+            (experiencesChanged)="loadProfile()"
+          />
+        }
+        @case ("education") {
+          <div class="row g-4">
+            <div class="col-12 col-lg-6">
+              <app-education-section
+                [educations]="profile()?.educations || []"
+                (educationsChanged)="loadProfile()"
+              />
+            </div>
+            <div class="col-12 col-lg-6">
+              <app-certifications-section
+                [certifications]="profile()?.certifications || []"
+                (certificationsChanged)="loadProfile()"
+              />
+            </div>
+          </div>
+        }
+        @case ("skills") {
+          <div class="row g-4">
+            <div class="col-12 col-lg-6">
+              <app-skills-section
+                [skills]="profile()?.skills || []"
+                (skillsChanged)="loadProfile()"
+              />
+            </div>
+            <div class="col-12 col-lg-6">
+              <app-portfolio-section
+                [portfolios]="profile()?.portfolios || []"
+                (portfoliosChanged)="loadProfile()"
+              />
+            </div>
+          </div>
+        }
+        @case ("projects") {
+          <app-projects-section
+            [projects]="profile()?.projects || []"
+            (projectsChanged)="loadProfile()"
+          />
+        }
+        @case ("security") {
+          <div class="row justify-content-center">
+            <div class="col-12 col-lg-6">
+              <app-password-section />
+            </div>
+          </div>
+        }
+      }
+    </div>
+  </div>
+}

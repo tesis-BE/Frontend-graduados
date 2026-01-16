@@ -5,6 +5,7 @@ import {
   ChangeDetectorRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import {
   FilterPanelComponent,
   FilterOption,
@@ -51,6 +52,7 @@ export class GraduatesListComponent implements OnInit {
     private userService: UserService,
     private sweetAlert: SweetAlertService,
     private cdr: ChangeDetectorRef,
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
@@ -103,8 +105,16 @@ export class GraduatesListComponent implements OnInit {
     }
   }
 
-  viewCV(url: string): void {
-    window.open(url, '_blank');
+  viewCV(url: string | null): void {
+    if (url) {
+      window.open(url, '_blank');
+    } else {
+      this.sweetAlert.warning('Sin CV', 'Este graduado no ha subido su CV');
+    }
+  }
+
+  viewProfile(graduateId: number): void {
+    this.router.navigate(['/graduates', graduateId]);
   }
 
   viewLinkedIn(url: string): void {

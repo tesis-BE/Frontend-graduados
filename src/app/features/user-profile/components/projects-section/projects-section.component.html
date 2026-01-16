@@ -1,0 +1,260 @@
+<div class="card h-100">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h5 class="card-title mb-0">
+      <i class="mdi mdi-folder-outline me-2"></i>
+      Proyectos
+    </h5>
+    <button
+      type="button"
+      class="btn btn-sm"
+      [class.btn-primary]="!showForm()"
+      [class.btn-outline-secondary]="showForm()"
+      (click)="toggleForm()"
+    >
+      <i
+        class="mdi"
+        [class.mdi-plus]="!showForm()"
+        [class.mdi-close]="showForm()"
+      ></i>
+    </button>
+  </div>
+  <div class="card-body">
+    <!-- Formulario -->
+    @if (showForm()) {
+      <form [formGroup]="projectForm" (ngSubmit)="saveProject()" class="mb-4">
+        <div class="row g-3">
+          <div class="col-12">
+            <label class="form-label small">Nombre del Proyecto *</label>
+            <input
+              type="text"
+              class="form-control"
+              formControlName="name"
+              placeholder="Ej: Sistema de Gestión de Inventarios"
+            />
+            @if (
+              projectForm.get("name")?.touched &&
+              projectForm.get("name")?.invalid
+            ) {
+              <div class="text-danger small mt-1">
+                Campo requerido (mín. 2 caracteres)
+              </div>
+            }
+          </div>
+          <div class="col-12">
+            <label class="form-label small">Descripción *</label>
+            <textarea
+              class="form-control"
+              formControlName="description"
+              rows="3"
+              placeholder="Describe qué hace tu proyecto y tu rol en él"
+            ></textarea>
+            @if (
+              projectForm.get("description")?.touched &&
+              projectForm.get("description")?.invalid
+            ) {
+              <div class="text-danger small mt-1">
+                Campo requerido (mín. 10 caracteres)
+              </div>
+            }
+          </div>
+          <div class="col-12">
+            <label class="form-label small">Tecnologías Utilizadas</label>
+            <input
+              type="text"
+              class="form-control"
+              formControlName="technologies"
+              placeholder="Ej: Angular, Node.js, PostgreSQL (separadas por coma)"
+            />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small">URL del Proyecto</label>
+            <input
+              type="url"
+              class="form-control"
+              formControlName="projectUrl"
+              placeholder="https://mi-proyecto.com"
+            />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small">URL del Repositorio</label>
+            <input
+              type="url"
+              class="form-control"
+              formControlName="repositoryUrl"
+              placeholder="https://github.com/..."
+            />
+          </div>
+          <div class="col-12">
+            <label class="form-label small">URL de Imagen</label>
+            <input
+              type="url"
+              class="form-control"
+              formControlName="imageUrl"
+              placeholder="https://... (captura de pantalla)"
+            />
+          </div>
+          <div class="col-md-5">
+            <label class="form-label small">Fecha de Inicio</label>
+            <input
+              type="date"
+              class="form-control"
+              formControlName="startDate"
+            />
+          </div>
+          <div class="col-md-5">
+            <label class="form-label small">Fecha de Fin</label>
+            <input
+              type="date"
+              class="form-control"
+              formControlName="endDate"
+              [class.disabled]="projectForm.get('isCurrent')?.value"
+            />
+          </div>
+          <div class="col-md-2 d-flex align-items-end">
+            <div class="form-check">
+              <input
+                type="checkbox"
+                class="form-check-input"
+                id="isCurrentProject"
+                formControlName="isCurrent"
+              />
+              <label class="form-check-label small" for="isCurrentProject">
+                En desarrollo
+              </label>
+            </div>
+          </div>
+          <div class="col-12 d-flex gap-2">
+            <button
+              type="submit"
+              class="btn btn-primary flex-grow-1"
+              [disabled]="projectForm.invalid || isSubmitting()"
+            >
+              @if (isSubmitting()) {
+                <span class="spinner-border spinner-border-sm me-1"></span>
+                Guardando...
+              } @else if (editingId()) {
+                <i class="mdi mdi-check me-1"></i>
+                Actualizar
+              } @else {
+                <i class="mdi mdi-plus me-1"></i>
+                Agregar
+              }
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              (click)="toggleForm()"
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      </form>
+    }
+
+    <!-- Lista de proyectos -->
+    @if (projects.length > 0) {
+      <div class="projects-grid">
+        @for (project of projects; track project.id) {
+          <div class="project-card">
+            @if (project.thumbnailUrl) {
+              <div class="project-image">
+                <img [src]="project.thumbnailUrl" [alt]="project.name" />
+              </div>
+            } @else {
+              <div class="project-image project-image-placeholder">
+                <i class="mdi mdi-folder-open-outline"></i>
+              </div>
+            }
+            <div class="project-content">
+              <div
+                class="d-flex justify-content-between align-items-start mb-2"
+              >
+                <h6 class="mb-0">{{ project.name }}</h6>
+                <div class="d-flex gap-1">
+                  @if (project.projectUrl) {
+                    <button
+                      type="button"
+                      class="btn btn-link btn-sm text-primary p-0"
+                      (click)="openUrl(project.projectUrl)"
+                      title="Ver proyecto"
+                    >
+                      <i class="mdi mdi-web"></i>
+                    </button>
+                  }
+                  @if (project.liveUrl) {
+                    <button
+                      type="button"
+                      class="btn btn-link btn-sm text-dark p-0"
+                      (click)="openUrl(project.liveUrl)"
+                      title="Ver demo"
+                    >
+                      <i class="mdi mdi-github"></i>
+                    </button>
+                  }
+                  <button
+                    type="button"
+                    class="btn btn-link btn-sm text-secondary p-0"
+                    (click)="editProject(project)"
+                    title="Editar"
+                  >
+                    <i class="mdi mdi-pencil"></i>
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-link btn-sm text-danger p-0"
+                    (click)="deleteProject(project)"
+                    [disabled]="deletingId() === project.id"
+                    title="Eliminar"
+                  >
+                    @if (deletingId() === project.id) {
+                      <span class="spinner-border spinner-border-sm"></span>
+                    } @else {
+                      <i class="mdi mdi-delete"></i>
+                    }
+                  </button>
+                </div>
+              </div>
+              @if (project.description) {
+                <p class="text-muted small mb-2 project-description">
+                  {{ project.description }}
+                </p>
+              }
+              @if (project.technologies) {
+                <div class="technologies mb-2">
+                  @for (
+                    tech of getTechnologiesArray(project.technologies);
+                    track tech
+                  ) {
+                    <span
+                      class="badge bg-primary-subtle text-primary me-1 mb-1"
+                      >{{ tech }}</span
+                    >
+                  }
+                </div>
+              }
+              @if (project.isCurrent) {
+                <span class="badge bg-success-subtle text-success">
+                  <i class="mdi mdi-clock-outline me-1"></i>
+                  En desarrollo
+                </span>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    } @else if (!showForm()) {
+      <div class="text-center py-4">
+        <i class="mdi mdi-folder-remove-outline text-muted fs-1"></i>
+        <p class="text-muted mb-0">No tienes proyectos registrados</p>
+        <button
+          type="button"
+          class="btn btn-link btn-sm"
+          (click)="toggleForm()"
+        >
+          Agregar proyecto
+        </button>
+      </div>
+    }
+  </div>
+</div>

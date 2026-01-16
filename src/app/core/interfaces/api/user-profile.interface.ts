@@ -3,7 +3,6 @@ export interface UserProfile {
   firstName: string;
   lastName: string;
   email: string;
-  personalEmail?: string;
   institutionalEmail?: string;
   phone?: string;
   bio?: string;
@@ -24,7 +23,6 @@ export interface UserProfile {
 export interface UpdateProfileRequest {
   firstName?: string;
   lastName?: string;
-  personalEmail?: string;
   institutionalEmail?: string;
   phone?: string;
   bio?: string;
