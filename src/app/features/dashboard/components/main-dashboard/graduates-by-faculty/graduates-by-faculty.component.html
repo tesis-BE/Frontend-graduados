@@ -1,0 +1,63 @@
+<div class="card">
+  <div class="card-header">
+    <h4 class="card-title">Graduados por Facultad/Universidad</h4>
+  </div>
+  <div class="card-body">
+    @if (isLoading) {
+      <div class="text-center py-4">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+      </div>
+    } @else {
+      @if (faculties.length === 0) {
+        <div class="text-center text-muted py-4">No hay datos disponibles</div>
+      } @else {
+        <div class="mb-4">
+          @if (chartOptions) {
+            <apx-chart
+              [series]="$any(chartOptions).series"
+              [chart]="$any(chartOptions).chart"
+              [plotOptions]="$any(chartOptions).plotOptions"
+              [dataLabels]="$any(chartOptions).dataLabels"
+              [xaxis]="$any(chartOptions).xaxis"
+              [colors]="$any(chartOptions).colors"
+              [grid]="$any(chartOptions).grid"
+            ></apx-chart>
+          }
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-sm table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th scope="col">Facultad</th>
+                <th scope="col">Universidad</th>
+                <th scope="col" class="text-end">Graduados</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (faculty of faculties; track faculty.facultyId) {
+                <tr>
+                  <td>
+                    <h6 class="mb-0 fs-14">{{ faculty.facultyName }}</h6>
+                  </td>
+                  <td>
+                    <span class="text-muted fs-13">{{
+                      faculty.universityName
+                    }}</span>
+                  </td>
+                  <td class="text-end">
+                    <span class="badge bg-success-subtle text-success fs-12">{{
+                      faculty.count | number
+                    }}</span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    }
+  </div>
+</div>

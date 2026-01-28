@@ -44,6 +44,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'recruiter-job-creation',
+        loadChildren: () =>
+          import('./features/recruiter-job-creation/recruiter-job-creation.routes').then(
+            (m) => m.RECRUITER_JOB_CREATION_ROUTES,
+          ),
+      },
+      {
         path: 'applications',
         loadChildren: () =>
           import('./features/applications/applications.routes').then(

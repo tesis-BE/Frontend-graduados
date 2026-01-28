@@ -25,6 +25,8 @@ export class JobOfferCardComponent {
   @Output() apply = new EventEmitter<number>();
   @Output() edit = new EventEmitter<number>();
   @Output() viewDetails = new EventEmitter<number>();
+  @Output() publish = new EventEmitter<number>();
+  @Output() close = new EventEmitter<number>();
 
   onApply(): void {
     this.apply.emit(this.jobOffer.id);
@@ -38,12 +40,22 @@ export class JobOfferCardComponent {
     this.viewDetails.emit(this.jobOffer.id);
   }
 
+  onPublish(): void {
+    this.publish.emit(this.jobOffer.id);
+  }
+
+  onClose(): void {
+    this.close.emit(this.jobOffer.id);
+  }
+
   getStatusClass(): string {
     const statusMap: Record<string, string> = {
       active: 'status-published',
       draft: 'status-draft',
       closed: 'status-closed',
       paused: 'status-paused',
+      borrador: 'status-draft',
+      published: 'status-published',
     };
     return statusMap[this.jobOffer.status] || '';
   }
@@ -54,6 +66,8 @@ export class JobOfferCardComponent {
       draft: 'Borrador',
       closed: 'Cerrada',
       paused: 'Pausada',
+      borrador: 'Borrador',
+      published: 'Publicada',
     };
     return labelMap[this.jobOffer.status] || this.jobOffer.status;
   }

@@ -1,0 +1,121 @@
+<div class="card border-0 shadow-sm h-100">
+  <div class="card-header bg-light border-bottom d-flex justify-content-between align-items-center">
+    <h5 class="card-title mb-0">{{ job.title }}</h5>
+    <span [class]="'badge ' + getStatusBadgeClass(job.status)">
+      {{ getStatusLabel(job.status) }}
+    </span>
+  </div>
+
+  <div class="card-body">
+    <p class="card-text text-muted">{{ job.description.substring(0, 100) }}...</p>
+
+    <div class="row g-2 mb-3">
+      <div class="col-auto">
+        <small class="badge bg-info">
+          {{ getJobTypeLabel(job.jobType) }}
+        </small>
+      </div>
+      @if (job.workMode) {
+        <div class="col-auto">
+          <small class="badge bg-primary">
+            {{ getWorkModeLabel(job.workMode) }}
+          </small>
+        </div>
+      }
+    </div>
+
+    @if (job.location) {
+      <p class="mb-2">
+        <i class="mdi mdi-map-marker me-2"></i>
+        <small>{{ job.location }}</small>
+      </p>
+    }
+
+    @if (job.salaryMin || job.salaryMax) {
+      <p class="mb-2">
+        <i class="mdi mdi-currency-usd me-2"></i>
+        <small>
+          @if (job.salaryMin && job.salaryMax) {
+            ${{ job.salaryMin | number }} - ${{ job.salaryMax | number }}
+          } @else if (job.salaryMin) {
+            Desde ${{ job.salaryMin | number }}
+          } @else if (job.salaryMax) {
+            Hasta ${{ job.salaryMax | number }}
+          }
+        </small>
+      </p>
+    }
+
+    @if (job.skills && job.skills.length > 0) {
+      <div class="mb-3">
+        <small class="text-muted d-block mb-2">Habilidades requeridas:</small>
+        <div class="d-flex flex-wrap gap-1">
+          @for (skill of job.skills; track skill) {
+            <span class="badge bg-secondary-subtle text-secondary">{{ skill }}</span>
+          }
+        </div>
+      </div>
+    }
+
+    @if (job.deadline) {
+      <p class="mb-2">
+        <i class="mdi mdi-calendar me-2"></i>
+        <small>
+          Límite: {{ job.deadline | date : 'dd/MM/yyyy' }}
+        </small>
+      </p>
+    }
+
+    <div class="text-muted mt-3">
+      <small>Creado: {{ job.createdAt | date : 'dd/MM/yyyy HH:mm' }}</small>
+    </div>
+  </div>
+
+  <div class="card-footer bg-light border-top">
+    <div class="d-flex gap-2 flex-wrap">
+      @if (job.status === 'DRAFT') {
+        <button
+          class="btn btn-sm btn-success"
+          (click)="onPublish()"
+          title="Publicar oferta"
+        >
+          <i class="mdi mdi-publish me-1"></i> Publicar
+        </button>
+      }
+
+      <button
+        class="btn btn-sm btn-primary"
+        (click)="onEdit()"
+        title="Editar oferta"
+      >
+        <i class="mdi mdi-pencil me-1"></i> Editar
+      </button>
+
+      <button
+        class="btn btn-sm btn-info"
+        (click)="onViewApplications()"
+        title="Ver postulaciones"
+      >
+        <i class="mdi mdi-account-group me-1"></i> Postulaciones
+      </button>
+
+      @if (job.status !== 'CLOSED') {
+        <button
+          class="btn btn-sm btn-danger"
+          (click)="onClose()"
+          title="Cerrar oferta"
+        >
+          <i class="mdi mdi-close me-1"></i> Cerrar
+        </button>
+      }
+
+      <button
+        class="btn btn-sm btn-outline-danger"
+        (click)="onDelete()"
+        title="Eliminar oferta"
+      >
+        <i class="mdi mdi-delete me-1"></i> Eliminar
+      </button>
+    </div>
+  </div>
+</div>

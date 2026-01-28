@@ -1,0 +1,94 @@
+<div class="card">
+  <div class="card-header">
+    <h4 class="card-title">Perfiles de Graduados: Completitud</h4>
+  </div>
+  <div class="card-body">
+    @if (isLoading) {
+      <div class="text-center py-4">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+      </div>
+    } @else if (stats) {
+      <div class="row g-3 mb-4">
+        <div class="col-md-4">
+          <div class="text-center p-3 border border-dashed rounded">
+            <h3 class="mb-1 text-primary">
+              {{ stats.totalGraduates | number }}
+            </h3>
+            <p class="text-muted mb-0 fs-13">Total Graduados</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="text-center p-3 border border-dashed rounded">
+            <h3 class="mb-1 text-success">
+              {{ stats.graduatesWithCompleteProfile | number }}
+            </h3>
+            <p class="text-muted mb-0 fs-13">Perfiles Completos</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="text-center p-3 border border-dashed rounded">
+            <h3 class="mb-1 text-info">
+              {{ stats.avgSkillsPerGraduate | number : '1.1-1' }}
+            </h3>
+            <p class="text-muted mb-0 fs-13">Habilidades Promedio</p>
+          </div>
+        </div>
+      </div>
+
+      @if (chartOptions) {
+        <apx-chart
+          [series]="$any(chartOptions).series"
+          [chart]="$any(chartOptions).chart"
+          [plotOptions]="$any(chartOptions).plotOptions"
+          [dataLabels]="$any(chartOptions).dataLabels"
+          [xaxis]="$any(chartOptions).xaxis"
+          [yaxis]="$any(chartOptions).yaxis"
+          [colors]="$any(chartOptions).colors"
+          [grid]="$any(chartOptions).grid"
+        ></apx-chart>
+      }
+
+      <div class="mt-4">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <div class="d-flex align-items-center">
+            <div class="flex-shrink-0">
+              <i class="mdi mdi-file-document text-primary fs-20"></i>
+            </div>
+            <div class="flex-grow-1 ms-2">
+              <p class="mb-0">Graduados con CV</p>
+            </div>
+          </div>
+          <div class="flex-shrink-0">
+            <span class="fw-semibold">{{
+              stats.graduatesWithCV | number
+            }}</span>
+            <span class="text-muted ms-2"
+              >({{ stats.cvPercentage | number : '1.1-1' }}%)</span
+            >
+          </div>
+        </div>
+
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <div class="d-flex align-items-center">
+            <div class="flex-shrink-0">
+              <i class="mdi mdi-account-circle text-success fs-20"></i>
+            </div>
+            <div class="flex-grow-1 ms-2">
+              <p class="mb-0">Graduados con Foto</p>
+            </div>
+          </div>
+          <div class="flex-shrink-0">
+            <span class="fw-semibold">{{
+              stats.graduatesWithPhoto | number
+            }}</span>
+            <span class="text-muted ms-2"
+              >({{ stats.photoPercentage | number : '1.1-1' }}%)</span
+            >
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

@@ -8,7 +8,7 @@ export interface JobOffer {
   location: string;
   salaryMin?: number;
   salaryMax?: number;
-  status: 'active' | 'closed' | 'paused' | 'draft';
+  status: 'active' | 'closed' | 'paused' | 'draft' | 'borrador' | 'published';
   companyId: number;
   companyName?: string;
   company?: { id: number; name: string };

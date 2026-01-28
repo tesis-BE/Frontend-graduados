@@ -1,0 +1,18 @@
+.input-group {
+  .form-control:focus {
+    border-color: #3762ea;
+    box-shadow: none;
+  }
+}
+
+.form-select:focus {
+  border-color: #3762ea;
+  box-shadow: 0 0 0 0.2rem rgba(55, 98, 234, 0.25);
+}
+
+.btn-outline-secondary {
+  &:hover {
+    background-color: #6c757d;
+    border-color: #6c757d;
+  }
+}

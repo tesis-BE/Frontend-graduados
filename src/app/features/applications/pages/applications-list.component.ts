@@ -559,33 +559,83 @@ export class ApplicationsListComponent implements OnInit {
       rechazado: 'Rechazado',
     };
 
-    Swal.fire({
-      title: 'Cambiar estado',
-      input: 'select',
-      inputOptions: statusOptions,
-      inputValue: application.status as any,
-      showCancelButton: true,
-      confirmButtonText: 'Actualizar',
-      cancelButtonText: 'Cancelar',
-      confirmButtonColor: '#007bff',
-    }).then((result) => {
-      if (result.isConfirmed && result.value) {
-        const newStatus = result.value as string;
+    // Crear un select simple en lugar de SweetAlert
+    const selectHtml = Object.entries(statusOptions)
+      .map(([value, label]) => 
+        `<option value="${value}" ${application.status === value ? 'selected' : ''}>${label}</option>`
+      )
+      .join('');
+
+    const modalHtml = `
+      <div style="padding: 20px; font-family: system-ui;">
+        <h3 style="margin-bottom: 15px; color: #333;">Cambiar Estado de Postulación</h3>
+        <p style="margin-bottom: 15px; color: #666;">Candidato: <strong>${application.candidateName}</strong></p>
+        <select id="statusSelect" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 15px;">
+          ${selectHtml}
+        </select>
+        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+          <button id="cancelBtn" style="padding: 10px 20px; border: 1px solid #ddd; background: white; border-radius: 5px; cursor: pointer;">Cancelar</button>
+          <button id="confirmBtn" style="padding: 10px 20px; border: none; background: #007bff; color: white; border-radius: 5px; cursor: pointer;">Actualizar</button>
+        </div>
+      </div>
+    `;
+
+    // Crear modal temporal
+    const modalDiv = document.createElement('div');
+    modalDiv.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 9999;';
+    
+    const contentDiv = document.createElement('div');
+    contentDiv.style.cssText = 'background: white; border-radius: 10px; max-width: 400px; width: 90%;';
+    contentDiv.innerHTML = modalHtml;
+    
+    modalDiv.appendChild(contentDiv);
+    document.body.appendChild(modalDiv);
+
+    // Manejar eventos
+    const statusSelect = contentDiv.querySelector('#statusSelect') as HTMLSelectElement;
+    const cancelBtn = contentDiv.querySelector('#cancelBtn') as HTMLButtonElement;
+    const confirmBtn = contentDiv.querySelector('#confirmBtn') as HTMLButtonElement;
+
+    const cleanup = () => {
+      document.body.removeChild(modalDiv);
+    };
+
+    cancelBtn.onclick = () => {
+      cleanup();
+      this.sweetAlert.info('Cambio de estado cancelado');
+    };
+
+    confirmBtn.onclick = () => {
+      const newStatus = statusSelect.value;
+      if (newStatus !== application.status) {
         this.isLoading = true;
         this.applicationService
           .updateApplicationStatus(application.id, newStatus)
           .subscribe({
             next: () => {
-              this.sweetAlert.success('Éxito', 'Estado actualizado');
+              this.sweetAlert.success('Éxito', 'Estado actualizado correctamente');
               this.loadApplications();
+              cleanup();
             },
             error: (error) => {
               console.error(error);
               this.sweetAlert.error('Error', 'No se pudo actualizar el estado');
               this.isLoading = false;
+              cleanup();
             },
           });
+      } else {
+        cleanup();
+        this.sweetAlert.info('No se realizaron cambios');
       }
-    });
+    };
+
+    // Cerrar al hacer clic fuera del modal
+    modalDiv.onclick = (e) => {
+      if (e.target === modalDiv) {
+        cleanup();
+        this.sweetAlert.info('Cambio de estado cancelado');
+      }
+    };
   }
 }

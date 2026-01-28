@@ -30,19 +30,19 @@ export class JobOfferService {
       .set('page', (params.page || 1).toString())
       .set('pageSize', (params.pageSize || 10).toString());
 
-    if (params.search) httpParams = httpParams.set('search', params.search);
-    if (params.jobType) httpParams = httpParams.set('jobType', params.jobType);
+    if (params.search) httpParams = httpParams.set('title', params.search);
+    if (params.jobType) httpParams = httpParams.set('type', params.jobType);
     if (params.workMode)
-      httpParams = httpParams.set('workMode', params.workMode);
+      httpParams = httpParams.set('mode', params.workMode);
     if (params.location)
       httpParams = httpParams.set('location', params.location);
     if (params.salaryMin)
-      httpParams = httpParams.set('salaryMin', params.salaryMin.toString());
+      httpParams = httpParams.set('minSalary', params.salaryMin.toString());
     if (params.salaryMax)
-      httpParams = httpParams.set('salaryMax', params.salaryMax.toString());
-    if (params.status) httpParams = httpParams.set('status', params.status);
+      httpParams = httpParams.set('maxSalary', params.salaryMax.toString());
+    if (params.companyId) httpParams = httpParams.set('companyId', params.companyId.toString());
 
-    return this.http.get<any>(this.apiUrl, { params: httpParams });
+    return this.http.get<any>(`${this.apiUrl}/search`, { params: httpParams });
   }
 
   getJobOfferById(id: number): Observable<JobOffer> {

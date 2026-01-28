@@ -1,0 +1,49 @@
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-body">
+    <div class="row g-3">
+      <!-- Búsqueda -->
+      <div class="col-md-6">
+        <label for="search" class="form-label">Buscar Oferta</label>
+        <div class="input-group">
+          <span class="input-group-text bg-light border">
+            <i class="mdi mdi-magnify"></i>
+          </span>
+          <input
+            type="text"
+            class="form-control"
+            id="search"
+            placeholder="Título o descripción..."
+            [(ngModel)]="searchQuery"
+            (input)="onSearchChange()"
+          />
+        </div>
+      </div>
+
+      <!-- Estado -->
+      <div class="col-md-6">
+        <label for="status" class="form-label">Estado</label>
+        <select
+          id="status"
+          class="form-select"
+          [(ngModel)]="selectedStatus"
+          (change)="onStatusChange()"
+        >
+          @for (option of statusOptions; track option.value) {
+            <option [value]="option.value">{{ option.label }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Botón Limpiar -->
+      <div class="col-12">
+        <button
+          type="button"
+          class="btn btn-outline-secondary btn-sm"
+          (click)="onClearFilters()"
+        >
+          <i class="mdi mdi-close-circle me-2"></i> Limpiar Filtros
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

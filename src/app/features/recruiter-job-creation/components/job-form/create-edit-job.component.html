@@ -1,0 +1,246 @@
+<div class="container-fluid py-4">
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-bottom">
+          <h4 class="mb-0">
+            {{ isEditMode ? 'Editar Oferta de Trabajo' : 'Crear Nueva Oferta de Trabajo' }}
+          </h4>
+        </div>
+
+        <div class="card-body">
+          @if (isLoading) {
+            <div class="text-center py-5">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+              </div>
+            </div>
+          } @else {
+            <form [formGroup]="jobForm" (ngSubmit)="onSubmit()">
+              <div class="row">
+                <!-- Título -->
+                <div class="col-12 mb-3">
+                  <label for="title" class="form-label fw-semibold">
+                    Título del Puesto <span class="text-danger">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="title"
+                    formControlName="title"
+                    [class.is-invalid]="submitted && f['title'].invalid"
+                  />
+                  @if (submitted && f['title'].invalid) {
+                    <div class="invalid-feedback">
+                      El título es requerido
+                    </div>
+                  }
+                </div>
+
+                <!-- Descripción -->
+                <div class="col-12 mb-3">
+                  <label for="description" class="form-label fw-semibold">
+                    Descripción <span class="text-danger">*</span>
+                  </label>
+                  <textarea
+                    class="form-control"
+                    id="description"
+                    formControlName="description"
+                    rows="5"
+                    [class.is-invalid]="submitted && f['description'].invalid"
+                  ></textarea>
+                  @if (submitted && f['description'].invalid) {
+                    <div class="invalid-feedback">
+                      La descripción es requerida
+                    </div>
+                  }
+                </div>
+
+                <!-- Requisitos -->
+                <div class="col-12 mb-3">
+                  <label for="requirements" class="form-label fw-semibold">
+                    Requisitos
+                  </label>
+                  <textarea
+                    class="form-control"
+                    id="requirements"
+                    formControlName="requirements"
+                    rows="4"
+                  ></textarea>
+                </div>
+
+                <!-- Tipo de Empleo -->
+                <div class="col-md-6 mb-3">
+                  <label for="jobType" class="form-label fw-semibold">
+                    Tipo de Empleo
+                  </label>
+                  <select
+                    class="form-select"
+                    id="jobType"
+                    formControlName="jobType"
+                  >
+                    @for (type of jobTypes; track type.value) {
+                      <option [value]="type.value">{{ type.label }}</option>
+                    }
+                  </select>
+                </div>
+
+                <!-- Modalidad de Trabajo -->
+                <div class="col-md-6 mb-3">
+                  <label for="workMode" class="form-label fw-semibold">
+                    Modalidad
+                  </label>
+                  <select
+                    class="form-select"
+                    id="workMode"
+                    formControlName="workMode"
+                  >
+                    @for (mode of workModes; track mode.value) {
+                      <option [value]="mode.value">{{ mode.label }}</option>
+                    }
+                  </select>
+                </div>
+
+                <!-- Ubicación -->
+                <div class="col-md-6 mb-3">
+                  <label for="location" class="form-label fw-semibold">
+                    Ubicación
+                  </label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="location"
+                    formControlName="location"
+                    placeholder="Ej: Ciudad, País"
+                  />
+                </div>
+
+                <!-- Salario Mínimo -->
+                <div class="col-md-6 mb-3">
+                  <label for="salaryMin" class="form-label fw-semibold">
+                    Salario Mínimo
+                  </label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="salaryMin"
+                    formControlName="salaryMin"
+                    placeholder="Ej: 1000"
+                  />
+                </div>
+
+                <!-- Salario Máximo -->
+                <div class="col-md-6 mb-3">
+                  <label for="salaryMax" class="form-label fw-semibold">
+                    Salario Máximo
+                  </label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="salaryMax"
+                    formControlName="salaryMax"
+                    placeholder="Ej: 3000"
+                  />
+                </div>
+
+                <!-- Habilidades Requeridas -->
+                <div class="col-12 mb-3">
+                  <label for="skills" class="form-label fw-semibold">
+                    Habilidades Requeridas
+                  </label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="skills"
+                    formControlName="skills"
+                    placeholder="Ej: JavaScript, React, Angular (separadas por comas)"
+                  />
+                  <small class="text-muted">Ingresa las habilidades separadas por comas</small>
+                </div>
+
+                <!-- Fecha Límite -->
+                <div class="col-md-6 mb-3">
+                  <label for="deadline" class="form-label fw-semibold">
+                    Fecha Límite de Aplicación <span class="text-danger">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    class="form-control"
+                    id="deadline"
+                    formControlName="deadline"
+                    [class.is-invalid]="submitted && f['deadline'].invalid"
+                  />
+                  @if (submitted && f['deadline'].invalid) {
+                    <div class="invalid-feedback">
+                      La fecha límite es requerida
+                    </div>
+                  }
+                </div>
+              </div>
+
+              <!-- Estado de la Oferta -->
+              @if (isEditMode && jobStatus) {
+                <div class="row mb-4 mt-3">
+                  <div class="col-12">
+                    <div class="alert alert-info d-flex align-items-center gap-2 mb-0">
+                      <i class="mdi mdi-information"></i>
+                      <div>
+                        <strong>Estado: </strong>
+                        <span class="text-capitalize">{{ jobStatus }}</span>
+                        @if (jobStatus === 'borrador') {
+                          <em class="text-muted">(oferta no visible aún para graduados)</em>
+                        } @else if (jobStatus === 'publicado') {
+                          <em class="text-success">(oferta visible para graduados)</em>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              }
+
+              <!-- Botones -->
+              <div class="row mt-4">
+                <div class="col-12 d-flex gap-2 justify-content-end">
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    (click)="onCancel()"
+                  >
+                    Cancelar
+                  </button>
+                  @if (isEditMode && jobStatus === 'borrador') {
+                    <button
+                      type="button"
+                      class="btn btn-success"
+                      (click)="publishOffer()"
+                      [disabled]="isLoading"
+                    >
+                      @if (isLoading) {
+                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        Publicando...
+                      } @else {
+                        <i class="mdi mdi-send me-2"></i> Publicar Oferta
+                      }
+                    </button>
+                  }
+                  <button
+                    type="submit"
+                    class="btn btn-primary"
+                    [disabled]="isLoading || jobForm.invalid"
+                  >
+                    @if (isLoading) {
+                      <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                      Guardando...
+                    } @else {
+                      {{ isEditMode ? 'Actualizar' : 'Crear' }} Oferta
+                    }
+                  </button>
+                </div>
+              </div>
+            </form>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

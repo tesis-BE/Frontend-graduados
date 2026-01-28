@@ -1,0 +1,43 @@
+.card {
+  transition: transform 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+  }
+}
+
+.card-title {
+  font-weight: 600;
+  color: #333;
+}
+
+.badge {
+  font-size: 0.75rem;
+  padding: 0.35rem 0.65rem;
+
+  &.bg-info {
+    background-color: #17a2b8 !important;
+  }
+
+  &.bg-secondary-subtle {
+    background-color: #e8e9eb !important;
+  }
+}
+
+.btn-sm {
+  font-size: 0.875rem;
+  padding: 0.35rem 0.65rem;
+
+  i {
+    font-size: 0.9rem;
+  }
+}
+
+.card-footer {
+  .btn-sm {
+    &:not(:last-child) {
+      margin-bottom: 0.25rem;
+    }
+  }
+}

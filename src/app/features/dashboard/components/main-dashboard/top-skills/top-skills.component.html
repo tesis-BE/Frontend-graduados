@@ -1,0 +1,80 @@
+<div class="card">
+  <div class="card-header">
+    <h4 class="card-title">Top 20 Habilidades Más Demandadas</h4>
+  </div>
+  <div class="card-body">
+    @if (isLoading) {
+      <div class="text-center py-4">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+      </div>
+    } @else {
+      @if (skills.length === 0) {
+        <div class="text-center text-muted py-4">No hay datos disponibles</div>
+      } @else {
+        <div class="mb-4">
+          @if (chartOptions) {
+            <apx-chart
+              [series]="$any(chartOptions).series"
+              [chart]="$any(chartOptions).chart"
+              [plotOptions]="$any(chartOptions).plotOptions"
+              [dataLabels]="$any(chartOptions).dataLabels"
+              [xaxis]="$any(chartOptions).xaxis"
+              [colors]="$any(chartOptions).colors"
+              [grid]="$any(chartOptions).grid"
+            ></apx-chart>
+          }
+        </div>
+
+        <div class="mt-4">
+          <h6 class="fs-14 mb-3">Todas las Habilidades</h6>
+          <div class="d-flex flex-wrap gap-2">
+            @for (skill of skills; track skill.skill; let i = $index) {
+              <div
+                class="badge fs-12 px-3 py-2"
+                [ngClass]="'bg-' + getSkillColor(i) + '-subtle text-' + getSkillColor(i)"
+              >
+                {{ skill.skill }}
+                <span
+                  class="ms-1 badge rounded-pill"
+                  [ngClass]="'bg-' + getSkillColor(i)"
+                  >{{ skill.demand }}</span
+                >
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="mt-4 border-top pt-3">
+          <div class="table-responsive">
+            <table class="table table-sm table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th scope="col" style="width: 50px">#</th>
+                  <th scope="col">Habilidad</th>
+                  <th scope="col" class="text-end">Demanda</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (skill of skills.slice(0, 10); track skill.skill; let i = $index) {
+                  <tr>
+                    <td class="fw-semibold">{{ i + 1 }}</td>
+                    <td>
+                      <span class="badge bg-primary-subtle text-primary">{{
+                        skill.skill
+                      }}</span>
+                    </td>
+                    <td class="text-end">
+                      <span class="fw-semibold">{{ skill.demand | number }}</span>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      }
+    }
+  </div>
+</div>

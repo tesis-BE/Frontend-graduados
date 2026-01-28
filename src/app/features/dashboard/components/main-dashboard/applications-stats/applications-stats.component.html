@@ -1,0 +1,177 @@
+<div class="card">
+  <div class="card-header">
+    <h4 class="card-title">Estado Global de Postulaciones</h4>
+  </div>
+  <div class="card-body">
+    @if (isLoading) {
+      <div class="text-center py-4">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+      </div>
+    } @else if (stats) {
+      <div class="row g-3 mb-3">
+        <div class="col-md-3">
+          <div class="p-3 border border-dashed rounded">
+            <h4 class="mb-1 fw-semibold">
+              {{ stats.totalApplications | number }}
+            </h4>
+            <p class="text-muted mb-0 fs-13">Total Postulaciones</p>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="p-3 border border-dashed rounded">
+            <h4 class="mb-1 fw-semibold">
+              {{ stats.activeApplications | number }}
+            </h4>
+            <p class="text-muted mb-0 fs-13">Postulaciones Activas</p>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="p-3 border border-dashed rounded">
+            <h4 class="mb-1 fw-semibold">
+              {{ stats.applicationsThisMonth | number }}
+            </h4>
+            <p class="text-muted mb-0 fs-13">Este Mes</p>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="p-3 border border-dashed rounded">
+            <h4
+              class="mb-1 fw-semibold"
+              [ngClass]="stats.growthRate >= 0 ? 'text-success' : 'text-danger'"
+            >
+              <i
+                class="mdi"
+                [ngClass]="
+                  stats.growthRate >= 0 ? 'mdi-arrow-up' : 'mdi-arrow-down'
+                "
+              ></i>
+              {{ stats.growthRate | number : '1.1-1' }}%
+            </h4>
+            <p class="text-muted mb-0 fs-13">Crecimiento</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <h5 class="fs-15 mb-3">Distribución por Estado</h5>
+        @if (chartOptions) {
+          <apx-chart
+            [series]="$any(chartOptions).series"
+            [chart]="$any(chartOptions).chart"
+            [plotOptions]="$any(chartOptions).plotOptions"
+            [dataLabels]="$any(chartOptions).dataLabels"
+            [xaxis]="$any(chartOptions).xaxis"
+            [colors]="$any(chartOptions).colors"
+            [grid]="$any(chartOptions).grid"
+          ></apx-chart>
+        }
+      </div>
+
+      <div class="mt-4">
+        <div class="table-responsive">
+          <table class="table table-sm table-borderless mb-0">
+            <tbody>
+              <tr>
+                <td>
+                  <div class="d-flex align-items-center">
+                    <div
+                      class="flex-shrink-0 me-2"
+                      style="
+                        width: 12px;
+                        height: 12px;
+                        border-radius: 50%;
+                        background: #ffc107;
+                      "
+                    ></div>
+                    <div class="flex-grow-1">Pendiente</div>
+                  </div>
+                </td>
+                <td class="text-end fw-semibold">
+                  {{ stats.byStatus.pendiente | number }}
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="d-flex align-items-center">
+                    <div
+                      class="flex-shrink-0 me-2"
+                      style="
+                        width: 12px;
+                        height: 12px;
+                        border-radius: 50%;
+                        background: #0dcaf0;
+                      "
+                    ></div>
+                    <div class="flex-grow-1">Revisado</div>
+                  </div>
+                </td>
+                <td class="text-end fw-semibold">
+                  {{ stats.byStatus.revisado | number }}
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="d-flex align-items-center">
+                    <div
+                      class="flex-shrink-0 me-2"
+                      style="
+                        width: 12px;
+                        height: 12px;
+                        border-radius: 50%;
+                        background: #3762ea;
+                      "
+                    ></div>
+                    <div class="flex-grow-1">Entrevistado</div>
+                  </div>
+                </td>
+                <td class="text-end fw-semibold">
+                  {{ stats.byStatus.entrevistado | number }}
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="d-flex align-items-center">
+                    <div
+                      class="flex-shrink-0 me-2"
+                      style="
+                        width: 12px;
+                        height: 12px;
+                        border-radius: 50%;
+                        background: #22c55e;
+                      "
+                    ></div>
+                    <div class="flex-grow-1">Aceptado</div>
+                  </div>
+                </td>
+                <td class="text-end fw-semibold">
+                  {{ stats.byStatus.aceptado | number }}
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="d-flex align-items-center">
+                    <div
+                      class="flex-shrink-0 me-2"
+                      style="
+                        width: 12px;
+                        height: 12px;
+                        border-radius: 50%;
+                        background: #ef4444;
+                      "
+                    ></div>
+                    <div class="flex-grow-1">Rechazado</div>
+                  </div>
+                </td>
+                <td class="text-end fw-semibold">
+                  {{ stats.byStatus.rechazado | number }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+  </div>
+</div>

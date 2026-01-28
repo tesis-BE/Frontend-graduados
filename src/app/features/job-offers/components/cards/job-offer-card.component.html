@@ -48,7 +48,7 @@
 
   <div class="job-card-footer" *ngIf="showActions">
     <button
-      *ngIf="canApply && jobOffer.status === 'active'"
+      *ngIf="canApply && (jobOffer.status === 'active' || jobOffer.status === 'published')"
       class="btn btn-primary"
       (click)="onApply()"
     >
@@ -59,6 +59,27 @@
       <i class="bi bi-pencil"></i>
       Editar
     </button>
+    
+    <!-- Botones de gestión de estado para reclutadores -->
+    <button 
+      *ngIf="canEdit && (jobOffer.status === 'borrador' || jobOffer.status === 'draft')" 
+      class="btn btn-success"
+      (click)="onPublish()"
+      title="Publicar oferta"
+    >
+      <i class="bi bi-check-circle"></i>
+      Publicar
+    </button>
+    <button 
+      *ngIf="canEdit && (jobOffer.status === 'published' || jobOffer.status === 'active')" 
+      class="btn btn-warning"
+      (click)="onClose()"
+      title="Cerrar oferta"
+    >
+      <i class="bi bi-x-circle"></i>
+      Cerrar
+    </button>
+    
     <button class="btn btn-outline" (click)="onViewDetails()">
       <i class="bi bi-eye"></i>
       Ver detalles

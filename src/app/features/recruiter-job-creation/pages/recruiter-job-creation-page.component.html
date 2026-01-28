@@ -1,0 +1,77 @@
+<div class="container-fluid py-4">
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2 class="mb-0">Mis Ofertas de Trabajo</h2>
+        <button
+          class="btn btn-primary"
+          (click)="onCreateNewJob()"
+        >
+          <i class="mdi mdi-plus me-2"></i> Nueva Oferta
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <app-job-filters (filterChange)="onFilterChange($event)"></app-job-filters>
+    </div>
+  </div>
+
+  <!-- Lista de Ofertas -->
+  <div class="row">
+    @if (isLoading) {
+      <div class="col-12">
+        <div class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
+        </div>
+      </div>
+    } @else if (filteredJobs.length === 0) {
+      <div class="col-12">
+        <div class="alert alert-info text-center py-5">
+          <i class="mdi mdi-information-outline me-2"></i>
+          <strong>No hay ofertas disponibles</strong>
+          <p class="mt-2 mb-0">
+            @if (jobs.length === 0) {
+              Crea tu primera oferta de trabajo haciendo clic en "Nueva Oferta"
+            } @else {
+              No se encontraron ofertas que coincidan con los filtros aplicados
+            }
+          </p>
+        </div>
+      </div>
+    } @else {
+      @for (job of filteredJobs; track job.id) {
+        <div class="col-md-6 col-lg-4 mb-4">
+          <app-job-card
+            [job]="job"
+            (edit)="onEditJob($event)"
+            (delete)="onDeleteJob($event)"
+            (publish)="onPublishJob($event)"
+            (close)="onCloseJob($event)"
+            (viewApplications)="onViewApplications($event)"
+          ></app-job-card>
+        </div>
+      }
+    }
+  </div>
+
+  <!-- Resumen -->
+  @if (filteredJobs.length > 0) {
+    <div class="row mt-4">
+      <div class="col-12">
+        <div class="alert alert-secondary">
+          <small>
+            Mostrando <strong>{{ filteredJobs.length }}</strong> de
+            <strong>{{ totalJobs }}</strong> ofertas
+          </small>
+        </div>
+      </div>
+    </div>
+  }
+</div>
