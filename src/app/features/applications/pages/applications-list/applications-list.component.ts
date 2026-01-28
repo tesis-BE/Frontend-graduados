@@ -115,10 +115,16 @@ export class ApplicationsListComponent implements OnInit {
 
   loadApplications(filters?: any): void {
     if (!this.currentUser) {
+      console.log('No current user, setting empty applications');
       this.applications = [];
       this.total = 0;
       return;
     }
+
+    console.log('Loading applications for user:', this.currentUser);
+    console.log('User type:', this.currentUser.userType);
+    console.log('Is recruiter/admin:', this.isRecruiterOrAdmin);
+    console.log('Filters:', filters);
 
     this.isLoading = true;
     this.cdr.markForCheck();
@@ -130,36 +136,66 @@ export class ApplicationsListComponent implements OnInit {
 
     const handleError = (error: any) => {
       console.error('Error loading applications:', error);
-      this.sweetAlert.error('Error', 'No se pudieron cargar las postulaciones');
+      console.error('Current user:', this.currentUser);
+      console.error('Is recruiter/admin:', this.isRecruiterOrAdmin);
+      
+      let errorMessage = 'No se pudieron cargar las postulaciones';
+      if (error?.error?.message) {
+        errorMessage = error.error.message;
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+      
+      this.sweetAlert.error('Error', errorMessage);
       this.isLoading = false;
+      this.applications = [];
+      this.total = 0;
       this.cdr.markForCheck();
     };
 
     const handleSuccess = (response: any) => {
-      const list = (response?.data ?? response) as any[];
+      console.log('Applications response:', response); // Debug log
+      
+      // Manejar diferentes estructuras de respuesta del backend
+      let list: any[] = [];
+      if (response?.data && Array.isArray(response.data)) {
+        list = response.data;
+      } else if (Array.isArray(response)) {
+        list = response;
+      } else if (response?.applications && Array.isArray(response.applications)) {
+        list = response.applications;
+      }
+      
       this.applications = list.map((app) => ({
         ...app,
         candidateName:
           app.candidateName ||
-          (app.user ? `${app.user.firstName} ${app.user.lastName}` : undefined),
-        jobTitle: app.job?.title ?? app.jobTitle,
-        companyName: app.job?.company?.name ?? app.companyName,
+          (app.user ? `${app.user.firstName} ${app.user.lastName}` : 'Sin nombre'),
+        jobTitle: app.job?.title ?? app.jobTitle ?? 'Sin título',
+        companyName: app.job?.company?.name ?? app.companyName ?? 'Sin empresa',
+        appliedAt: app.appliedAt || app.createdAt,
+        status: app.status || 'pendiente'
       }));
 
       this.total =
         response?.pagination?.total ??
         response?.total ??
         this.applications.length;
+      
+      console.log('Processed applications:', this.applications); // Debug log
       this.isLoading = false;
       this.cdr.markForCheck();
     };
 
     if (this.isRecruiterOrAdmin) {
+      console.log('Loading applications for recruiter/admin');
       if (jobId) {
+        console.log('Loading applications by job ID:', jobId);
         this.applicationService
           .getApplicationsByJob(jobId, { page, pageSize })
           .subscribe({ next: handleSuccess, error: handleError });
       } else {
+        console.log('Loading received applications');
         this.applicationService
           .getReceivedApplications({ status, page, pageSize })
           .subscribe({ next: handleSuccess, error: handleError });
@@ -168,12 +204,14 @@ export class ApplicationsListComponent implements OnInit {
     }
 
     if (this.currentUser.userType === 'graduate') {
+      console.log('Loading applications for graduate');
       this.applicationService
         .getMyApplications({ page, pageSize })
         .subscribe({ next: handleSuccess, error: handleError });
       return;
     }
 
+    console.log('User type not supported:', this.currentUser.userType);
     this.applications = [];
     this.total = 0;
     this.isLoading = false;

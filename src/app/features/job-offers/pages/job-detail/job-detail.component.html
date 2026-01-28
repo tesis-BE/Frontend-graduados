@@ -1,0 +1,271 @@
+<div class="container-fluid py-4">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="d-flex justify-content-center align-items-center" style="min-height: 400px;">
+    <div class="text-center">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+      <p class="mt-3 text-muted">Cargando oferta de trabajo...</p>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="alert alert-danger text-center" role="alert">
+        <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+        <h5>{{ error }}</h5>
+        <button class="btn btn-primary mt-2" (click)="onBack()">
+          <i class="fas fa-arrow-left"></i>
+          Volver a ofertas
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Job Detail Content -->
+  <div *ngIf="jobOffer && !loading && !error">
+    <!-- Header -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body p-4">
+            <button class="btn btn-link text-primary p-0 mb-3" (click)="onBack()">
+              <i class="fas fa-arrow-left me-2"></i>
+              Volver a ofertas
+            </button>
+            
+            <div class="row align-items-center">
+              <div class="col-md-8">
+                <h1 class="display-6 mb-3">{{ jobOffer.title }}</h1>
+                <div class="d-flex align-items-center mb-3">
+                  <img 
+                    *ngIf="jobOffer.company?.logoUrl" 
+                    [src]="jobOffer.company?.logoUrl" 
+                    [alt]="jobOffer.company?.name"
+                    class="rounded me-3"
+                    style="width: 60px; height: 60px; object-fit: contain;"
+                  >
+                  <div class="flex-grow-1">
+                    <h4 class="mb-1">{{ jobOffer.company?.name || 'Empresa' }}</h4>
+                    <p class="text-muted mb-0">{{ jobOffer.company?.industry || 'Industria no especificada' }}</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4 text-md-end">
+                <!-- Botón de Postulación -->
+                <div *ngIf="canApply()" class="d-grid gap-2">
+                  <button 
+                    class="btn btn-success btn-lg shadow-lg"
+                    [disabled]="applying"
+                    (click)="onApply()">
+                    <i class="fas fa-paper-plane me-2" *ngIf="!applying"></i>
+                    <span class="spinner-border spinner-border-sm me-2" *ngIf="applying" role="status"></span>
+                    <span *ngIf="!applying"><strong>¡Postularme Ahora!</strong></span>
+                    <span *ngIf="applying">Enviando postulación...</span>
+                  </button>
+                  <small class="text-muted text-center mt-2">
+                    <i class="fas fa-info-circle me-1"></i>
+                    <span *ngIf="currentUser?.cvUrl">Tu CV será enviado automáticamente</span>
+                    <span *ngIf="!currentUser?.cvUrl">Recomendamos tener tu CV actualizado en tu perfil</span>
+                  </small>
+                </div>
+                
+                <!-- Estado cuando no se puede postular -->
+                <div *ngIf="!canApply()" class="text-center">
+                  <div class="alert alert-warning" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>No disponible</strong><br>
+                    <small>Esta oferta no está disponible para postulaciones en este momento.</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="row">
+      <!-- Left Column - Main Info -->
+      <div class="col-lg-8 mb-4">
+        <!-- Job Description -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-body p-4">
+            <h4 class="card-title mb-3">
+              <i class="fas fa-file-text text-primary me-2"></i>
+              Descripción del trabajo
+            </h4>
+            <div class="job-description" [innerHTML]="jobOffer.description"></div>
+          </div>
+        </div>
+
+        <!-- Requirements -->
+        <div *ngIf="jobOffer.requirements" class="card border-0 shadow-sm mb-4">
+          <div class="card-body p-4">
+            <h4 class="card-title mb-3">
+              <i class="fas fa-list-check text-primary me-2"></i>
+              Requisitos
+            </h4>
+            <div class="job-requirements" [innerHTML]="jobOffer.requirements"></div>
+          </div>
+        </div>
+
+        <!-- Skills -->
+        <div *ngIf="jobOffer.skills && jobOffer.skills.length > 0" class="card border-0 shadow-sm">
+          <div class="card-body p-4">
+            <h4 class="card-title mb-3">
+              <i class="fas fa-cogs text-primary me-2"></i>
+              Habilidades requeridas
+            </h4>
+            <div class="d-flex flex-wrap gap-2">
+              <span 
+                *ngFor="let skill of jobOffer.skills" 
+                class="badge bg-primary-subtle text-primary-emphasis fs-6 py-2 px-3">
+                {{ skill }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column - Summary -->
+      <div class="col-lg-4">
+        <div class="card border-0 shadow-sm sticky-top" style="top: 2rem;">
+          <div class="card-body p-4">
+            <h4 class="card-title mb-4">
+              <i class="fas fa-info-circle text-primary me-2"></i>
+              Resumen de la oferta
+            </h4>
+            
+            <!-- Location -->
+            <div class="mb-3 d-flex align-items-start">
+              <i class="fas fa-map-marker-alt text-primary me-3 mt-1"></i>
+              <div>
+                <strong>Ubicación</strong>
+                <p class="text-muted mb-0">{{ jobOffer.location || 'No especificada' }}</p>
+              </div>
+            </div>
+
+            <!-- Job Type -->
+            <div class="mb-3 d-flex align-items-start">
+              <i class="fas fa-briefcase text-primary me-3 mt-1"></i>
+              <div>
+                <strong>Tipo de empleo</strong>
+                <p class="text-muted mb-0">{{ jobOffer.jobType || 'No especificado' }}</p>
+              </div>
+            </div>
+
+            <!-- Work Mode -->
+            <div class="mb-3 d-flex align-items-start">
+              <i class="fas fa-laptop text-primary me-3 mt-1"></i>
+              <div>
+                <strong>Modalidad de trabajo</strong>
+                <p class="text-muted mb-0">{{ jobOffer.workMode || 'No especificado' }}</p>
+              </div>
+            </div>
+
+            <!-- Salary -->
+            <div *ngIf="jobOffer.salaryMin && jobOffer.salaryMax" class="mb-3 d-flex align-items-start">
+              <i class="fas fa-dollar-sign text-primary me-3 mt-1"></i>
+              <div>
+                <strong>Salario</strong>
+                <p class="text-muted mb-0">${{ jobOffer.salaryMin.toLocaleString() }} - ${{ jobOffer.salaryMax.toLocaleString() }}</p>
+              </div>
+            </div>
+
+            <!-- Created Date -->
+            <div class="mb-3 d-flex align-items-start">
+              <i class="fas fa-calendar-alt text-primary me-3 mt-1"></i>
+              <div>
+                <strong>Fecha de publicación</strong>
+                <p class="text-muted mb-0">{{ jobOffer.createdAt | date:'dd/MM/yyyy' }}</p>
+              </div>
+            </div>
+
+            <!-- Deadline -->
+            <div *ngIf="jobOffer.deadline" class="mb-3 d-flex align-items-start">
+              <i class="fas fa-hourglass-end text-primary me-3 mt-1"></i>
+              <div>
+                <strong>Fecha límite</strong>
+                <p class="text-muted mb-0">{{ jobOffer.deadline | date:'dd/MM/yyyy' }}</p>
+              </div>
+            </div>
+
+            <!-- Status -->
+            <div class="mb-0 d-flex align-items-start">
+              <i class="fas fa-info-circle text-primary me-3 mt-1"></i>
+              <div>
+                <strong>Estado</strong>
+                <div class="mt-1">
+                  <span class="badge" [ngClass]="{
+                    'bg-success': jobOffer.status === 'active' || jobOffer.status === 'published' || jobOffer.status === 'publicado',
+                    'bg-danger': jobOffer.status === 'closed' || jobOffer.status === 'cerrado',
+                    'bg-warning': jobOffer.status === 'draft' || jobOffer.status === 'borrador'
+                  }">
+                    {{ getStatusText(jobOffer.status) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Call to Action Section -->
+    <div class="row mt-5">
+      <div class="col-12">
+        <div class="card border-0 shadow-sm bg-gradient">
+          <div class="card-body text-center p-5" style="background: linear-gradient(135deg, #007bff, #0056b3); color: white;">
+            <h3 class="mb-4">
+              <i class="fas fa-rocket me-3"></i>
+              ¡No pierdas esta oportunidad!
+            </h3>
+            <p class="lead mb-4">
+              {{ jobOffer.company?.name || 'Esta empresa' }} está buscando talento como el tuyo. 
+              Postúlate ahora y da el siguiente paso en tu carrera profesional.
+            </p>
+            
+            <!-- Botón principal de postulación -->
+            <div *ngIf="canApply()" class="d-flex flex-column flex-md-row justify-content-center align-items-center gap-3">
+              <button 
+                class="btn btn-light btn-lg px-5 py-3 shadow-lg" 
+                [disabled]="applying"
+                (click)="onApply()"
+                style="min-width: 250px;">
+                <i class="fas fa-paper-plane me-2" *ngIf="!applying"></i>
+                <span class="spinner-border spinner-border-sm me-2" *ngIf="applying" role="status"></span>
+                <strong *ngIf="!applying">POSTULARME AHORA</strong>
+                <strong *ngIf="applying">ENVIANDO...</strong>
+              </button>
+              <div class="text-center">
+                <small class="opacity-75">
+                  <i class="fas fa-shield-alt me-1"></i>
+                  Tu información está protegida
+                </small>
+                <br>
+                <small class="opacity-75 mt-1" *ngIf="!currentUser?.cvUrl">
+                  <i class="fas fa-lightbulb me-1"></i>
+                  <span class="text-warning">Recomendación: Actualiza tu CV en tu perfil</span>
+                </small>
+                <small class="opacity-75 mt-1" *ngIf="currentUser?.cvUrl">
+                  <i class="fas fa-check me-1"></i>
+                  <span class="text-success">Tu CV está listo</span>
+                </small>
+              </div>
+            </div>
+
+            <!-- Mensaje cuando no se puede postular -->
+            <div *ngIf="!canApply()" class="alert alert-warning d-inline-block">
+              <i class="fas fa-exclamation-triangle me-2"></i>
+              <strong>Postulación no disponible</strong><br>
+              Esta oferta no está abierta para nuevas postulaciones en este momento.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -6,8 +6,11 @@
   >
     <div>
       <p class="text-muted mb-1 text-uppercase fs-12">Panel de postulaciones</p>
-      <p class="text-muted mb-0">
-        Crea y gestiona las postulaciones de tus ofertas.
+      <p class="text-muted mb-0" *ngIf="isRecruiterOrAdmin">
+        Gestiona las postulaciones recibidas en tus ofertas de trabajo.
+      </p>
+      <p class="text-muted mb-0" *ngIf="!isRecruiterOrAdmin">
+        Revisa el estado de tus postulaciones a ofertas de trabajo.
       </p>
     </div>
     <button
@@ -138,7 +141,14 @@
           <tr *ngIf="!isLoading && applications.length === 0">
             <td colspan="6" class="text-center py-4 text-muted">
               <i class="ti ti-file-off fs-1 d-block mb-2"></i>
-              No hay postulaciones disponibles
+              <div *ngIf="isRecruiterOrAdmin">
+                <strong>No hay postulaciones recibidas</strong>
+                <p class="mb-0">Aún no has recibido postulaciones en tus ofertas de trabajo.</p>
+              </div>
+              <div *ngIf="!isRecruiterOrAdmin">
+                <strong>No tienes postulaciones</strong>
+                <p class="mb-0">Aún no te has postulado a ninguna oferta de trabajo.</p>
+              </div>
             </td>
           </tr>
           <tr *ngFor="let app of applications">
@@ -192,7 +202,14 @@
         class="text-center py-4 text-muted"
       >
         <i class="ti ti-file-off fs-1 d-block mb-2"></i>
-        No hay postulaciones
+        <div *ngIf="isRecruiterOrAdmin">
+          <strong>No hay postulaciones recibidas</strong>
+          <p class="mb-0">Aún no has recibido postulaciones.</p>
+        </div>
+        <div *ngIf="!isRecruiterOrAdmin">
+          <strong>No tienes postulaciones</strong>
+          <p class="mb-0">Aún no te has postulado a ninguna oferta.</p>
+        </div>
       </div>
       <div class="card" *ngFor="let app of applications">
         <div

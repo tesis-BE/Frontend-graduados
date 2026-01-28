@@ -11,4 +11,12 @@ export const JOB_OFFERS_ROUTES: Routes = [
       ),
     canActivate: [authGuard],
   },
+  {
+    path: ':id',
+    loadComponent: () =>
+      import('./pages/job-detail/job-detail.component').then(
+        (m) => m.JobDetailComponent,
+      ),
+    canActivate: [authGuard],
+  },
 ];

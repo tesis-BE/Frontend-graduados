@@ -1,0 +1,535 @@
+// Variables para modo claro y oscuro
+:host {
+  --bg-primary: #f8f9fa;
+  --bg-card: #ffffff;
+  --border-color: rgba(0, 0, 0, 0.125);
+  --text-primary: #212529;
+  --text-muted: #6c757d;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+// Modo oscuro - Bootstrap 5.3 data attribute
+[data-bs-theme="dark"] :host {
+  --bg-primary: #212529;
+  --bg-card: #2d3748;
+  --border-color: rgba(255, 255, 255, 0.125);
+  --text-primary: #f8f9fa;
+  --text-muted: #adb5bd;
+  --shadow-color: rgba(255, 255, 255, 0.05);
+}
+
+// También compatibilidad con prefers-color-scheme
+@media (prefers-color-scheme: dark) {
+  :host {
+    --bg-primary: #212529;
+    --bg-card: #2d3748;
+    --border-color: rgba(255, 255, 255, 0.125);
+    --text-primary: #f8f9fa;
+    --text-muted: #adb5bd;
+    --shadow-color: rgba(255, 255, 255, 0.05);
+  }
+}
+
+.job-detail-container {
+  background-color: var(--bg-primary);
+  min-height: 100vh;
+  padding: 2rem 0;
+
+  @media (max-width: 768px) {
+    padding: 1rem 0;
+  }
+}
+
+.card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px var(--shadow-color);
+  }
+
+  .card-header {
+    background-color: transparent;
+    border-bottom: 1px solid var(--border-color);
+
+    .badge {
+      font-size: 0.875rem;
+      padding: 0.5rem 1rem;
+    }
+  }
+
+  .card-body {
+    color: var(--text-primary);
+  }
+
+  // Modo oscuro específico para cards
+  [data-bs-theme="dark"] & {
+    background-color: #343a40;
+    border-color: #495057;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    
+    .card-body {
+      color: #f8f9fa;
+    }
+    
+    .text-muted {
+      color: #adb5bd !important;
+    }
+  }
+}
+
+.job-title {
+  color: var(--text-primary);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+
+  @media (max-width: 768px) {
+    font-size: 1.5rem;
+  }
+}
+
+.company-info {
+  .company-name {
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  .company-industry {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+}
+
+// Botón de postulación mejorado
+.btn-success {
+  background: linear-gradient(135deg, #28a745, #20c997) !important;
+  border: none !important;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+  }
+
+  &:hover {
+    transform: translateY(-3px) !important;
+    box-shadow: 0 8px 20px rgba(40, 167, 69, 0.4) !important;
+    
+    &::before {
+      left: 100%;
+    }
+  }
+
+  &:disabled {
+    background: var(--text-muted) !important;
+    transform: none !important;
+    box-shadow: none !important;
+    opacity: 0.6;
+  }
+
+  &:focus {
+    box-shadow: 0 0 0 0.25rem rgba(40, 167, 69, 0.25) !important;
+  }
+}
+
+// Alerta personalizada para estado no disponible
+.alert-warning {
+  background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+  border: 1px solid #ffeaa7;
+  border-radius: 0.75rem;
+  
+  [data-bs-theme="dark"] & {
+    background: linear-gradient(135deg, #664d03, #997404);
+    border-color: #997404;
+    color: #fff3cd;
+  }
+}
+
+.btn-back {
+  background: transparent;
+  border: 2px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: var(--bg-card);
+    transform: translateY(-1px);
+  }
+
+  @media (max-width: 768px) {
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+}
+
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  color: var(--text-primary);
+
+  .spinner-border {
+    width: 3rem;
+    height: 3rem;
+    color: #007bff;
+  }
+}
+
+.btn {
+  transition: all 0.3s ease;
+  
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+  }
+}
+
+// Badge de skills personalizado
+.badge.bg-primary-subtle {
+  background-color: rgba(13, 110, 253, 0.1) !important;
+  border: 1px solid rgba(13, 110, 253, 0.2);
+  font-weight: 500;
+  
+  &:hover {
+    background-color: rgba(13, 110, 253, 0.2) !important;
+  }
+}
+
+// Sticky sidebar en desktop
+@media (min-width: 992px) {
+  .sticky-top {
+    position: sticky !important;
+  }
+}
+
+// Mejoras para móvil
+@media (max-width: 768px) {
+  .display-6 {
+    font-size: 2rem;
+  }
+  
+  .card-body {
+    padding: 1.5rem !important;
+  }
+  
+  .btn-lg {
+    width: 100%;
+    margin-top: 1rem;
+  }
+  
+  .d-flex.align-items-start {
+    align-items: flex-start !important;
+    
+    i {
+      margin-top: 0.25rem;
+    }
+  }
+}
+
+// Estado de carga mejorado
+.spinner-border {
+  animation: spinner-border 0.75s linear infinite;
+}
+
+// Iconos con mejor espaciado
+.fas {
+  width: 1.2em;
+  text-align: center;
+}
+
+// Scrollbar personalizado para contenido largo
+.job-description,
+.job-requirements {
+  max-height: none;
+  overflow-y: visible;
+}
+
+// Mejora para el botón de volver
+.btn-link {
+  text-decoration: none;
+  
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+// Cards con mejor contraste en modo oscuro
+[data-bs-theme="dark"] .card {
+  --bs-card-bg: var(--bs-gray-800);
+  --bs-card-border-color: var(--bs-gray-700);
+}
+
+// Estilos para contenido del job
+.job-description,
+.job-requirements {
+  line-height: 1.7;
+  color: var(--text-primary);
+  
+  p {
+    margin-bottom: 1rem;
+  }
+  
+  ul, ol {
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+    
+    li {
+      margin-bottom: 0.5rem;
+    }
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+    
+    &:first-child {
+      margin-top: 0;
+    }
+  }
+}
+
+// Error message personalizado
+.error-message {
+  background: linear-gradient(135deg, #dc3545, #c82333);
+  color: white;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  text-align: center;
+  margin: 2rem 0;
+}
+
+// Animaciones
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.6s ease-out;
+}
+
+// Utilidades responsivas adicionales
+.responsive-text {
+  @media (max-width: 576px) {
+    font-size: 0.875rem;
+  }
+}
+
+.responsive-spacing {
+  @media (max-width: 768px) {
+    padding: 0.75rem !important;
+    margin: 0.5rem 0 !important;
+  }
+}
+
+// Call to Action Section
+.bg-gradient {
+  position: relative;
+  overflow: hidden;
+  
+  .card-body {
+    position: relative;
+    z-index: 2;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, #007bff, #0056b3);
+      opacity: 0.9;
+      z-index: -1;
+    }
+  }
+  
+  // Modo oscuro para Call to Action
+  [data-bs-theme="dark"] & {
+    .card-body::before {
+      background: linear-gradient(135deg, #0d6efd, #084298);
+    }
+  }
+  
+  // Botón especial en CTA
+  .btn-light {
+    background: rgba(255, 255, 255, 0.95) !important;
+    color: #007bff !important;
+    border: none !important;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    
+    &:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 1) !important;
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+    }
+    
+    &:disabled {
+      opacity: 0.7;
+      transform: none !important;
+    }
+  }
+}
+
+// Mejoras generales para modo oscuro
+[data-bs-theme="dark"] {
+  .container-fluid {
+    background-color: #212529;
+  }
+  
+  .text-muted {
+    color: #adb5bd !important;
+  }
+  
+  .display-6 {
+    color: #f8f9fa !important;
+  }
+  
+  .card-title {
+    color: #f8f9fa !important;
+  }
+  
+  // Alertas en modo oscuro
+  .alert-warning {
+    background: linear-gradient(135deg, #664d03, #997404) !important;
+    border-color: #997404 !important;
+    color: #fff3cd !important;
+  }
+}
+
+// Animación de carga mejorada
+.spinner-border {
+  animation: spinner-border 0.75s linear infinite;
+}
+
+// Mejora de accesibilidad
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+// Estilos para SweetAlert2 toast
+:host ::ng-deep {
+  .colored-toast {
+    &.swal2-show {
+      animation: swal2-show 0.3s ease-in-out;
+    }
+    
+    &.swal2-hide {
+      animation: swal2-hide 0.15s ease-out;
+    }
+  }
+  
+  // Toast de éxito
+  .swal2-toast.swal2-icon-success {
+    background-color: #d4edda !important;
+    border: 1px solid #c3e6cb !important;
+    
+    .swal2-title {
+      color: #155724 !important;
+    }
+    
+    .swal2-html-container {
+      color: #155724 !important;
+    }
+  }
+  
+  // Toast de error
+  .swal2-toast.swal2-icon-error {
+    background-color: #f8d7da !important;
+    border: 1px solid #f5c6cb !important;
+    
+    .swal2-title {
+      color: #721c24 !important;
+    }
+    
+    .swal2-html-container {
+      color: #721c24 !important;
+    }
+  }
+  
+  // Toast de advertencia
+  .swal2-toast.swal2-icon-warning {
+    background-color: #fff3cd !important;
+    border: 1px solid #ffeaa7 !important;
+    
+    .swal2-title {
+      color: #856404 !important;
+    }
+    
+    .swal2-html-container {
+      color: #856404 !important;
+    }
+  }
+  
+  // Modo oscuro para toasts
+  [data-bs-theme="dark"] {
+    .swal2-toast.swal2-icon-success {
+      background-color: #1e4620 !important;
+      border-color: #2d5a31 !important;
+      
+      .swal2-title, .swal2-html-container {
+        color: #a7d9aa !important;
+      }
+    }
+    
+    .swal2-toast.swal2-icon-error {
+      background-color: #4a1e21 !important;
+      border-color: #5a2428 !important;
+      
+      .swal2-title, .swal2-html-container {
+        color: #f8a3a9 !important;
+      }
+    }
+    
+    .swal2-toast.swal2-icon-warning {
+      background-color: #4a3a1e !important;
+      border-color: #5a4528 !important;
+      
+      .swal2-title, .swal2-html-container {
+        color: #f0d78a !important;
+      }
+    }
+  }
+}
+
+// Badges más visibles en modo oscuro
+[data-bs-theme="dark"] .badge {
+  &.bg-success {
+    --bs-bg-opacity: 0.8;
+  }
+  
+  &.bg-danger {
+    --bs-bg-opacity: 0.8;
+  }
+  
+  &.bg-warning {
+    --bs-bg-opacity: 0.9;
+    color: #000 !important;
+  }
+}
