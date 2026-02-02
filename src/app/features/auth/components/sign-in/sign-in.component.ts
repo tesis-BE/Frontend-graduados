@@ -7,6 +7,7 @@ import {
   UntypedFormGroup,
   Validators,
 } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
 import {
   login,
@@ -20,7 +21,7 @@ import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-sign-in',
-  imports: [FormsModule, ReactiveFormsModule, CommonModule],
+  imports: [FormsModule, ReactiveFormsModule, CommonModule, RouterLink],
   templateUrl: './sign-in.component.html',
   styleUrl: './sign-in.component.scss',
 })

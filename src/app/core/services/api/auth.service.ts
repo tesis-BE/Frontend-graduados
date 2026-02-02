@@ -12,7 +12,10 @@ type BackendUser = {
   firstName: string;
   lastName: string;
   email: string;
+  institutionalEmail?: string;
   phone?: string;
+  facultyId?: number;
+  cedula?: string;
   userType: 'graduate' | 'recruiter' | 'admin';
   photoUrl?: string;
   cvUrl?: string;
@@ -53,6 +56,8 @@ export interface RegisterData {
   password: string;
   phone?: string;
   userType?: 'graduate' | 'recruiter';
+  facultyId?: number;
+  cedula?: string;
 }
 
 @Injectable({ providedIn: 'root' })

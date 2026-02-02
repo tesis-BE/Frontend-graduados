@@ -1,32 +1,28 @@
-<div class="row">
-  <div class="col-md-8 mx-auto">
-    <div class="card p-3">
+<div class="register-container">
+  <div class="register-content">
+    <div class="card register-card">
       <div class="card-body">
-        <div class="mb-0 border-0 p-md-5 p-lg-0 p-4">
-          <div class="mb-4 p-0 text-lg-start text-center">
-            <div class="auth-brand">
-              <a routerLink="/" class="auth-logo">
-                <img
-                  src="assets/images/logos/uleam-logo-ligth.png"
-                  alt="logo-uleam"
-                  class="mx-auto"
-                  height="50"
-                />
-              </a>
-            </div>
+        <div class="card-inner">
+          <!-- Logo discreto -->
+          <div class="logo-section">
+            <a routerLink="/" class="auth-logo">
+              <img
+                src="assets/images/logos/uleam-logo-ligth.png"
+                alt="logo-uleam"
+                height="40"
+              />
+            </a>
           </div>
 
-          <div class="auth-title-section mb-4 text-lg-start text-center">
-            <h3 class="text-dark fw-semibold mb-3">
-              ¡Únete a nuestra Bolsa de Empleo!
-            </h3>
-            <p class="text-muted fs-14 mb-0">
-              Regístrate para acceder a las mejores oportunidades laborales y
-              conectar con empresas que buscan tu talento.
+          <!-- Título y descripción -->
+          <div class="auth-title-section">
+            <h3 class="title">Crear Cuenta</h3>
+            <p class="subtitle">
+              Únete para postular a ofertas laborales, conectar con empresas y hacer seguimiento a tus postulaciones.
             </p>
           </div>
 
-          <!-- Alerta de error -->
+          <!-- Alertas de error -->
           @if (errorMessage) {
             <div
               class="alert alert-danger alert-dismissible fade show"
@@ -41,227 +37,265 @@
             </div>
           }
 
-          <div class="pt-0">
-            <form
-              [formGroup]="registerForm"
-              (ngSubmit)="onSubmit()"
-              class="my-4"
-            >
-              <!-- Tipo de usuario -->
-              <div class="form-group mb-3">
-                <label class="form-label">Tipo de cuenta</label>
-                <div class="d-flex gap-3">
-                  <div class="form-check">
-                    <input
-                      class="form-check-input"
-                      type="radio"
-                      formControlName="userType"
-                      value="graduate"
-                      id="typeGraduate"
-                    />
-                    <label class="form-check-label" for="typeGraduate">
-                      Graduado / Buscando empleo
-                    </label>
-                  </div>
-                  <div class="form-check">
-                    <input
-                      class="form-check-input"
-                      type="radio"
-                      formControlName="userType"
-                      value="recruiter"
-                      id="typeRecruiter"
-                    />
-                    <label class="form-check-label" for="typeRecruiter">
-                      Reclutador / Empresa
-                    </label>
-                  </div>
-                </div>
-              </div>
+          @if (cedulaError) {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+              {{ cedulaError }}
+              <button type="button" class="btn-close" (click)="cedulaError = ''"></button>
+            </div>
+          }
 
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="form-group mb-3">
-                    <label for="firstName" class="form-label">Nombre</label>
-                    <input
-                      class="form-control"
-                      type="text"
-                      id="firstName"
-                      formControlName="firstName"
-                      [ngClass]="{
-                        'is-invalid': submitted && f['firstName'].errors,
-                      }"
-                      placeholder="Tu nombre"
-                    />
-                    @if (submitted && f["firstName"].errors) {
-                      <div class="invalid-feedback">
-                        @if (f["firstName"].errors["required"]) {
-                          El nombre es requerido
-                        }
-                        @if (f["firstName"].errors["minlength"]) {
-                          Mínimo 2 caracteres
-                        }
-                      </div>
-                    }
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-group mb-3">
-                    <label for="lastName" class="form-label">Apellido</label>
-                    <input
-                      class="form-control"
-                      type="text"
-                      id="lastName"
-                      formControlName="lastName"
-                      [ngClass]="{
-                        'is-invalid': submitted && f['lastName'].errors,
-                      }"
-                      placeholder="Tu apellido"
-                    />
-                    @if (submitted && f["lastName"].errors) {
-                      <div class="invalid-feedback">
-                        @if (f["lastName"].errors["required"]) {
-                          El apellido es requerido
-                        }
-                        @if (f["lastName"].errors["minlength"]) {
-                          Mínimo 2 caracteres
-                        }
-                      </div>
-                    }
-                  </div>
-                </div>
-              </div>
-
-              <div class="form-group mb-3">
-                <label for="email" class="form-label">Correo electrónico</label>
+          <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="my-3">
+            <!-- Cédula -->
+            <div class="form-group mb-3">
+              <label for="cedula" class="form-label">Número de Cédula</label>
+              <div class="input-group">
                 <input
                   class="form-control"
-                  type="email"
-                  id="email"
-                  formControlName="email"
-                  [ngClass]="{ 'is-invalid': submitted && f['email'].errors }"
-                  placeholder="correo@ejemplo.com"
+                  type="text"
+                  id="cedula"
+                  formControlName="cedula"
+                  [ngClass]="{ 'is-invalid': submitted && f['cedula'].errors }"
+                  placeholder="10 dígitos"
+                  maxlength="10"
+                  (blur)="onCedulaBlur()"
                 />
-                @if (submitted && f["email"].errors) {
-                  <div class="invalid-feedback">
-                    @if (f["email"].errors["required"]) {
-                      El correo es requerido
-                    }
-                    @if (f["email"].errors["email"]) {
-                      Ingresa un correo válido
-                    }
-                  </div>
+                @if (cedulaLoading) {
+                  <span class="input-group-text">
+                    <span class="spinner-border spinner-border-sm"></span>
+                  </span>
                 }
               </div>
+              @if (submitted && f["cedula"].errors) {
+                <div class="invalid-feedback d-block">
+                  @if (f["cedula"].errors["required"]) {
+                    La cédula es requerida
+                  }
+                  @if (f["cedula"].errors["minlength"] || f["cedula"].errors["maxlength"]) {
+                    Debe tener 10 dígitos
+                  }
+                </div>
+              }
+              <small class="form-text text-muted d-block mt-1">10/10 dígitos</small>
+            </div>
 
-              <div class="form-group mb-3">
-                <label for="phone" class="form-label"
-                  >Teléfono (opcional)</label
-                >
-                <input
-                  class="form-control"
-                  type="tel"
-                  id="phone"
-                  formControlName="phone"
-                  placeholder="+593 999 999 999"
-                />
-              </div>
-
-              <div class="form-group mb-3">
-                <label for="password" class="form-label">Contraseña</label>
-                <div class="input-group">
+            <!-- Nombre y Apellido -->
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group mb-3">
+                  <label for="firstName" class="form-label">Nombre</label>
                   <input
                     class="form-control"
-                    [type]="showPassword ? 'text' : 'password'"
-                    id="password"
-                    formControlName="password"
-                    [ngClass]="{
-                      'is-invalid': submitted && f['password'].errors,
-                    }"
-                    placeholder="Mínimo 6 caracteres"
+                    type="text"
+                    id="firstName"
+                    formControlName="firstName"
+                    [ngClass]="{ 'is-invalid': submitted && f['firstName'].errors }"
+                    placeholder="Se autocompletará"
+                    readonly
                   />
-                  <button
-                    class="btn btn-outline-secondary"
-                    type="button"
-                    (click)="togglePassword()"
-                  >
-                    <i
-                      [class]="showPassword ? 'ti ti-eye-off' : 'ti ti-eye'"
-                    ></i>
-                  </button>
-                </div>
-                @if (submitted && f["password"].errors) {
-                  <div class="text-danger small mt-1">
-                    @if (f["password"].errors["required"]) {
-                      La contraseña es requerida
-                    }
-                    @if (f["password"].errors["minlength"]) {
-                      Mínimo 6 caracteres
-                    }
-                  </div>
-                }
-              </div>
-
-              <div class="form-group d-flex mb-3">
-                <div class="col-12">
-                  <div class="form-check">
-                    <input
-                      type="checkbox"
-                      class="form-check-input"
-                      id="checkbox-terms"
-                      [(ngModel)]="acceptTerms"
-                      [ngModelOptions]="{ standalone: true }"
-                    />
-                    <label class="form-check-label" for="checkbox-terms">
-                      Acepto los
-                      <a
-                        href="javascript:void(0);"
-                        class="text-primary fw-medium"
-                        >Términos y Condiciones</a
-                      >
-                      y la
-                      <a
-                        href="javascript:void(0);"
-                        class="text-primary fw-medium"
-                        >Política de Privacidad</a
-                      >
-                    </label>
-                  </div>
-                </div>
-              </div>
-
-              <div class="form-group mb-0 row">
-                <div class="col-12">
-                  <div class="d-grid">
-                    <button
-                      class="btn btn-primary"
-                      type="submit"
-                      [disabled]="loading"
-                    >
-                      @if (loading) {
-                        <span
-                          class="spinner-border spinner-border-sm me-2"
-                          role="status"
-                        ></span>
-                        Registrando...
-                      } @else {
-                        Crear cuenta
+                  @if (submitted && f["firstName"].errors) {
+                    <div class="invalid-feedback d-block">
+                      @if (f["firstName"].errors["required"]) {
+                        El nombre es requerido
                       }
+                    </div>
+                  }
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group mb-3">
+                  <label for="lastName" class="form-label">Apellido</label>
+                  <input
+                    class="form-control"
+                    type="text"
+                    id="lastName"
+                    formControlName="lastName"
+                    [ngClass]="{ 'is-invalid': submitted && f['lastName'].errors }"
+                    placeholder="Se autocompletará"
+                    readonly
+                  />
+                  @if (submitted && f["lastName"].errors) {
+                    <div class="invalid-feedback d-block">
+                      @if (f["lastName"].errors["required"]) {
+                        El apellido es requerido
+                      }
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <!-- Email Personal -->
+            <div class="form-group mb-3">
+              <label for="email" class="form-label">Correo Personal</label>
+              <input
+                class="form-control"
+                type="email"
+                id="email"
+                formControlName="email"
+                [ngClass]="{ 'is-invalid': submitted && f['email'].errors }"
+                placeholder="correo@ejemplo.com"
+              />
+              @if (submitted && f["email"].errors) {
+                <div class="invalid-feedback d-block">
+                  @if (f["email"].errors["required"]) {
+                    El correo es requerido
+                  }
+                  @if (f["email"].errors["email"]) {
+                    Ingresa un correo válido
+                  }
+                </div>
+              }
+            </div>
+
+            <!-- Email Institucional -->
+            <div class="form-group mb-3">
+              <label for="institutionalEmail" class="form-label">Correo Institucional</label>
+              <input
+                class="form-control"
+                type="email"
+                id="institutionalEmail"
+                formControlName="institutionalEmail"
+                placeholder="Se autocompletará"
+                readonly
+              />
+            </div>
+
+            <!-- Contraseña -->
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group mb-3">
+                  <label for="password" class="form-label">Contraseña</label>
+                  <div class="input-group">
+                    <input
+                      class="form-control"
+                      [type]="showPassword ? 'text' : 'password'"
+                      id="password"
+                      formControlName="password"
+                      [ngClass]="{ 'is-invalid': submitted && f['password'].errors }"
+                      placeholder="Mínimo 6 caracteres"
+                    />
+                    <button
+                      class="btn btn-outline-secondary"
+                      type="button"
+                      tabindex="-1"
+                      (click)="togglePassword()"
+                    >
+                      <i [class]="showPassword ? 'ti ti-eye-off' : 'ti ti-eye'"></i>
                     </button>
                   </div>
+                  @if (submitted && f["password"].errors) {
+                    <div class="invalid-feedback d-block">
+                      @if (f["password"].errors["required"]) {
+                        La contraseña es requerida
+                      }
+                      @if (f["password"].errors["minlength"]) {
+                        Mínimo 6 caracteres
+                      }
+                    </div>
+                  }
                 </div>
               </div>
-            </form>
+              <div class="col-md-6">
+                <div class="form-group mb-3">
+                  <label for="confirmPassword" class="form-label">Repetir Contraseña</label>
+                  <div class="input-group">
+                    <input
+                      class="form-control"
+                      [type]="showConfirmPassword ? 'text' : 'password'"
+                      id="confirmPassword"
+                      formControlName="confirmPassword"
+                      [ngClass]="{ 'is-invalid': submitted && f['confirmPassword'].errors }"
+                      placeholder="Repetir contraseña"
+                    />
+                    <button
+                      class="btn btn-outline-secondary"
+                      type="button"
+                      tabindex="-1"
+                      (click)="toggleConfirmPassword()"
+                    >
+                      <i [class]="showConfirmPassword ? 'ti ti-eye-off' : 'ti ti-eye'"></i>
+                    </button>
+                  </div>
+                  @if (submitted && f["confirmPassword"].errors) {
+                    <div class="invalid-feedback d-block">
+                      @if (f["confirmPassword"].errors["required"]) {
+                        Debes repetir la contraseña
+                      }
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
 
-            <div class="text-center text-muted mb-4">
-              <p class="mb-0">
-                ¿Ya tienes una cuenta?<a
+            <!-- Facultad -->
+            <div class="form-group mb-3">
+              <label for="facultyId" class="form-label">Selecciona tu Facultad</label>
+              <select
+                class="form-select"
+                id="facultyId"
+                formControlName="facultyId"
+                [ngClass]="{ 'is-invalid': submitted && f['facultyId'].errors }"
+              >
+                <option value="">Selecciona tu facultad</option>
+                <option *ngFor="let faculty of faculties" [value]="faculty.id">
+                  {{ faculty.name }}
+                </option>
+              </select>
+              @if (submitted && f["facultyId"].errors) {
+                <div class="invalid-feedback d-block">
+                  @if (f["facultyId"].errors["required"]) {
+                    Debes seleccionar una facultad
+                  }
+                </div>
+              }
+            </div>
+
+            <!-- Términos -->
+            <div class="form-group d-flex mb-3">
+              <div class="form-check">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  id="checkbox-terms"
+                  [(ngModel)]="acceptTerms"
+                  [ngModelOptions]="{ standalone: true }"
+                />
+                <label class="form-check-label fs-14" for="checkbox-terms">
+                  Al registrarte, aceptas nuestras Condiciones, la Política de privacidad y la Política de cookies.
+                </label>
+              </div>
+            </div>
+
+            <!-- Botón Enviar -->
+            <div class="d-grid">
+              <button
+                class="btn btn-primary fw-medium"
+                type="submit"
+                [disabled]="loading"
+              >
+                @if (loading) {
+                  <span
+                    class="spinner-border spinner-border-sm me-2"
+                    role="status"
+                  ></span>
+                  Registrando...
+                } @else {
+                  Registrarte
+                }
+              </button>
+            </div>
+
+            <!-- Enlace login -->
+            <div class="text-center mt-3">
+              <p class="text-muted mb-0 fs-14">
+                ¿Ya tienes una cuenta?
+                <a
                   class="text-primary ms-2 fw-medium"
                   routerLink="/auth/login"
-                  >Inicia sesión aquí</a
-                >
+                >Inicia sesión aquí</a>
               </p>
             </div>
-          </div>
+          </form>
         </div>
       </div>
     </div>

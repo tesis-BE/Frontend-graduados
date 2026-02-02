@@ -1,0 +1,409 @@
+// Variables de colores - Paleta profesional y minimalista
+$primary-blue: #108dff;
+$gray-text: #2c3e50;
+$gray-light: #f8f9fa;
+$gray-border: #e1e4e8;
+$white: #ffffff;
+$shadow-color: rgba(0, 0, 0, 0.08);
+
+// Layout principal - Diseño centrado profesional
+.register-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: $gray-light;
+  padding: 2rem 1rem;
+}
+
+.register-content {
+  width: 100%;
+  max-width: 560px;
+}
+
+.register-card {
+  border: 1px solid $gray-border;
+  border-radius: 12px;
+  box-shadow: 0 2px 16px $shadow-color;
+  background: $white;
+  overflow: hidden;
+
+  .card-body {
+    padding: 0;
+  }
+
+  .card-inner {
+    padding: 3rem 2.5rem;
+
+    @media (max-width: 576px) {
+      padding: 2rem 1.5rem;
+    }
+  }
+}
+
+// Logo section
+.logo-section {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.auth-logo {
+  display: inline-block;
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 0.85;
+  }
+
+  img {
+    height: auto;
+  }
+}
+
+// Sección de título
+.auth-title-section {
+  text-align: center;
+  margin-bottom: 2rem;
+
+  .title {
+    font-size: 1.75rem;
+    color: $gray-text;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+  }
+
+  .subtitle {
+    color: #6c757d;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin: 0;
+  }
+}
+
+// Estilos del formulario
+form {
+  .form-group {
+    margin-bottom: 1.25rem;
+  }
+
+  .form-label {
+    font-weight: 500;
+    font-size: 0.875rem;
+    color: $gray-text;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  .form-control,
+  .form-select {
+    border: 1px solid $gray-border;
+    border-radius: 8px;
+    padding: 0.7rem 1rem;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    background-color: $white;
+    color: $gray-text;
+    height: auto;
+
+    &:focus {
+      border-color: $primary-blue;
+      background-color: $white;
+      box-shadow: 0 0 0 3px rgba($primary-blue, 0.1);
+      outline: none;
+    }
+
+    &:disabled,
+    &[readonly] {
+      background-color: $gray-light;
+      border-color: $gray-border;
+      color: #6c757d;
+      cursor: not-allowed;
+    }
+
+    &.is-invalid {
+      border-color: #dc3545;
+      background-image: none;
+
+      &:focus {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+      }
+    }
+
+    &::placeholder {
+      color: #adb5bd;
+    }
+  }
+
+  .input-group {
+    .btn-outline-secondary {
+      border: 1px solid $gray-border;
+      border-left: none;
+      color: #6c757d;
+      transition: all 0.2s ease;
+      background: $white;
+      padding: 0.7rem 1rem;
+      border-radius: 0 8px 8px 0;
+
+      &:hover,
+      &:focus {
+        color: $primary-blue;
+        background-color: $white;
+        outline: none;
+        box-shadow: none;
+      }
+
+      i {
+        font-size: 1.1rem;
+      }
+    }
+
+    .form-control {
+      border-right: none;
+      border-radius: 8px 0 0 8px;
+
+      &:focus {
+        border-right: none;
+      }
+    }
+
+    .input-group-text {
+      background: $white;
+      border: 1px solid $gray-border;
+      border-left: none;
+      border-radius: 0 8px 8px 0;
+    }
+
+    .spinner-border {
+      width: 1rem;
+      height: 1rem;
+      border-width: 0.15em;
+      color: $primary-blue;
+    }
+  }
+
+  .form-check {
+    padding-left: 1.75rem;
+
+    .form-check-input {
+      width: 1.1rem;
+      height: 1.1rem;
+      margin-left: -1.75rem;
+      border: 1px solid $gray-border;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background-color: $white;
+
+      &:focus {
+        border-color: $primary-blue;
+        box-shadow: 0 0 0 3px rgba($primary-blue, 0.1);
+      }
+
+      &:checked {
+        background-color: $primary-blue;
+        border-color: $primary-blue;
+      }
+    }
+
+    .form-check-label {
+      cursor: pointer;
+      color: #6c757d;
+      margin-bottom: 0;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      font-weight: 400;
+    }
+  }
+
+  .invalid-feedback {
+    font-size: 0.8rem;
+    color: #dc3545;
+    margin-top: 0.4rem;
+  }
+
+  .form-text {
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-top: 0.4rem;
+  }
+}
+
+// Alertas profesionales
+.alert {
+  border: none;
+  border-left: 3px solid;
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  font-size: 0.875rem;
+  margin-bottom: 1.5rem;
+
+  &-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+    border-left-color: #dc3545;
+  }
+
+  &-warning {
+    background-color: #fff3cd;
+    color: #856404;
+    border-left-color: #ffc107;
+  }
+
+  .btn-close {
+    opacity: 0.5;
+    transition: opacity 0.2s ease;
+
+    &:hover,
+    &:focus {
+      opacity: 0.8;
+    }
+  }
+}
+
+// Botón principal elegante
+.btn-primary {
+  background-color: $primary-blue;
+  border: none;
+  color: $white;
+  font-weight: 500;
+  font-size: 0.9rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background-color: #0a6dd6;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16, 141, 255, 0.3);
+  }
+
+  &:active:not(:disabled) {
+    background-color: #0a5fc4;
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+  }
+
+  .spinner-border {
+    width: 0.875rem;
+    height: 0.875rem;
+    border-width: 0.15em;
+  }
+}
+
+// Links profesionales
+a {
+  color: $primary-blue;
+  text-decoration: none;
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: #0a6dd6;
+  }
+}
+
+// Texto centrado en login link
+.text-center {
+  p {
+    font-size: 0.9rem;
+    color: #6c757d;
+    
+    a {
+      font-weight: 500;
+    }
+  }
+}
+
+// Responsive profesional
+@media (max-width: 768px) {
+  .register-container {
+    padding: 1rem 0.75rem;
+  }
+
+  .register-content {
+    max-width: 100%;
+  }
+
+  .register-card {
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+
+    .card-inner {
+      padding: 2rem 1.5rem;
+    }
+  }
+
+  .auth-title-section {
+    .title {
+      font-size: 1.5rem;
+    }
+
+    .subtitle {
+      font-size: 0.85rem;
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .register-container {
+    padding: 0.5rem;
+  }
+
+  .register-card {
+    .card-inner {
+      padding: 1.5rem 1rem;
+    }
+  }
+
+  .logo-section {
+    margin-bottom: 1.5rem;
+  }
+
+  .auth-title-section {
+    margin-bottom: 1.5rem;
+
+    .title {
+      font-size: 1.35rem;
+    }
+
+    .subtitle {
+      font-size: 0.8rem;
+    }
+  }
+
+  form {
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-label {
+      font-size: 0.8rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .form-control,
+    .form-select {
+      font-size: 0.85rem;
+      padding: 0.6rem 0.85rem;
+    }
+
+    .input-group {
+      .btn-outline-secondary {
+        padding: 0.6rem 0.85rem;
+      }
+    }
+  }
+
+  .btn-primary {
+    font-size: 0.85rem;
+    padding: 0.65rem 1.25rem;
+  }
+}
+
+

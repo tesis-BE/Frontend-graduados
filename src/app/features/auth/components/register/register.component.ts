@@ -18,6 +18,8 @@ import {
   getLoading,
 } from '@core/store/authentication/authentication.selector';
 import { Subject, takeUntil } from 'rxjs';
+import { CedulaService } from '@core/services/api/cedula.service';
+import { FacultyService, Faculty } from '@core/services/api/faculty.service';
 
 @Component({
   selector: 'app-register',
@@ -31,23 +33,34 @@ export class RegisterComponent implements OnInit, OnDestroy {
   errorMessage = '';
   loading = false;
   showPassword = false;
+  showConfirmPassword = false;
   acceptTerms = false;
+  cedulaLoading = false;
+  cedulaError = '';
+  faculties: Faculty[] = [];
 
   private fb = inject(UntypedFormBuilder);
   private store = inject(Store);
   private destroy$ = new Subject<void>();
+  private cedulaService = inject(CedulaService);
+  private facultyService = inject(FacultyService);
 
   ngOnInit(): void {
     this.registerForm = this.fb.group({
-      firstName: ['', [Validators.required, Validators.minLength(2)]],
-      lastName: ['', [Validators.required, Validators.minLength(2)]],
+      cedula: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(10)]],
+      firstName: [{ value: '', disabled: true }, [Validators.required, Validators.minLength(2)]],
+      lastName: [{ value: '', disabled: true }, [Validators.required, Validators.minLength(2)]],
+      institutionalEmail: [{ value: '', disabled: true }],
+      facultyId: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
+      confirmPassword: ['', [Validators.required]],
       phone: [''],
       userType: ['graduate', [Validators.required]],
     });
 
-    // Escuchar errores del store
+    this.loadFaculties();
+
     this.store
       .select(getError)
       .pipe(takeUntil(this.destroy$))
@@ -61,7 +74,6 @@ export class RegisterComponent implements OnInit, OnDestroy {
         }
       });
 
-    // Escuchar estado de loading
     this.store
       .select(getLoading)
       .pipe(takeUntil(this.destroy$))
@@ -79,8 +91,52 @@ export class RegisterComponent implements OnInit, OnDestroy {
     return this.registerForm.controls;
   }
 
+  loadFaculties(): void {
+    this.facultyService.getAll().subscribe({
+      next: (response) => {
+        console.log('Respuesta de facultades:', response);
+        this.faculties = response.data || [];
+        console.log('Facultades asignadas:', this.faculties);
+      },
+      error: (error) => {
+        console.error('Error al cargar facultades:', error);
+        this.faculties = [];
+      },
+    });
+  }
+
+  onCedulaBlur(): void {
+    const cedula = this.registerForm.get('cedula')?.value?.trim();
+    if (!cedula || cedula.length !== 10) {
+      this.cedulaError = 'La cédula debe tener 10 dígitos';
+      return;
+    }
+
+    this.cedulaError = '';
+    this.cedulaLoading = true;
+
+    this.cedulaService.lookup(cedula).subscribe({
+      next: (data) => {
+        this.cedulaLoading = false;
+        this.registerForm.patchValue({
+          firstName: data.nombres,
+          lastName: data.apellidos,
+          institutionalEmail: `e${cedula}@live.uleam.edu.ec`,
+        });
+      },
+      error: () => {
+        this.cedulaLoading = false;
+        this.cedulaError = 'No se pudo consultar la cédula, intenta de nuevo';
+      },
+    });
+  }
+
   togglePassword(): void {
     this.showPassword = !this.showPassword;
+  }
+
+  toggleConfirmPassword(): void {
+    this.showConfirmPassword = !this.showConfirmPassword;
   }
 
   onSubmit(): void {
@@ -92,9 +148,29 @@ export class RegisterComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (this.registerForm.valid) {
-      const formData = this.registerForm.value;
-      this.store.dispatch(register({ data: formData }));
+    if (this.registerForm.invalid) {
+      return;
     }
+
+    const password = this.registerForm.get('password')?.value;
+    const confirmPassword = this.registerForm.get('confirmPassword')?.value;
+
+    if (password !== confirmPassword) {
+      this.errorMessage = 'Las contraseñas no coinciden';
+      setTimeout(() => (this.errorMessage = ''), 3000);
+      return;
+    }
+
+    const formData = {
+      ...this.registerForm.value,
+      firstName: this.registerForm.get('firstName')?.value,
+      lastName: this.registerForm.get('lastName')?.value,
+      institutionalEmail: this.registerForm.get('institutionalEmail')?.value,
+    };
+
+    delete formData.confirmPassword;
+
+    this.store.dispatch(register({ data: formData }));
   }
 }
+ 
