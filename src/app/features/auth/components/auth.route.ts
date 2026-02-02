@@ -1,6 +1,5 @@
 import type { Route } from '@angular/router'
 import { RegisterComponent } from './register/register.component'
-import { LogoutComponent } from './logout/logout.component'
 import { LockScreenComponent } from './lock-screen/lock-screen.component'
 import { ConfirmMailComponent } from './confirm-mail/confirm-mail.component'
 import { SignInComponent } from './sign-in/sign-in.component'
@@ -20,8 +19,8 @@ export const AUTH_ROUTES: Route[] = [
   },
   {
     path: 'auth/logout',
-    component: LogoutComponent,
-    data: { title: 'Logout' },
+    redirectTo: 'auth/login',
+    pathMatch: 'full',
   },
   {
     path: 'auth/recoverpw',

@@ -35,11 +35,8 @@ export const AUTH_ROUTES: Routes = [
   },
   {
     path: 'logout',
-    loadComponent: () =>
-      import('./components/logout/logout.component').then(
-        (m) => m.LogoutComponent,
-      ),
-    data: { title: 'Logout' },
+    redirectTo: 'login',
+    pathMatch: 'full',
   },
   {
     path: 'confirm-mail',

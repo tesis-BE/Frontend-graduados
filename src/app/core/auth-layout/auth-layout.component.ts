@@ -37,13 +37,13 @@ import { NgbCarouselModule } from '@ng-bootstrap/ng-bootstrap';
                         viewBox="0 0 24 24"
                       >
                         <path
-                          fill="#ffffff"
+                          fill="#000000"
                           d="M4.583 17.321C3.553 16.227 3 15 3 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621c.537-.278 1.24-.375 1.929-.311c1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 0 1-3.5 3.5a3.87 3.87 0 0 1-2.748-1.179m10 0C13.553 16.227 13 15 13 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621c.537-.278 1.24-.375 1.929-.311c1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 0 1-3.5 3.5a3.87 3.87 0 0 1-2.748-1.179"
                         />
                       </svg>
-                      With Untitled, your support process can be as enjoyable as
-                      your product. With it's this easy, customers keep coming
-                      back.
+                      Conecta tu talento con las mejores oportunidades
+                      laborales. El Portal de Empleo ULEAM facilita el encuentro
+                      entre graduados y empresas.
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="25"
@@ -51,13 +51,13 @@ import { NgbCarouselModule } from '@ng-bootstrap/ng-bootstrap';
                         viewBox="0 0 24 24"
                       >
                         <path
-                          fill="#ffffff"
+                          fill="#000000"
                           d="M19.417 6.679C20.447 7.773 21 9 21 10.989c0 3.5-2.456 6.637-6.03 8.188l-.893-1.378c3.335-1.804 3.987-4.145 4.248-5.621c-.537.278-1.24.375-1.93.311c-1.804-.167-3.226-1.648-3.226-3.489a3.5 3.5 0 0 1 3.5-3.5c1.073 0 2.1.49 2.748 1.179m-10 0C10.447 7.773 11 9 11 10.989c0 3.5-2.456 6.637-6.03 8.188l-.893-1.378c3.335-1.804 3.987-4.145 4.247-5.621c-.537.278-1.24.375-1.929.311C4.591 12.323 3.17 10.842 3.17 9a3.5 3.5 0 0 1 3.5-3.5c1.073 0 2.1.49 2.748 1.179"
                         />
                       </svg>
                     </p>
-                    <h4 class="mb-1">Camilla Johnson</h4>
-                    <p class="mb-0">Software Developer</p>
+                    <h4 class="mb-1">Portal de Empleo</h4>
+                    <p class="mb-0">Universidad Laica Eloy Alfaro de Manabí</p>
                   </ng-template>
 
                   <ng-template ngbSlide class="carousel-item">
@@ -69,12 +69,13 @@ import { NgbCarouselModule } from '@ng-bootstrap/ng-bootstrap';
                         viewBox="0 0 24 24"
                       >
                         <path
-                          fill="#ffffff"
+                          fill="#000000"
                           d="M4.583 17.321C3.553 16.227 3 15 3 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621c.537-.278 1.24-.375 1.929-.311c1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 0 1-3.5 3.5a3.87 3.87 0 0 1-2.748-1.179m10 0C13.553 16.227 13 15 13 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621c.537-.278 1.24-.375 1.929-.311c1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 0 1-3.5 3.5a3.87 3.87 0 0 1-2.748-1.179"
                         />
                       </svg>
-                      Pretty nice theme, hoping you guys could add more features
-                      to this. Keep up the good work.
+                      Accede a ofertas laborales exclusivas, gestiona tus
+                      postulaciones en tiempo real y construye tu perfil
+                      profesional de manera sencilla.
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="25"
@@ -82,13 +83,13 @@ import { NgbCarouselModule } from '@ng-bootstrap/ng-bootstrap';
                         viewBox="0 0 24 24"
                       >
                         <path
-                          fill="#ffffff"
+                          fill="#000000"
                           d="M19.417 6.679C20.447 7.773 21 9 21 10.989c0 3.5-2.456 6.637-6.03 8.188l-.893-1.378c3.335-1.804 3.987-4.145 4.248-5.621c-.537.278-1.24.375-1.93.311c-1.804-.167-3.226-1.648-3.226-3.489a3.5 3.5 0 0 1 3.5-3.5c1.073 0 2.1.49 2.748 1.179m-10 0C10.447 7.773 11 9 11 10.989c0 3.5-2.456 6.637-6.03 8.188l-.893-1.378c3.335-1.804 3.987-4.145 4.247-5.621c-.537.278-1.24.375-1.929.311C4.591 12.323 3.17 10.842 3.17 9a3.5 3.5 0 0 1 3.5-3.5c1.073 0 2.1.49 2.748 1.179"
                         />
                       </svg>
                     </p>
-                    <h4 class="mb-1">Palak Awoo</h4>
-                    <p class="mb-0">Lead Designer</p>
+                    <h4 class="mb-1">Graduados ULEAM</h4>
+                    <p class="mb-0">Oportunidades de Empleo</p>
                   </ng-template>
 
                   <ng-template ngbSlide class="carousel-item">
@@ -100,12 +101,13 @@ import { NgbCarouselModule } from '@ng-bootstrap/ng-bootstrap';
                         viewBox="0 0 24 24"
                       >
                         <path
-                          fill="#ffffff"
+                          fill="#000000"
                           d="M4.583 17.321C3.553 16.227 3 15 3 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621c.537-.278 1.24-.375 1.929-.311c1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 0 1-3.5 3.5a3.87 3.87 0 0 1-2.748-1.179m10 0C13.553 16.227 13 15 13 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621c.537-.278 1.24-.375 1.929-.311c1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 0 1-3.5 3.5a3.87 3.87 0 0 1-2.748-1.179"
                         />
                       </svg>
-                      This is a great product, helped us a lot and very quick to
-                      work with and implement.
+                      Un espacio diseñado para impulsar tu carrera profesional.
+                      Empresas buscan graduados de ULEAM para formar parte de
+                      sus equipos.
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="25"
@@ -113,13 +115,13 @@ import { NgbCarouselModule } from '@ng-bootstrap/ng-bootstrap';
                         viewBox="0 0 24 24"
                       >
                         <path
-                          fill="#ffffff"
+                          fill="#000000"
                           d="M19.417 6.679C20.447 7.773 21 9 21 10.989c0 3.5-2.456 6.637-6.03 8.188l-.893-1.378c3.335-1.804 3.987-4.145 4.248-5.621c-.537.278-1.24.375-1.93.311c-1.804-.167-3.226-1.648-3.226-3.489a3.5 3.5 0 0 1 3.5-3.5c1.073 0 2.1.49 2.748 1.179m-10 0C10.447 7.773 11 9 11 10.989c0 3.5-2.456 6.637-6.03 8.188l-.893-1.378c3.335-1.804 3.987-4.145 4.247-5.621c-.537.278-1.24.375-1.929.311C4.591 12.323 3.17 10.842 3.17 9a3.5 3.5 0 0 1 3.5-3.5c1.073 0 2.1.49 2.748 1.179"
                         />
                       </svg>
                     </p>
-                    <h4 class="mb-1">Laurent Smith</h4>
-                    <p class="mb-0">Product designer</p>
+                    <h4 class="mb-1">Vinculación Laboral</h4>
+                    <p class="mb-0">Tu futuro comienza aquí</p>
                   </ng-template>
                 </ngb-carousel>
               </div>
