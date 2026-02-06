@@ -70,7 +70,15 @@ export class ChatSocketService implements OnDestroy {
       
       if (messageConvId === currentConvId) {
         const current = this.messagesSubject.value;
-        this.messagesSubject.next([...current, message]);
+        // Evitar duplicados: no agregar si ya existe un mensaje similar (mismo contenido + senderId)
+        const isDuplicate = current.some(
+          m => m.content === message.content && 
+               m.senderId === message.senderId && 
+               Math.abs(new Date(m.createdAt).getTime() - new Date(message.createdAt).getTime()) < 1000
+        );
+        if (!isDuplicate) {
+          this.messagesSubject.next([...current, message]);
+        }
       }
     });
 
@@ -168,10 +176,17 @@ export class ChatSocketService implements OnDestroy {
     this.messagesSubject.next([]);
   }
 
-  sendMessage(conversationId: number, content: string): void {
+  sendMessage(conversationId: number, content: string, senderId: number): void {
     if (!this.socket) return;
     
+    this.logger.debug('CHAT-SOCKET', 'Emitiendo send_message', { conversationId, content });
     this.socket.emit('send_message', { conversationId, content });
+  }
+
+  // Agregar mensaje localmente para optimistic update (antes de backend confirm)
+  addMessageLocally(message: Message): void {
+    const current = this.messagesSubject.value;
+    this.messagesSubject.next([...current, message]);
   }
 
   emitTyping(conversationId: number, isTyping: boolean): void {

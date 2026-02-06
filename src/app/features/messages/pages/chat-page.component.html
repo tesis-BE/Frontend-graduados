@@ -44,6 +44,7 @@
           [selectedConversationId]="selectedConversation()?.id ?? null"
           [currentUserId]="currentUserId() ?? 0"
           (selectConversation)="onSelectConversation($event)"
+          (deleteConversation)="onDeleteConversation($event)"
         />
         
         <!-- Debug info -->

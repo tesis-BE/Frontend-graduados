@@ -51,6 +51,14 @@
         >
           <div class="message-bubble">
             <p class="message-content mb-1">{{ message.content }}</p>
+            @if (message.attachmentUrl) {
+              <div class="message-attachment mt-1">
+                <a [href]="message.attachmentUrl" target="_blank" rel="noopener" class="attachment-link">
+                  <i class="mdi mdi-paperclip me-1"></i>
+                  Archivo adjunto
+                </a>
+              </div>
+            }
             <div class="message-meta d-flex align-items-center gap-2">
               <small class="message-time">{{ formatTime(message.createdAt) }}</small>
               @if (isSentByCurrentUser(message)) {

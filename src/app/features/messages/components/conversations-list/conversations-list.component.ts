@@ -15,6 +15,7 @@ export class ConversationsListComponent {
   @Input() selectedConversationId: number | null = null;
   @Input() currentUserId: number = 0;
   @Output() selectConversation = new EventEmitter<Conversation>();
+  @Output() deleteConversation = new EventEmitter<number>();
 
   onSelectConversation(conversation: Conversation): void {
     this.selectConversation.emit(conversation);
@@ -69,5 +70,10 @@ export class ConversationsListComponent {
     if (days < 7) return `${days}d`;
     
     return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
+  }
+
+  onDeleteConversation(event: Event, conversationId: number): void {
+    event.stopPropagation();
+    this.deleteConversation.emit(conversationId);
   }
 }

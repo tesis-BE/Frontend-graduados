@@ -32,9 +32,19 @@
                 <h6 class="mb-0 text-truncate conversation-name">
                   {{ getOtherUserName(conversation) }}
                 </h6>
-                <small class="text-muted conversation-time">
-                  {{ formatTime(conversation.lastMessageAt || conversation.createdAt) }}
-                </small>
+                <div class="d-flex align-items-center gap-2">
+                  <small class="text-muted conversation-time">
+                    {{ formatTime(conversation.lastMessageAt || conversation.createdAt) }}
+                  </small>
+                  <button
+                    class="btn btn-sm btn-link text-danger p-0"
+                    (click)="onDeleteConversation($event, conversation.id)"
+                    title="Eliminar conversación"
+                    style="font-size: 1.2rem; line-height: 1;"
+                  >
+                    <i class="mdi mdi-delete-outline"></i>
+                  </button>
+                </div>
               </div>
               
               @if (getCompanyName(conversation); as companyName) {

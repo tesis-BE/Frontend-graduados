@@ -55,6 +55,9 @@ export class GraduateDetailComponent implements OnInit {
         const graduate: Graduate = {
           ...userData,
           isAvailable: userData.availableForWork,
+          facultyName: userData.faculty?.name || userData.facultyName || null,
+          careerName: userData.educations?.[0]?.fieldOfStudy || userData.careerName || null,
+          graduationYear: userData.educations?.[0]?.graduationYear || userData.graduationYear || null,
           photoUrl: userData.photoUrl?.startsWith('http')
             ? userData.photoUrl
             : userData.photoUrl

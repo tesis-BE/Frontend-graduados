@@ -115,6 +115,9 @@ export class UserService {
           response.data = response.data.map((graduate: any) => ({
             ...graduate,
             isAvailable: graduate.availableForWork,
+            facultyName: graduate.faculty?.name || graduate.facultyName || null,
+            careerName: graduate.educations?.[0]?.fieldOfStudy || graduate.careerName || null,
+            graduationYear: graduate.educations?.[0]?.graduationYear || graduate.graduationYear || null,
             photoUrl: graduate.photoUrl?.startsWith('http') 
               ? graduate.photoUrl 
               : graduate.photoUrl 
@@ -133,6 +136,7 @@ export class UserService {
             })) || [],
             portfolio: graduate.portfolios || graduate.portfolio || [],
             workExperiences: graduate.workExperiences || [],
+            education: graduate.educations || graduate.education || [],
           }));
         }
         return response;

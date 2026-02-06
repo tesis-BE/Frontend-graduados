@@ -144,9 +144,19 @@
                         class="d-flex align-items-center justify-content-between"
                       >
                         <p class="notify-details mb-0 fw-bold">{{ notification.title }}</p>
-                        <small class="text-muted ms-2 flex-shrink-0">{{
-                          getNotificationTime(notification)
-                        }}</small>
+                        <div class="d-flex align-items-center gap-2">
+                          <small class="text-muted">{{
+                            getNotificationTime(notification)
+                          }}</small>
+                          <button
+                            class="btn btn-sm btn-link text-danger p-0"
+                            (click)="onDeleteNotification($event, notification.id)"
+                            title="Eliminar notificación"
+                            style="font-size: 1.1rem; line-height: 1;"
+                          >
+                            <i class="mdi mdi-delete-outline"></i>
+                          </button>
+                        </div>
                       </div>
                       <p class="mb-0 mt-1 text-muted" style="font-size: 0.875rem; line-height: 1.4;">
                         {{ notification.message }}

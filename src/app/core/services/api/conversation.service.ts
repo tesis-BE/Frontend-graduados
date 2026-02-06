@@ -73,4 +73,11 @@ export class ConversationService {
       {}
     );
   }
+
+  // Eliminar una conversación
+  deleteConversation(conversationId: number): Observable<ApiResponse<void>> {
+    return this.http.delete<ApiResponse<void>>(
+      `${this.apiUrl}/${conversationId}`
+    );
+  }
 }

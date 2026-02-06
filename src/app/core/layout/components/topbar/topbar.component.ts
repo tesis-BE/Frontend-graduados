@@ -282,6 +282,33 @@ export class TopbarComponent implements OnInit, OnDestroy {
       });
   }
 
+  onDeleteNotification(event: Event, notificationId: number): void {
+    event.stopPropagation();
+    
+    this.notificationApiService
+      .deleteNotification(notificationId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          // Actualizar la lista de notificaciones
+          const updatedNotifications = this.notifications().filter(
+            (n) => n.id !== notificationId
+          );
+          this.socketService.setNotifications(updatedNotifications);
+          
+          // Actualizar contador si era no leída
+          const deletedNotif = this.notifications().find((n) => n.id === notificationId);
+          if (deletedNotif && !deletedNotif.isRead) {
+            const newCount = Math.max(0, this.unreadCount() - 1);
+            this.socketService.setUnreadCount(newCount);
+          }
+        },
+        error: (error) => {
+          console.error('Error deleting notification:', error);
+        },
+      });
+  }
+
   getNotificationIcon(notification: UserNotification): string {
     switch (notification.eventType) {
       case 'application_submitted':

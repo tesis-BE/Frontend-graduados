@@ -189,27 +189,67 @@ export class ChatPageComponent implements OnInit, OnDestroy {
 
   onSendMessage(content: string): void {
     const conversation = this.selectedConversation();
+    const userId = this.currentUserId();
+    
     if (!conversation) {
       console.error('❌ No se puede enviar mensaje: no hay conversación seleccionada');
       return;
     }
 
-    console.log('📤 Enviando mensaje a conversación:', conversation.id);
+    if (!userId) {
+      console.error('❌ No se puede enviar mensaje: userId no disponible');
+      return;
+    }
+
+    console.log('📤 Enviando mensaje POR SOCKET a conversación:', conversation.id);
     console.log('📝 Contenido:', content);
 
-    this.conversationService
-      .sendMessage({ conversationId: conversation.id, content })
-      .subscribe({
-        next: (response) => {
-          if (response && response.data) {
-            console.log('✅ Mensaje enviado exitosamente:', response.data);
-            console.log('⏳ Esperando recepción por socket...');
-            // El mensaje se añadirá vía socket
-          }
-        },
-        error: (error) => {
-          console.error('❌ Error enviando mensaje:', error);
-        },
-      });
+    // Crear mensaje temporal optimista
+    const optimisticMessage: Message = {
+      id: Math.random(), // ID temporal (será reemplazado por backend)
+      conversationId: conversation.id,
+      senderId: userId,
+      content,
+      isRead: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    // Agregar localmente para que se vea inmediatamente
+    this.chatSocket.addMessageLocally(optimisticMessage);
+
+    // Enviar por socket (backend emitirá a todos)
+    this.chatSocket.sendMessage(conversation.id, content, userId);
+  }
+
+  onDeleteConversation(conversationId: number): void {
+    console.log('🗑️ Eliminando conversación:', conversationId);
+    
+    // Confirmación antes de eliminar
+    if (!confirm('¿Estás seguro de que deseas eliminar esta conversación? Esta acción no se puede deshacer.')) {
+      return;
+    }
+
+    this.conversationService.deleteConversation(conversationId).subscribe({
+      next: () => {
+        console.log('✅ Conversación eliminada:', conversationId);
+        
+        // Actualizar lista de conversaciones
+        const updatedConversations = this.conversations().filter(
+          (c) => c.id !== conversationId
+        );
+        this.conversations.set(updatedConversations);
+        
+        // Si era la conversación seleccionada, limpiar selección
+        if (this.selectedConversation()?.id === conversationId) {
+          this.selectedConversation.set(null);
+          this.messages.set([]);
+        }
+      },
+      error: (error) => {
+        console.error('❌ Error eliminando conversación:', error);
+        this.error.set('Error al eliminar la conversación: ' + (error.message || error));
+      },
+    });
   }
 }
