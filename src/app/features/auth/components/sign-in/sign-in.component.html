@@ -67,18 +67,28 @@
 
               <div class="form-group mb-3">
                 <label for="password" class="form-label">Contraseña</label>
-                <input
-                  class="form-control"
-                  type="password"
-                  formControlName="password"
-                  [ngClass]="{
-                    'is-invalid': submitted && formValues['password'].errors,
-                  }"
-                  id="password"
-                  placeholder="Tu contraseña"
-                />
+                <div class="input-group">
+                  <input
+                    class="form-control"
+                    [type]="showPassword ? 'text' : 'password'"
+                    formControlName="password"
+                    [ngClass]="{
+                      'is-invalid': submitted && formValues['password'].errors,
+                    }"
+                    id="password"
+                    placeholder="Tu contraseña"
+                  />
+                  <button
+                    class="btn btn-outline-secondary"
+                    type="button"
+                    (click)="togglePasswordVisibility()"
+                    tabindex="-1"
+                  >
+                    <i class="mdi" [class.mdi-eye]="showPassword" [class.mdi-eye-off]="!showPassword"></i>
+                  </button>
+                </div>
                 @if (submitted && formValues["password"].errors) {
-                  <div class="invalid-feedback">La contraseña es requerida</div>
+                  <div class="invalid-feedback d-block">La contraseña es requerida</div>
                 }
               </div>
 
@@ -102,6 +112,20 @@
                   >
                 </div>
               </div>
+
+              <button
+                class="btn btn-primary w-100"
+                type="submit"
+                [disabled]="loading"
+              >
+                @if (loading) {
+                  <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  Iniciando sesión...
+                } @else {
+                  <i class="mdi mdi-login me-2"></i>
+                  Iniciar Sesión
+                }
+              </button>
             </form>
 
             <div class="text-center text-muted mb-4">

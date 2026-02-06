@@ -1,0 +1,180 @@
+<div class="container-fluid py-4">
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2>
+          <i class="mdi mdi-book-education-outline me-2"></i>
+          Gestión de Carreras
+        </h2>
+        <button class="btn btn-primary" (click)="openCreateModal()">
+          <i class="mdi mdi-plus me-1"></i>
+          Nueva Carrera
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          @if (isLoading()) {
+            <div class="text-center py-5">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+              </div>
+            </div>
+          } @else if (careers().length === 0) {
+            <div class="text-center py-5 text-muted">
+              <i class="mdi mdi-book-education-outline display-3 d-block mb-3"></i>
+              <h5>No hay carreras registradas</h5>
+              <p>Crea la primera carrera haciendo clic en "Nueva Carrera"</p>
+            </div>
+          } @else {
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th>Facultad</th>
+                    <th>Estado</th>
+                    <th class="text-end">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (career of careers(); track career.id) {
+                    <tr>
+                      <td>{{ career.id }}</td>
+                      <td>
+                        <strong>{{ career.name }}</strong>
+                      </td>
+                      <td>
+                        <span class="text-muted">{{ career.description || '-' }}</span>
+                      </td>
+                      <td>
+                        <span class="badge bg-soft-info text-info">
+                          {{ career.faculty?.name || 'N/A' }}
+                        </span>
+                        @if (career.faculty?.university?.name) {
+                          <br>
+                          <small class="text-muted">{{ career.faculty?.university?.name }}</small>
+                        }
+                      </td>
+                      <td>
+                        <span
+                          class="badge"
+                          [class.bg-success]="career.isActive"
+                          [class.bg-secondary]="!career.isActive"
+                        >
+                          {{ career.isActive ? 'Activa' : 'Inactiva' }}
+                        </span>
+                      </td>
+                      <td class="text-end">
+                        <button
+                          class="btn btn-sm btn-soft-primary me-1"
+                          (click)="openEditModal(career)"
+                          title="Editar"
+                        >
+                          <i class="mdi mdi-pencil"></i>
+                        </button>
+                        <button
+                          class="btn btn-sm btn-soft-warning me-1"
+                          (click)="toggleStatus(career)"
+                          [title]="career.isActive ? 'Desactivar' : 'Activar'"
+                        >
+                          <i class="mdi" [class.mdi-toggle-switch]="career.isActive" [class.mdi-toggle-switch-off]="!career.isActive"></i>
+                        </button>
+                        <button
+                          class="btn btn-sm btn-soft-danger"
+                          (click)="deleteCareer(career)"
+                          title="Eliminar"
+                        >
+                          <i class="mdi mdi-delete"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+@if (showModal()) {
+  <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5)">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">
+            {{ editingCareer() ? 'Editar' : 'Nueva' }} Carrera
+          </h5>
+          <button type="button" class="btn-close" (click)="closeModal()"></button>
+        </div>
+        <form (ngSubmit)="onSubmit()">
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">Nombre <span class="text-danger">*</span></label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="formData.name"
+                name="name"
+                required
+              />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Descripción</label>
+              <textarea
+                class="form-control"
+                [(ngModel)]="formData.description"
+                name="description"
+                rows="3"
+              ></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Facultad <span class="text-danger">*</span></label>
+              <select
+                class="form-select"
+                [(ngModel)]="formData.facultyId"
+                name="facultyId"
+                required
+              >
+                <option [ngValue]="0">Selecciona una facultad</option>
+                @for (faculty of faculties(); track faculty.id) {
+                  <option [ngValue]="faculty.id">{{ faculty.name }}</option>
+                }
+              </select>
+            </div>
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                [(ngModel)]="formData.isActive"
+                name="isActive"
+                id="isActive"
+              />
+              <label class="form-check-label" for="isActive">
+                Activa
+              </label>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="closeModal()">
+              Cancelar
+            </button>
+            <button type="submit" class="btn btn-primary">
+              {{ editingCareer() ? 'Actualizar' : 'Crear' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+}

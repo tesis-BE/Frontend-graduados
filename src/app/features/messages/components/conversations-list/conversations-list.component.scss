@@ -1,0 +1,60 @@
+.conversations-list {
+  height: calc(100vh - 140px);
+  overflow-y: auto;
+}
+
+.conversation-item {
+  padding: 1rem;
+  border: none;
+  border-bottom: 1px solid #e9ecef;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #f8f9fa;
+  }
+
+  &.active {
+    background-color: #e7f3ff;
+    border-left: 3px solid #0d6efd;
+  }
+}
+
+.avatar-md {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+}
+
+.badge-unread {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  font-size: 0.7rem;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.conversation-name {
+  font-weight: 600;
+  color: #212529;
+}
+
+.conversation-time {
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.last-message {
+  max-width: 200px;
+}
+
+.list-group-item-action.active {
+  .conversation-name,
+  .last-message {
+    color: #0d6efd;
+  }
+}

@@ -70,6 +70,60 @@
         </select>
       </div>
 
+      <div class="col-12 col-md-6" *ngIf="selectedCandidate">
+        <label class="form-label">Email del candidato</label>
+        <input
+          class="form-control"
+          [value]="selectedCandidate?.email || '-'"
+          readonly
+        />
+      </div>
+
+      <div class="col-12 col-md-6" *ngIf="selectedCandidate">
+        <label class="form-label">Teléfono</label>
+        <input
+          class="form-control"
+          [value]="selectedCandidate?.phone || '-'"
+          readonly
+        />
+      </div>
+
+      <div class="col-12 col-md-6" *ngIf="selectedCandidate">
+        <label class="form-label">Facultad</label>
+        <input
+          class="form-control"
+          [value]="selectedCandidate?.facultyName || '-'"
+          readonly
+        />
+      </div>
+
+      <div class="col-12 col-md-6" *ngIf="selectedCandidate">
+        <label class="form-label">Carrera</label>
+        <input
+          class="form-control"
+          [value]="selectedCandidate?.careerName || '-'"
+          readonly
+        />
+      </div>
+
+      <div class="col-12 col-md-6" *ngIf="selectedJob">
+        <label class="form-label">Ubicación de la oferta</label>
+        <input
+          class="form-control"
+          [value]="selectedJob?.location || '-'"
+          readonly
+        />
+      </div>
+
+      <div class="col-12 col-md-6" *ngIf="selectedJob">
+        <label class="form-label">Modalidad</label>
+        <input
+          class="form-control"
+          [value]="selectedJob?.workMode || '-'"
+          readonly
+        />
+      </div>
+
       <div class="col-12">
         <label class="form-label">Carta de presentación (opcional)</label>
         <textarea
@@ -121,14 +175,20 @@
             <th>Candidato</th>
             <th>Puesto</th>
             <th>Empresa</th>
+            <th *ngIf="!isRecruiterOrAdmin">Ubicación</th>
+            <th *ngIf="isRecruiterOrAdmin">Email</th>
+            <th *ngIf="isRecruiterOrAdmin">Teléfono</th>
             <th>Estado</th>
             <th>Fecha</th>
+            <th>Carta</th>
+            <th *ngIf="isRecruiterOrAdmin">Motivo rechazo</th>
+            <th *ngIf="isRecruiterOrAdmin">CV</th>
             <th class="text-end">Acciones</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngIf="isLoading">
-            <td colspan="6" class="text-center py-4">
+            <td [attr.colspan]="isRecruiterOrAdmin ? 11 : 8" class="text-center py-4">
               <div
                 class="spinner-border spinner-border-sm text-primary"
                 role="status"
@@ -139,7 +199,7 @@
             </td>
           </tr>
           <tr *ngIf="!isLoading && applications.length === 0">
-            <td colspan="6" class="text-center py-4 text-muted">
+            <td [attr.colspan]="isRecruiterOrAdmin ? 11 : 8" class="text-center py-4 text-muted">
               <i class="ti ti-file-off fs-1 d-block mb-2"></i>
               <div *ngIf="isRecruiterOrAdmin">
                 <strong>No hay postulaciones recibidas</strong>
@@ -166,13 +226,46 @@
             </td>
             <td>{{ app.jobTitle || "-" }}</td>
             <td>{{ app.companyName || "-" }}</td>
+            <td *ngIf="!isRecruiterOrAdmin">{{ app.job?.location || "-" }}</td>
+            <td *ngIf="isRecruiterOrAdmin">{{ app.user?.email || "-" }}</td>
+            <td *ngIf="isRecruiterOrAdmin">{{ app.user?.phone || "-" }}</td>
             <td>
               <span class="badge" [ngClass]="getStatusClass(app.status)">
                 {{ getStatusLabel(app.status) }}
               </span>
             </td>
             <td>{{ app.appliedAt | date: "dd/MM/yyyy" }}</td>
+            <td>
+              <span class="text-truncate d-inline-block" style="max-width: 180px;">
+                {{ app.coverLetter || "-" }}
+              </span>
+            </td>
+            <td *ngIf="isRecruiterOrAdmin">
+              <span class="text-truncate d-inline-block" style="max-width: 180px;">
+                {{ app.rejectionReason || "-" }}
+              </span>
+            </td>
+            <td *ngIf="isRecruiterOrAdmin">
+              <button
+                *ngIf="app.user?.cvUrl"
+                type="button"
+                class="btn btn-sm btn-outline-secondary"
+                (click)="viewCV(app.user?.cvUrl || null)"
+                title="Ver CV"
+              >
+                <i class="ti ti-file"></i>
+              </button>
+              <span *ngIf="!app.user?.cvUrl">-</span>
+            </td>
             <td class="text-end">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary me-2"
+                  (click)="openChat(app)"
+                  title="Enviar mensaje"
+                >
+                  <i class="ti ti-message"></i>
+                </button>
               <button
                 type="button"
                 class="btn btn-sm btn-outline-primary"
@@ -237,12 +330,41 @@
             <span class="text-muted">Empresa:</span>
             <span>{{ app.companyName || "-" }}</span>
           </div>
+          <div class="d-flex justify-content-between mb-1" *ngIf="!isRecruiterOrAdmin">
+            <span class="text-muted">Ubicación:</span>
+            <span>{{ app.job?.location || "-" }}</span>
+          </div>
+          <div class="d-flex justify-content-between mb-1" *ngIf="isRecruiterOrAdmin">
+            <span class="text-muted">Email:</span>
+            <span>{{ app.user?.email || "-" }}</span>
+          </div>
+          <div class="d-flex justify-content-between mb-1" *ngIf="isRecruiterOrAdmin">
+            <span class="text-muted">Teléfono:</span>
+            <span>{{ app.user?.phone || "-" }}</span>
+          </div>
           <div class="d-flex justify-content-between">
             <span class="text-muted">Fecha:</span>
             <span>{{ app.appliedAt | date: "dd/MM/yyyy" }}</span>
           </div>
+          <div class="mt-2">
+            <span class="text-muted">Carta:</span>
+            <div>{{ app.coverLetter || "-" }}</div>
+          </div>
+          <div class="mt-2" *ngIf="isRecruiterOrAdmin">
+            <span class="text-muted">Motivo rechazo:</span>
+            <div>{{ app.rejectionReason || "-" }}</div>
+          </div>
         </div>
         <div class="card-footer py-2">
+          <button
+            *ngIf="isRecruiterOrAdmin && app.user?.cvUrl"
+            type="button"
+            class="btn btn-sm btn-outline-secondary w-100 mb-2"
+            (click)="viewCV(app.user?.cvUrl || null)"
+          >
+            <i class="ti ti-file me-1"></i>
+            Ver CV
+          </button>
           <button
             type="button"
             class="btn btn-sm btn-outline-primary w-100"
@@ -250,6 +372,14 @@
           >
             <i class="ti ti-edit me-1"></i>
             Cambiar estado
+          </button>
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-secondary w-100 mt-2"
+            (click)="openChat(app)"
+          >
+            <i class="ti ti-message me-1"></i>
+            Enviar mensaje
           </button>
         </div>
       </div>

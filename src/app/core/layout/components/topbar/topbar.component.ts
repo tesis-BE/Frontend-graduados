@@ -13,7 +13,7 @@ import {
   signal,
   OnDestroy,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import * as feather from 'feather-icons';
 import { SimplebarAngularModule } from 'simplebar-angular';
@@ -34,7 +34,36 @@ import { UserNotification } from '@core/interfaces/api/notification.interface';
     CommonModule,
   ],
   templateUrl: './topbar.component.html',
-  styles: ``,
+  styles: `
+    .noti-scroll {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    
+    .notify-item:hover {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+    
+    .notify-item.active {
+      background-color: rgba(var(--bs-primary-rgb), 0.1);
+    }
+    
+    .notify-icon {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(var(--bs-primary-rgb), 0.1);
+      border-radius: 50%;
+    }
+    
+    .connection-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+  `,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class TopbarComponent implements OnInit, OnDestroy {
@@ -46,6 +75,7 @@ export class TopbarComponent implements OnInit, OnDestroy {
   photoUrl = signal<string>('assets/images/users/user-13.jpg');
   notifications = signal<UserNotification[]>([]);
   unreadCount = signal<number>(0);
+  isSocketConnected = signal<boolean>(false);
 
   private destroy$ = new Subject<void>();
 
@@ -58,6 +88,7 @@ export class TopbarComponent implements OnInit, OnDestroy {
     private profileService: ProfileService,
     private socketService: SocketService,
     private notificationApiService: NotificationApiService,
+    private router: Router,
     rendererFactory: RendererFactory2,
   ) {
     this.renderer = rendererFactory.createRenderer(null, null);
@@ -75,19 +106,36 @@ export class TopbarComponent implements OnInit, OnDestroy {
     this.loadUserProfile();
 
     // Conectar socket y cargar notificaciones
+    console.log('🔌 Conectando socket desde topbar...');
     this.socketService.connect();
     this.loadNotifications();
+
+    // Verificar estado de conexión
+    this.socketService.isConnected$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((status) => {
+        console.log(
+          '🔌 Socket status en topbar:',
+          status ? 'CONECTADO ✅' : 'DESCONECTADO ❌',
+        );
+        this.isSocketConnected.set(status);
+      });
 
     // Suscribirse a notificaciones en tiempo real
     this.socketService.notifications$
       .pipe(takeUntil(this.destroy$))
       .subscribe((notifications) => {
+        console.log(
+          '🔔 Notificaciones recibidas en topbar:',
+          notifications.length,
+        );
         this.notifications.set(notifications);
       });
 
     this.socketService.unreadCount$
       .pipe(takeUntil(this.destroy$))
       .subscribe((count) => {
+        console.log('🔔 Contador no leídas:', count);
         this.unreadCount.set(count);
       });
   }
@@ -140,6 +188,7 @@ export class TopbarComponent implements OnInit, OnDestroy {
   }
 
   onNotificationClick(notification: UserNotification): void {
+
     if (!notification.isRead) {
       this.notificationApiService
         .markAsRead(notification.id)
@@ -155,7 +204,68 @@ export class TopbarComponent implements OnInit, OnDestroy {
     }
 
     // Navegar según el tipo de notificación
-    // TODO: Implementar navegación según relatedId y eventType
+    this.navigateToNotification(notification);
+  }
+
+  private navigateToNotification(notification: UserNotification): void {
+    const { eventType, relatedId } = notification;
+
+
+    try {
+      switch (eventType) {
+        case 'new_message':
+          if (relatedId) {
+            this.router.navigate(['/messages'], {
+              queryParams: { conversationId: relatedId },
+            });
+          } else {
+            this.router.navigate(['/messages']);
+          }
+          break;
+
+        case 'application_submitted':
+          if (relatedId) {
+            this.router.navigate(['/applications', relatedId]);
+          } else {
+            this.router.navigate(['/applications']);
+          }
+          break;
+
+        case 'application_reviewed':
+          if (relatedId) {
+            this.router.navigate(['/applications', relatedId]);
+          } else {
+            this.router.navigate(['/applications']);
+          }
+          break;
+
+        case 'interview_scheduled':
+          if (relatedId) {
+            this.router.navigate(['/interviews', relatedId]);
+          } else {
+            this.router.navigate(['/interviews']);
+          }
+          break;
+
+        case 'job_posted':
+          if (relatedId) {
+            this.router.navigate(['/jobs', relatedId]);
+          } else {
+            this.router.navigate(['/jobs']);
+          }
+          break;
+
+        case 'profile_updated':
+          this.router.navigate(['/profile']);
+          break;
+
+        default:
+          console.log('😐 Tipo de notificación no reconocido:', eventType);
+          break;
+      }
+    } catch (error) {
+      console.error('❌ Error navegando desde notificación:', error);
+    }
   }
 
   onClearAllNotifications(): void {
@@ -274,5 +384,27 @@ export class TopbarComponent implements OnInit, OnDestroy {
         feather.replace();
       }
     });
+  }
+
+  reconnectSocket(): void {
+    console.log('🔄 Reintentando conexión socket desde topbar...');
+    this.socketService.reconnect();
+  }
+
+  onViewAllNotifications(): void {
+    // Por ahora, cargar más notificaciones o simplemente cerrar el dropdown
+    // TODO: Crear página de notificaciones cuando esté disponible
+    this.notificationApiService
+      .getMyNotifications({ page: 1, pageSize: 50 })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.socketService.setNotifications(response.data);
+          this.socketService.setUnreadCount(response.unreadCount || 0);
+        },
+        error: (error) => {
+          console.error('Error loading all notifications:', error);
+        },
+      });
   }
 }

@@ -1,0 +1,95 @@
+<div class="chat-panel d-flex flex-column h-100">
+  <!-- Header -->
+  <div class="chat-header p-3 border-bottom bg-light">
+    <div class="d-flex align-items-center">
+      <img
+        [src]="getOtherUserPhoto()"
+        [alt]="getOtherUserName()"
+        class="rounded-circle avatar-md me-3"
+      />
+      <div>
+        <h5 class="mb-0">{{ getOtherUserName() }}</h5>
+        @if (conversation.recruiter?.company?.name && currentUserId === conversation.graduateId) {
+          <small class="text-muted">
+            <i class="mdi mdi-office-building me-1"></i>
+            {{ conversation.recruiter?.company?.name }}
+          </small>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div class="chat-messages flex-grow-1 p-3" #messagesContainer>
+    @if (isLoading) {
+      <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando mensajes...</span>
+        </div>
+      </div>
+    } @else if (messages.length === 0) {
+      <div class="text-center text-muted py-5">
+        <i class="mdi mdi-message-outline display-4 d-block mb-3"></i>
+        <p>No hay mensajes aún. ¡Envía el primero!</p>
+      </div>
+    } @else {
+      @for (message of messages; track message.id; let i = $index) {
+        <!-- Separador de fecha -->
+        @if (shouldShowDateSeparator(i)) {
+          <div class="date-separator text-center my-3">
+            <span class="badge bg-light text-muted">
+              {{ formatDate(message.createdAt) }}
+            </span>
+          </div>
+        }
+
+        <!-- Mensaje -->
+        <div
+          class="message"
+          [class.message-sent]="isSentByCurrentUser(message)"
+          [class.message-received]="!isSentByCurrentUser(message)"
+        >
+          <div class="message-bubble">
+            <p class="message-content mb-1">{{ message.content }}</p>
+            <div class="message-meta d-flex align-items-center gap-2">
+              <small class="message-time">{{ formatTime(message.createdAt) }}</small>
+              @if (isSentByCurrentUser(message)) {
+                <i
+                  class="mdi"
+                  [class.mdi-check]="!message.isRead"
+                  [class.mdi-check-all]="message.isRead"
+                  [class.text-primary]="message.isRead"
+                ></i>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    }
+  </div>
+
+  <!-- Input -->
+  <div class="chat-input border-top p-3 bg-light">
+    <div class="input-group">
+      <textarea
+        class="form-control"
+        placeholder="Escribe un mensaje..."
+        rows="1"
+        [(ngModel)]="messageContent"
+        (keypress)="onKeyPress($event)"
+        [disabled]="isLoading"
+      ></textarea>
+      <button
+        class="btn btn-primary"
+        type="button"
+        [disabled]="!messageContent.trim() || isLoading"
+        (click)="onSendMessage()"
+      >
+        <i class="mdi mdi-send"></i>
+      </button>
+    </div>
+    <small class="text-muted mt-1 d-block">
+      Presiona Enter para enviar, Shift+Enter para nueva línea
+    </small>
+  </div>
+</div>

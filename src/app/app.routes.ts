@@ -92,6 +92,27 @@ export const routes: Routes = [
             (m) => m.UNIVERSITIES_ROUTES,
           ),
       },
+      {
+        path: 'messages',
+        loadChildren: () =>
+          import('./features/messages/messages.routes').then(
+            (m) => m.MESSAGES_ROUTES,
+          ),
+      },
+      {
+        path: 'faculties',
+        loadChildren: () =>
+          import('./features/faculties/faculties.routes').then(
+            (m) => m.FACULTIES_ROUTES,
+          ),
+      },
+      {
+        path: 'careers',
+        loadChildren: () =>
+          import('./features/careers/careers.routes').then(
+            (m) => m.CAREERS_ROUTES,
+          ),
+      },
     ],
   },
   {

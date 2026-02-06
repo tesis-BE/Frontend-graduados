@@ -30,6 +30,7 @@ export class SignInComponent implements OnInit, OnDestroy {
   submitted = false;
   errorMessage = '';
   loading = false;
+  showPassword = false;
 
   private fb = inject(UntypedFormBuilder);
   private store = inject(Store);
@@ -80,5 +81,9 @@ export class SignInComponent implements OnInit, OnDestroy {
       const password = this.formValues['password'].value;
       this.store.dispatch(login({ email, password }));
     }
+  }
+
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
   }
 }

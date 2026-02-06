@@ -6,6 +6,7 @@ import {
   inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import {
   ReactiveFormsModule,
   FormBuilder,
@@ -20,13 +21,15 @@ import { BreadcrumbComponent } from '@shared/components/breadcrumb/breadcrumb.co
 import { SweetAlertService } from '@shared/services/sweet-alert.service';
 import { ApplicationService } from '@core/services/api/application.service';
 import { JobOfferService } from '@core/services/api/job-offer.service';
-import { UserService, UserListItem } from '@core/services/api/user.service';
+import { UserService, UserListItem, Graduate } from '@core/services/api/user.service';
+import { ConversationService } from '@core/services/api/conversation.service';
 import { Store } from '@ngrx/store';
 import { selectAuthUser } from '@core/store/authentication/authentication.selector';
 import { User } from '@core/store/authentication/auth.model';
 import { Application } from '@core/interfaces/api/application.interface';
 import { take } from 'rxjs/operators';
 import Swal from 'sweetalert2';
+import { environment } from '@/environments/environment';
 
 @Component({
   selector: 'app-applications-list',
@@ -53,11 +56,16 @@ export class ApplicationsListComponent implements OnInit {
   loadingCandidates = false;
   jobOptions: Array<{ value: number; label: string }> = [];
   candidateOptions: Array<{ value: number; label: string }> = [];
+  candidateMap = new Map<number, Graduate>();
+  jobsMap = new Map<number, any>();
+  selectedCandidate: Graduate | null = null;
+  selectedJob: any | null = null;
   form!: FormGroup;
 
   private readonly store = inject(Store);
   private readonly cdr = inject(ChangeDetectorRef);
   currentUser: User | null = null;
+  assetsUrl = environment.assetsUrl;
 
   filterOptions: FilterOption[] = [
     {
@@ -86,6 +94,8 @@ export class ApplicationsListComponent implements OnInit {
     private userService: UserService,
     private sweetAlert: SweetAlertService,
     private fb: FormBuilder,
+    private conversationService: ConversationService,
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
@@ -93,6 +103,18 @@ export class ApplicationsListComponent implements OnInit {
       jobId: ['', Validators.required],
       userId: ['', Validators.required],
       coverLetter: [''],
+    });
+
+    this.form.get('userId')?.valueChanges.subscribe((value) => {
+      const id = Number(value);
+      this.selectedCandidate = this.candidateMap.get(id) ?? null;
+      this.cdr.markForCheck();
+    });
+
+    this.form.get('jobId')?.valueChanges.subscribe((value) => {
+      const id = Number(value);
+      this.selectedJob = this.jobsMap.get(id) ?? null;
+      this.cdr.markForCheck();
     });
 
     this.store
@@ -166,16 +188,26 @@ export class ApplicationsListComponent implements OnInit {
         list = response.applications;
       }
       
-      this.applications = list.map((app) => ({
-        ...app,
-        candidateName:
-          app.candidateName ||
-          (app.user ? `${app.user.firstName} ${app.user.lastName}` : 'Sin nombre'),
-        jobTitle: app.job?.title ?? app.jobTitle ?? 'Sin título',
-        companyName: app.job?.company?.name ?? app.companyName ?? 'Sin empresa',
-        appliedAt: app.appliedAt || app.createdAt,
-        status: app.status || 'pendiente'
-      }));
+      this.applications = list.map((app) => {
+        const appAny = app as any;
+        const appUserRaw = app.user ?? appAny.user;
+        const appUser = appUserRaw?.cvUrl && !String(appUserRaw.cvUrl).startsWith('http')
+          ? { ...appUserRaw, cvUrl: `${this.assetsUrl}${appUserRaw.cvUrl}` }
+          : appUserRaw;
+        const appJob = app.job ?? appAny.job;
+        return {
+          ...app,
+          user: appUser,
+          job: appJob,
+          candidateName:
+            app.candidateName ||
+            (appUser ? `${appUser.firstName} ${appUser.lastName}` : 'Sin nombre'),
+          jobTitle: appJob?.title ?? app.jobTitle ?? 'Sin título',
+          companyName: appJob?.company?.name ?? app.companyName ?? 'Sin empresa',
+          appliedAt: app.appliedAt || appAny.createdAt,
+          status: app.status || 'pendiente',
+        };
+      });
 
       this.total =
         response?.pagination?.total ??
@@ -274,6 +306,7 @@ export class ApplicationsListComponent implements OnInit {
     this.jobOfferService.getMyJobOffers().subscribe({
       next: (resp) => {
         const list = resp?.data ?? resp ?? [];
+        this.jobsMap = new Map(list.map((job: any) => [job.id, job]));
         this.jobOptions = list.map((job: any) => ({
           value: job.id,
           label: `${job.title} · ${job.status ?? ''}`.trim(),
@@ -303,7 +336,8 @@ export class ApplicationsListComponent implements OnInit {
       .subscribe({
         next: (resp) => {
           const list = resp?.data ?? resp ?? [];
-          this.candidateOptions = list.map((u: UserListItem) => ({
+          this.candidateMap = new Map(list.map((u: Graduate) => [u.id, u]));
+          this.candidateOptions = list.map((u: Graduate) => ({
             value: u.id,
             label: `${u.firstName} ${u.lastName} · ${u.email}`,
           }));
@@ -414,5 +448,79 @@ export class ApplicationsListComponent implements OnInit {
       return;
     this.currentPage = page;
     this.loadApplications();
+  }
+
+  viewCV(url: string | null): void {
+    if (url) {
+      window.open(url, '_blank');
+    } else {
+      this.sweetAlert.warning('Sin CV', 'Este candidato no ha subido su CV');
+    }
+  }
+
+  openChat(app: Application): void {
+    if (!this.currentUser?.id) {
+      this.sweetAlert.error('Error', 'No se pudo identificar al usuario actual');
+      return;
+    }
+
+    if (app.id) {
+      this.conversationService.getConversationByApplication(app.id).subscribe({
+        next: (response: any) => {
+          const conversation = response?.data;
+          if (conversation?.id) {
+            this.router.navigate(['/messages'], {
+              queryParams: { conversationId: conversation.id },
+            });
+          } else {
+            this.openDirectChat(app);
+          }
+        },
+        error: (error: any) => {
+          if (error?.status === 404) {
+            this.openDirectChat(app);
+            return;
+          }
+          console.error('Error obteniendo conversación:', error);
+          this.sweetAlert.error('Error', 'No se pudo abrir la conversación');
+        },
+      });
+      return;
+    }
+
+    this.openDirectChat(app);
+  }
+
+  private openDirectChat(app: Application): void {
+    const otherUserId = this.isRecruiterOrAdmin
+      ? app.userId
+      : app.recruiterId || app.job?.createdBy || app.job?.recruiterId || app.job?.recruiter?.id;
+
+    if (!otherUserId) {
+      this.sweetAlert.warning('Sin contacto', 'No se encontró el usuario para iniciar el chat');
+      return;
+    }
+
+    if (otherUserId === this.currentUser?.id) {
+      this.sweetAlert.warning('Acción inválida', 'No puedes iniciar un chat contigo mismo');
+      return;
+    }
+
+    this.conversationService.findOrCreateDirect(otherUserId).subscribe({
+      next: (response: any) => {
+        const conversation = response?.data;
+        if (conversation?.id) {
+          this.router.navigate(['/messages'], {
+            queryParams: { conversationId: conversation.id },
+          });
+        } else {
+          this.sweetAlert.error('Error', 'No se pudo abrir la conversación');
+        }
+      },
+      error: (error: any) => {
+        console.error('Error creando conversación:', error);
+        this.sweetAlert.error('Error', 'No se pudo iniciar el chat');
+      },
+    });
   }
 }

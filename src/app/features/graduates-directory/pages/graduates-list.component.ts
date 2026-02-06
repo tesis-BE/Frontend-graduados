@@ -12,6 +12,7 @@ import {
 } from '@shared/components/filter-panel/filter-panel.component';
 import { UserService, Graduate } from '@core/services/api/user.service';
 import { SweetAlertService } from '@shared/services/sweet-alert.service';
+import { ConversationService } from '@core/services/api/conversation.service';
 
 @Component({
   selector: 'app-graduates-list',
@@ -53,6 +54,7 @@ export class GraduatesListComponent implements OnInit {
     private sweetAlert: SweetAlertService,
     private cdr: ChangeDetectorRef,
     private router: Router,
+    private conversationService: ConversationService,
   ) {}
 
   ngOnInit(): void {
@@ -119,5 +121,29 @@ export class GraduatesListComponent implements OnInit {
 
   viewLinkedIn(url: string): void {
     window.open(url, '_blank');
+  }
+
+  openChat(graduateId: number): void {
+    if (!graduateId) {
+      this.sweetAlert.warning('Sin contacto', 'No se pudo identificar al graduado');
+      return;
+    }
+
+    this.conversationService.findOrCreateDirect(graduateId).subscribe({
+      next: (response: any) => {
+        const conversation = response?.data;
+        if (conversation?.id) {
+          this.router.navigate(['/messages'], {
+            queryParams: { conversationId: conversation.id },
+          });
+        } else {
+          this.sweetAlert.error('Error', 'No se pudo abrir la conversación');
+        }
+      },
+      error: (error: any) => {
+        console.error('Error creando conversación:', error);
+        this.sweetAlert.error('Error', 'No se pudo iniciar el chat');
+      },
+    });
   }
 }

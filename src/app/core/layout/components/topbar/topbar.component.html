@@ -59,6 +59,27 @@
             ></i>
           </button>
         </li>
+        
+        <!-- Indicador de conexión socket -->
+        <li class="d-none d-sm-flex">
+          <div class="nav-link d-flex align-items-center">
+            @if (isSocketConnected()) {
+              <div class="connection-indicator connected" title="Conectado">
+                <i class="mdi mdi-wifi text-success"></i>
+              </div>
+            } @else {
+              <button 
+                type="button" 
+                class="btn btn-sm btn-outline-warning"
+                (click)="reconnectSocket()"
+                title="Desconectado - Clic para reconectar"
+              >
+                <i class="mdi mdi-wifi-off"></i>
+              </button>
+            }
+          </div>
+        </li>
+        
         <li class="dropdown notification-list topbar-dropdown" ngbDropdown>
           <a
             class="nav-link dropdown-toggle"
@@ -109,25 +130,31 @@
                   (click)="onNotificationClick(notification)"
                   class="dropdown-item notify-item text-muted link-primary"
                   [class.active]="!notification.isRead"
+                  style="white-space: normal; padding: 0.75rem 1rem;"
                 >
-                  <div class="notify-icon">
-                    <i
-                      [attr.data-feather]="getNotificationIcon(notification)"
-                      class="noti-icon"
-                    ></i>
-                  </div>
-                  <div class="notify-content w-100">
-                    <div
-                      class="d-flex align-items-center justify-content-between"
-                    >
-                      <p class="notify-details mb-0">{{ notification.title }}</p>
-                      <small class="text-muted">{{
-                        getNotificationTime(notification)
-                      }}</small>
+                  <div class="d-flex align-items-start">
+                    <div class="notify-icon flex-shrink-0">
+                      <i
+                        [attr.data-feather]="getNotificationIcon(notification)"
+                        class="noti-icon"
+                      ></i>
                     </div>
-                    <p class="mb-0 mt-1">
-                      <small class="fs-14">{{ notification.message }}</small>
-                    </p>
+                    <div class="notify-content flex-grow-1 ms-2">
+                      <div
+                        class="d-flex align-items-center justify-content-between"
+                      >
+                        <p class="notify-details mb-0 fw-bold">{{ notification.title }}</p>
+                        <small class="text-muted ms-2 flex-shrink-0">{{
+                          getNotificationTime(notification)
+                        }}</small>
+                      </div>
+                      <p class="mb-0 mt-1 text-muted" style="font-size: 0.875rem; line-height: 1.4;">
+                        {{ notification.message }}
+                      </p>
+                      @if (!notification.isRead) {
+                        <span class="badge bg-primary badge-sm mt-1">Nuevo</span>
+                      }
+                    </div>
                   </div>
                 </a>
               }
@@ -136,6 +163,7 @@
             <!-- All-->
             <a
               href="javascript:void(0);"
+              (click)="onViewAllNotifications()"
               class="dropdown-item text-center text-primary notify-item notify-all"
             >
               Ver todas

@@ -1,0 +1,79 @@
+<div class="container-fluid h-100">
+  <div class="row h-100">
+    <!-- Lista de conversaciones -->
+    <div class="col-lg-4 col-xl-3 border-end h-100">
+      <div class="p-3 border-bottom">
+        <h4 class="mb-0">
+          <i class="mdi mdi-message-text-outline me-2"></i>
+          Mensajes
+        </h4>
+      </div>
+      
+      @if (isLoadingConversations()) {
+        <div class="text-center p-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
+          <p class="mt-2 text-muted">Cargando conversaciones...</p>
+        </div>
+      } @else if (error()) {
+        <div class="text-center p-4">
+          <div class="alert alert-danger">
+            <i class="mdi mdi-alert-circle-outline me-2"></i>
+            {{ error() }}
+          </div>
+          <button 
+            class="btn btn-outline-primary btn-sm" 
+            (click)="loadConversations()"
+          >
+            <i class="mdi mdi-refresh me-1"></i>
+            Reintentar
+          </button>
+        </div>
+      } @else if (conversations().length === 0) {
+        <div class="text-center p-4">
+          <div class="text-muted">
+            <i class="mdi mdi-message-outline display-4 mb-3 d-block"></i>
+            <h6>No hay conversaciones</h6>
+            <p class="small">Aún no tienes conversaciones activas</p>
+          </div>
+        </div>
+      } @else {
+        <app-conversations-list
+          [conversations]="conversations()"
+          [selectedConversationId]="selectedConversation()?.id ?? null"
+          [currentUserId]="currentUserId() ?? 0"
+          (selectConversation)="onSelectConversation($event)"
+        />
+        
+        <!-- Debug info -->
+        @if (conversations().length > 0) {
+          <div class="small text-muted text-center p-2 border-top">
+            {{ conversations().length }} conversación(es) cargadas
+          </div>
+        }
+      }
+    </div>
+
+    <!-- Panel de chat -->
+    <div class="col-lg-8 col-xl-9 h-100 d-flex flex-column">
+      @if (selectedConversation()) {
+        <app-chat-panel
+          [conversation]="selectedConversation()!"
+          [messages]="messages()"
+          [currentUserId]="currentUserId() ?? 0"
+          [isLoading]="isLoadingMessages()"
+          (sendMessage)="onSendMessage($event)"
+        />
+      } @else {
+        <div class="d-flex align-items-center justify-content-center h-100">
+          <div class="text-center text-muted">
+            <i class="mdi mdi-message-outline display-1 mb-3"></i>
+            <h5>Selecciona una conversación</h5>
+            <p class="text-muted">Elige una conversación de la lista para empezar a chatear</p>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

@@ -1,0 +1,25 @@
+:host {
+  display: block;
+  height: calc(100vh - 70px);
+  overflow: hidden;
+}
+
+.container-fluid {
+  padding: 0;
+}
+
+.row {
+  margin: 0;
+}
+
+[class*="col-"] {
+  padding: 0;
+}
+
+.border-end {
+  border-right: 1px solid #e9ecef !important;
+}
+
+.border-bottom {
+  border-bottom: 1px solid #e9ecef !important;
+}

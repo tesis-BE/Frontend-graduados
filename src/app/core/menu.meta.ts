@@ -68,6 +68,24 @@ export const MENU_ITEMS: MenuItemType[] = [
     url: '/graduates',
   },
   {
+    key: 'messages',
+    label: 'Mensajes',
+    icon: 'message-circle',
+    url: '/messages',
+  },
+  {
+    key: 'faculties',
+    label: 'Facultades',
+    icon: 'school',
+    url: '/faculties',
+  },
+  {
+    key: 'careers',
+    label: 'Carreras',
+    icon: 'book-education',
+    url: '/careers',
+  },
+  {
     key: 'gestion-usuarios',
     label: 'Gestión de Usuarios',
     icon: 'user-check',
