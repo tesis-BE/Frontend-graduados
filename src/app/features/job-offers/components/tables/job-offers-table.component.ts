@@ -21,11 +21,13 @@ export class JobOffersTableComponent {
   @Input() isLoading = false;
   @Input() canEdit = false;
   @Input() canDelete = false;
+  @Input() savedJobsMap: Map<number, number> = new Map();
 
   @Output() viewDetails = new EventEmitter<JobOffer>();
   @Output() edit = new EventEmitter<JobOffer>();
   @Output() delete = new EventEmitter<JobOffer>();
   @Output() toggleStatus = new EventEmitter<JobOffer>();
+  @Output() toggleSave = new EventEmitter<number>();
 
   onViewDetails(jobOffer: JobOffer): void {
     this.viewDetails.emit(jobOffer);
@@ -95,5 +97,14 @@ export class JobOffersTableComponent {
 
   isActive(status: string): boolean {
     return status === 'active';
+  }
+
+  isJobSaved(jobId: number): boolean {
+    return this.savedJobsMap.has(jobId);
+  }
+
+  onToggleSave(jobId: number, event: Event): void {
+    event.stopPropagation();
+    this.toggleSave.emit(jobId);
   }
 }

@@ -51,6 +51,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'saved-jobs',
+        loadChildren: () =>
+          import('./features/saved-jobs/saved-jobs.routes').then(
+            (m) => m.SAVED_JOBS_ROUTES,
+          ),
+      },
+      {
         path: 'recruiter-job-creation',
         loadChildren: () =>
           import('./features/recruiter-job-creation/recruiter-job-creation.routes').then(

@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
@@ -6,10 +6,6 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import {
-  DataTableComponent,
-  TableColumn,
-} from '@shared/components/data-table/data-table.component';
 import { CardComponent } from '@shared/components/card/card.component';
 import {
   FilterPanelComponent,
@@ -23,6 +19,8 @@ import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { selectAuthUser } from '@core/store/authentication/authentication.selector';
 import { User } from '@core/store/authentication/auth.model';
+import { SavedJobService } from '@core/services/api/saved-job.service';
+import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-job-offers-list',
@@ -30,10 +28,10 @@ import { User } from '@core/store/authentication/auth.model';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    DataTableComponent,
     CardComponent,
     FilterPanelComponent,
     ModalFormComponent,
+    NgbTooltipModule,
   ],
   templateUrl: './job-offers-list.component.html',
   styleUrls: ['./job-offers-list.component.scss'],
@@ -50,16 +48,12 @@ export class JobOffersListComponent implements OnInit {
   currentPage = 1;
   pageSize = 10;
   total = 0;
+  Math = Math;
 
   user$!: Observable<User | null>;
-
-  columns: TableColumn[] = [
-    { key: 'title', label: 'Título del Puesto', sortable: true, width: '25%' },
-    { key: 'companyName', label: 'Empresa', sortable: true, width: '20%' },
-    { key: 'jobType', label: 'Tipo', sortable: true, width: '15%' },
-    { key: 'location', label: 'Ubicación', sortable: true, width: '20%' },
-    { key: 'status', label: 'Estado', sortable: false, width: '15%' },
-  ];
+  
+  // Mapa de trabajos guardados (jobId -> savedJobId)
+  savedJobsMap = signal<Map<number, number>>(new Map());
 
   filterOptions: FilterOption[] = [
     {
@@ -99,9 +93,11 @@ export class JobOffersListComponent implements OnInit {
 
   constructor(
     private jobOfferService: JobOfferService,
+    private savedJobService: SavedJobService,
     private sweetAlert: SweetAlertService,
     private fb: FormBuilder,
     private store: Store,
+    private cdr: ChangeDetectorRef,
   ) {
     this.user$ = this.store.select(selectAuthUser);
     this.form = this.fb.group({
@@ -118,10 +114,29 @@ export class JobOffersListComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadJobOffers();
+    this.loadSavedJobs();
+  }
+
+  loadSavedJobs(): void {
+    this.savedJobService.getMySavedJobs().subscribe({
+      next: (response) => {
+        const map = new Map<number, number>();
+        response.data.forEach((saved) => {
+          map.set(saved.jobId, saved.id);
+        });
+        this.savedJobsMap.set(map);
+        this.cdr.markForCheck();
+      },
+      error: (error) => {
+        console.error('Error loading saved jobs:', error);
+      },
+    });
   }
 
   loadJobOffers(filters?: any): void {
     this.isLoading = true;
+    this.cdr.markForCheck();
+    
     const params = {
       page: this.currentPage,
       pageSize: this.pageSize,
@@ -133,6 +148,7 @@ export class JobOffersListComponent implements OnInit {
         this.jobOffers = response.data;
         this.total = response.total;
         this.isLoading = false;
+        this.cdr.markForCheck();
       },
       error: (error) => {
         console.error(error);
@@ -141,6 +157,7 @@ export class JobOffersListComponent implements OnInit {
           'No se pudieron cargar las ofertas de trabajo',
         );
         this.isLoading = false;
+        this.cdr.markForCheck();
       },
     });
   }
@@ -153,14 +170,6 @@ export class JobOffersListComponent implements OnInit {
   onFilterChange(filters: any): void {
     this.currentPage = 1;
     this.loadJobOffers(filters);
-  }
-
-  onActionClick(event: any): void {
-    if (event.action === 'edit') {
-      this.editOffer(event.row);
-    } else if (event.action === 'delete') {
-      this.deleteOffer(event.row);
-    }
   }
 
   openCreateModal(): void {
@@ -225,5 +234,52 @@ export class JobOffersListComponent implements OnInit {
   closeModal(): void {
     this.showModal = false;
     this.form.reset();
+  }
+
+  // Métodos para favoritos
+  isJobSaved(jobId: number): boolean {
+    return this.savedJobsMap().has(jobId);
+  }
+
+  toggleSaveJob(jobId: number, event: Event): void {
+    event.stopPropagation();
+    
+    if (this.isJobSaved(jobId)) {
+      this.unsaveJob(jobId);
+    } else {
+      this.saveJob(jobId);
+    }
+  }
+
+  saveJob(jobId: number): void {
+    this.savedJobService.saveJob(jobId).subscribe({
+      next: (response) => {
+        const map = new Map(this.savedJobsMap());
+        map.set(jobId, response.data.id);
+        this.savedJobsMap.set(map);
+        this.sweetAlert.success('¡Guardado!', 'Oferta añadida a favoritos');
+        this.cdr.markForCheck();
+      },
+      error: (error) => {
+        console.error('Error saving job:', error);
+        this.sweetAlert.error('Error', 'No se pudo guardar la oferta');
+      },
+    });
+  }
+
+  unsaveJob(jobId: number): void {
+    this.savedJobService.unsaveJob(jobId).subscribe({
+      next: () => {
+        const map = new Map(this.savedJobsMap());
+        map.delete(jobId);
+        this.savedJobsMap.set(map);
+        this.sweetAlert.success('Eliminado', 'Oferta quitada de favoritos');
+        this.cdr.markForCheck();
+      },
+      error: (error) => {
+        console.error('Error unsaving job:', error);
+        this.sweetAlert.error('Error', 'No se pudo quitar de favoritos');
+      },
+    });
   }
 }

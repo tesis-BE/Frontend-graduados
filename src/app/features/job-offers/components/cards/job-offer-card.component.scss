@@ -65,6 +65,50 @@
     }
   }
 
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+
+  .btn-favorite {
+    background: transparent;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+    font-size: 20px;
+    color: var(--bs-secondary-color);
+    transition: all 0.2s ease;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      background: var(--bs-secondary-bg);
+      color: #dc3545;
+    }
+
+    &.saved {
+      color: #dc3545;
+
+      &:hover {
+        background: rgba(220, 53, 69, 0.1);
+      }
+    }
+
+    i {
+      transition: transform 0.2s ease;
+    }
+
+    &:active i {
+      transform: scale(0.9);
+    }
+  }
+
   .job-status {
     padding: 4px 12px;
     border-radius: 16px;

@@ -86,11 +86,13 @@
               [showActions]="true"
               [canEdit]="!!(canEdit$ | async)"
               [canApply]="!!(canApply$ | async)"
+              [isSaved]="isJobSaved(jobOffer.id)"
               (viewDetails)="onViewDetails(jobOffer)"
               (edit)="onEdit(jobOffer)"
               (apply)="onApply(jobOffer)"
               (publish)="onPublish(jobOffer)"
               (close)="onClose(jobOffer)"
+              (toggleSave)="toggleSaveJob(jobOffer.id)"
             ></app-job-offer-card>
           }
         }
@@ -101,10 +103,12 @@
         [isLoading]="isLoading"
         [canEdit]="!!(canEdit$ | async)"
         [canDelete]="!!(canDelete$ | async)"
+        [savedJobsMap]="savedJobsMap()"
         (viewDetails)="onViewDetails($event)"
         (edit)="onEdit($event)"
         (delete)="onDelete($event)"
         (toggleStatus)="onToggleStatus($event)"
+        (toggleSave)="toggleSaveJob($event)"
       ></app-job-offers-table>
     }
   </div>

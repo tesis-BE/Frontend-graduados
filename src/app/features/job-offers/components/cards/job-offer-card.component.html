@@ -7,9 +7,19 @@
       <h3 class="job-title" (click)="onViewDetails()">{{ jobOffer.title }}</h3>
       <p class="company-name">{{ jobOffer.companyName || "Sin empresa" }}</p>
     </div>
-    <span class="job-status" [ngClass]="getStatusClass()">
-      {{ getStatusLabel() }}
-    </span>
+    <div class="header-right">
+      <button 
+        class="btn-favorite"
+        [class.saved]="isSaved"
+        (click)="onToggleSave($event)"
+        [title]="isSaved ? 'Quitar de favoritos' : 'Añadir a favoritos'"
+      >
+        <i [class]="isSaved ? 'bi bi-heart-fill' : 'bi bi-heart'"></i>
+      </button>
+      <span class="job-status" [ngClass]="getStatusClass()">
+        {{ getStatusLabel() }}
+      </span>
+    </div>
   </div>
 
   <div class="job-card-body">

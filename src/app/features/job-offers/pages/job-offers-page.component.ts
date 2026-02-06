@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
@@ -12,6 +12,7 @@ import {
 } from '@core/interfaces/api/job-offer.interface';
 import { User } from '@core/store/authentication/auth.model';
 import { JobOfferService } from '@core/services/api/job-offer.service';
+import { SavedJobService } from '@core/services/api/saved-job.service';
 import { selectAuthUser } from '@core/store/authentication/authentication.selector';
 import { NotificationService } from '@shared/services/notification.service';
 
@@ -34,6 +35,7 @@ import { JobOffersTableComponent } from '../components/tables/job-offers-table.c
 export class JobOffersPageComponent implements OnInit {
   private readonly store = inject(Store);
   private readonly jobOfferService: JobOfferService = inject(JobOfferService);
+  private readonly savedJobService: SavedJobService = inject(SavedJobService);
   private readonly router = inject(Router);
   private readonly notification = inject(NotificationService);
 
@@ -42,6 +44,9 @@ export class JobOffersPageComponent implements OnInit {
   filteredJobOffers: JobOffer[] = [];
   isLoading = false;
   viewMode: 'cards' | 'table' = 'cards';
+  
+  // Mapa de trabajos guardados (jobId -> savedJobId)
+  savedJobsMap = signal<Map<number, number>>(new Map());
 
   // Permisos basados en rol
   canCreate$: Observable<boolean> = this.currentUser$.pipe(
@@ -62,6 +67,64 @@ export class JobOffersPageComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadJobOffers();
+    this.loadSavedJobs();
+  }
+
+  loadSavedJobs(): void {
+    this.savedJobService.getMySavedJobs().subscribe({
+      next: (response) => {
+        const map = new Map<number, number>();
+        response.data.forEach((saved) => {
+          map.set(saved.jobId, saved.id);
+        });
+        this.savedJobsMap.set(map);
+      },
+      error: (error) => {
+        console.error('Error loading saved jobs:', error);
+      },
+    });
+  }
+
+  isJobSaved(jobId: number): boolean {
+    return this.savedJobsMap().has(jobId);
+  }
+
+  toggleSaveJob(jobId: number): void {
+    if (this.isJobSaved(jobId)) {
+      this.unsaveJob(jobId);
+    } else {
+      this.saveJob(jobId);
+    }
+  }
+
+  saveJob(jobId: number): void {
+    this.savedJobService.saveJob(jobId).subscribe({
+      next: (response) => {
+        const map = new Map(this.savedJobsMap());
+        map.set(jobId, response.data.id);
+        this.savedJobsMap.set(map);
+        this.notification.success('Oferta añadida a favoritos');
+      },
+      error: (error) => {
+        console.error('Error saving job:', error);
+        this.notification.error('No se pudo guardar la oferta');
+      },
+    });
+  }
+
+  unsaveJob(jobId: number): void {
+    this.savedJobService.unsaveJob(jobId).subscribe({
+      next: () => {
+        const map = new Map(this.savedJobsMap());
+        map.delete(jobId);
+        this.savedJobsMap.set(map);
+        this.notification.success('Oferta quitada de favoritos');
+      },
+      error: (error) => {
+        console.error('Error unsaving job:', error);
+        this.notification.error('No se pudo quitar de favoritos');
+      },
+    });
   }
 
   loadJobOffers(): void {

@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { Location, CommonModule } from '@angular/common';
 import { Subject, takeUntil } from 'rxjs';
 import { JobOfferService } from '@core/services/api/job-offer.service';
 import { ApplicationService } from '@core/services/api/application.service';
@@ -20,6 +20,7 @@ export class JobDetailComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private location = inject(Location);
   private jobService = inject(JobOfferService);
   private applicationService = inject(ApplicationService);
   private cookieService = inject(CookieService);
@@ -278,7 +279,7 @@ export class JobDetailComponent implements OnInit, OnDestroy {
   }
 
   onBack() {
-    this.router.navigate(['/job-offers']);
+    this.location.back();
   }
 
   canApply(): boolean {

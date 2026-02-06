@@ -21,12 +21,14 @@ export class JobOfferCardComponent {
   @Input() showActions = true;
   @Input() canEdit = false;
   @Input() canApply = false;
+  @Input() isSaved = false;
 
   @Output() apply = new EventEmitter<number>();
   @Output() edit = new EventEmitter<number>();
   @Output() viewDetails = new EventEmitter<number>();
   @Output() publish = new EventEmitter<number>();
   @Output() close = new EventEmitter<number>();
+  @Output() toggleSave = new EventEmitter<number>();
 
   onApply(): void {
     this.apply.emit(this.jobOffer.id);
@@ -46,6 +48,11 @@ export class JobOfferCardComponent {
 
   onClose(): void {
     this.close.emit(this.jobOffer.id);
+  }
+
+  onToggleSave(event: Event): void {
+    event.stopPropagation();
+    this.toggleSave.emit(this.jobOffer.id);
   }
 
   getStatusClass(): string {

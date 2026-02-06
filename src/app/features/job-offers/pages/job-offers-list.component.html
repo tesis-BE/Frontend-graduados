@@ -18,16 +18,96 @@
 
   <app-card [title]="'Listado de Ofertas'" [showHeader]="true">
     <ng-template #body>
-      <app-data-table
-        [columns]="columns"
-        [data]="jobOffers"
-        [loading]="isLoading"
-        [total]="total"
-        [pageSize]="pageSize"
-        [currentPage]="currentPage"
-        (pageChange)="onPageChange($event)"
-        (actionClick)="onActionClick($event)"
-      ></app-data-table>
+      <!-- Tabla personalizada con icono de corazón -->
+      <div class="table-container">
+        <div *ngIf="isLoading" class="spinner-overlay">
+          <div class="spinner"></div>
+        </div>
+
+        <table class="table">
+          <thead>
+            <tr>
+              <th style="width: 20%">Título del Puesto</th>
+              <th style="width: 18%">Empresa</th>
+              <th style="width: 12%">Tipo</th>
+              <th style="width: 15%">Ubicación</th>
+              <th style="width: 12%">Estado</th>
+              <th style="width: 10%" class="text-center">Favorito</th>
+              <th style="width: 13%" class="text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="jobOffers.length === 0">
+              <td colspan="7" class="empty-message">No hay ofertas disponibles</td>
+            </tr>
+            <tr *ngFor="let job of jobOffers" class="data-row">
+              <td>{{ job.title }}</td>
+              <td>{{ job.companyName || 'N/A' }}</td>
+              <td>{{ job.jobType }}</td>
+              <td>{{ job.location }}</td>
+              <td>
+                <span class="badge" [class.badge-success]="job.status === 'active'" [class.badge-secondary]="job.status !== 'active'">
+                  {{ job.status === 'active' ? 'Activa' : 'Inactiva' }}
+                </span>
+              </td>
+              <td class="text-center">
+                <button 
+                  class="btn-favorite"
+                  [class.saved]="isJobSaved(job.id)"
+                  (click)="toggleSaveJob(job.id, $event)"
+                  [ngbTooltip]="isJobSaved(job.id) ? 'Quitar de favoritos' : 'Añadir a favoritos'"
+                  placement="top"
+                >
+                  <i [class]="isJobSaved(job.id) ? 'bi bi-heart-fill' : 'bi bi-heart'"></i>
+                </button>
+              </td>
+              <td class="actions text-center">
+                <button
+                  *ngIf="(user$ | async)?.userType !== 'graduate'"
+                  class="btn-action btn-edit"
+                  (click)="editOffer(job)"
+                  title="Editar"
+                >
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button
+                  *ngIf="(user$ | async)?.userType !== 'graduate'"
+                  class="btn-action btn-delete"
+                  (click)="deleteOffer(job)"
+                  title="Eliminar"
+                >
+                  <i class="bi bi-trash"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Paginación -->
+        <div class="pagination" *ngIf="total > pageSize">
+          <button
+            class="btn-pagination"
+            (click)="currentPage > 1 && onPageChange({ page: currentPage - 1 })"
+            [disabled]="currentPage === 1"
+          >
+            <i class="bi bi-chevron-left"></i>
+          </button>
+
+          <span class="page-info">Página {{ currentPage }} de {{ Math.ceil(total / pageSize) }}</span>
+
+          <button
+            class="btn-pagination"
+            (click)="currentPage < Math.ceil(total / pageSize) && onPageChange({ page: currentPage + 1 })"
+            [disabled]="currentPage >= Math.ceil(total / pageSize)"
+          >
+            <i class="bi bi-chevron-right"></i>
+          </button>
+        </div>
+
+        <div class="table-info" *ngIf="total > 0">
+          <span>Mostrando {{ (currentPage - 1) * pageSize + 1 }} - {{ Math.min(currentPage * pageSize, total) }} de {{ total }} ofertas</span>
+        </div>
+      </div>
     </ng-template>
   </app-card>
 

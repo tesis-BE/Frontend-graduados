@@ -38,6 +38,12 @@ export const MENU_ITEMS: MenuItemType[] = [
     url: '/job-offers',
   },
   {
+    key: 'saved-jobs',
+    label: 'Mis Favoritos',
+    icon: 'heart',
+    url: '/saved-jobs',
+  },
+  {
     key: 'recruiter-job-creation',
     label: 'Crear Ofertas (Reclutadores)',
     icon: 'edit-3',
