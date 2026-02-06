@@ -1,0 +1,39 @@
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h2 class="mb-1">Asignar reclutadores</h2>
+      <p class="text-muted mb-0" *ngIf="company()">Empresa: {{ company()?.name }}</p>
+    </div>
+    <button class="btn btn-primary" (click)="openModal()">
+      Asignar reclutador
+    </button>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <div *ngIf="isLoading()" class="text-center py-5">
+        <div class="spinner-border" role="status"></div>
+        <div class="mt-2 text-muted">Cargando reclutadores...</div>
+      </div>
+
+      <app-recruiters-table
+        *ngIf="!isLoading()"
+        [recruiters]="recruiters()"
+        [showCompanyColumn]="true"
+        (edit)="openEditModal($event)"
+        (remove)="removeRecruiter($event)"
+      ></app-recruiters-table>
+    </div>
+  </div>
+</div>
+
+<app-add-recruiter-modal
+  [isOpen]="isModalOpen()"
+  [recruiters]="recruiterOptions()"
+  [companies]="companyOptions()"
+  [isEditMode]="isEditMode()"
+  [initialData]="isEditMode() && selectedRecruiter() ? { companyId: selectedRecruiter()!.companyId ?? null, userId: selectedRecruiter()!.id } : null"
+  (close)="closeModal()"
+  (submitRecruiter)="assignRecruiter($event)"
+></app-add-recruiter-modal>
+ 

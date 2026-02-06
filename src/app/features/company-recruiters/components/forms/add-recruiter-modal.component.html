@@ -1,0 +1,42 @@
+<div class="modal-backdrop fade show" *ngIf="isOpen"></div>
+<div class="modal fade show d-block" tabindex="-1" role="dialog" *ngIf="isOpen">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ isEditMode ? 'Reasignar reclutador' : 'Asignar reclutador' }}</h5>
+        <button type="button" class="btn-close" aria-label="Close" (click)="onClose()"></button>
+      </div>
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Empresa *</label>
+            <select class="form-select" formControlName="companyId">
+              <option [ngValue]="null" disabled>Seleccione una empresa</option>
+              <option *ngFor="let company of companies" [ngValue]="company.id">
+                {{ company.name }}
+              </option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Reclutador *</label>
+            <select class="form-select" formControlName="userId">
+              <option [ngValue]="null" disabled>Seleccione un reclutador</option>
+              <option *ngFor="let recruiter of recruiters" [ngValue]="recruiter.id">
+                {{ recruiter.firstName }} {{ recruiter.lastName }} · {{ recruiter.email }}
+                <span *ngIf="recruiter.companyId"></span>
+              </option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" (click)="onClose()">
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="form.invalid">
+            Asignar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

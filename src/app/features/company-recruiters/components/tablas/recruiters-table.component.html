@@ -1,0 +1,67 @@
+<div class="table-responsive">
+  <table class="table table-hover align-middle">
+    <thead class="table-light">
+      <tr>
+        <th>Reclutador</th>
+        <th>Email</th>
+        <th *ngIf="showCompanyColumn">Empresa actual</th>
+        <th>Estado</th>
+        <th class="text-end">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngIf="recruiters.length === 0">
+        <td [attr.colspan]="showCompanyColumn ? 6 : 5" class="text-center text-muted py-4">
+          <i class="mdi mdi-account-off-outline fs-3 d-block mb-2"></i>
+          No hay reclutadores en esta empresa.
+        </td>
+      </tr>
+      <tr *ngFor="let recruiter of recruiters">
+        <td>
+          <div class="d-flex align-items-center">
+            <div class="avatar-sm rounded-circle bg-soft-primary text-primary d-flex align-items-center justify-content-center me-2">
+              <span class="fs-5 fw-bold">{{ recruiter.firstName.charAt(0) }}{{ recruiter.lastName.charAt(0) }}</span>
+            </div>
+            <div>
+              <div class="fw-semibold">{{ recruiter.firstName }} {{ recruiter.lastName }}</div>
+            </div>
+          </div>
+        </td>
+        <td>
+          <a [href]="'mailto:' + recruiter.email" class="text-decoration-none">
+            <i class="mdi mdi-email-outline me-1"></i>{{ recruiter.email }}
+          </a>
+        </td>
+        <td *ngIf="showCompanyColumn">
+          <span class="badge bg-soft-info text-info" *ngIf="recruiter.companyName">
+            <i class="mdi mdi-office-building me-1"></i>{{ recruiter.companyName }}
+          </span>
+          <span class="text-muted" *ngIf="!recruiter.companyName">Sin asignar</span>
+        </td>
+        <td>
+          <span class="badge" [class.bg-success]="recruiter.isActive !== false" [class.bg-secondary]="recruiter.isActive === false">
+            {{ recruiter.isActive !== false ? 'Activo' : 'Inactivo' }}
+          </span>
+        </td>
+        <td class="text-end">
+          <div class="btn-group btn-group-sm">
+            <button 
+              class="btn btn-soft-primary" 
+              (click)="edit.emit(recruiter)"
+              title="Cambiar empresa">
+              <i class="mdi mdi-pencil"></i>
+              Reasignar
+            </button>
+            <button 
+              class="btn btn-soft-danger" 
+              (click)="remove.emit(recruiter)"
+              title="Desvincular de la empresa">
+              <i class="mdi mdi-link-off"></i>
+              Desvincular
+            </button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

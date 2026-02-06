@@ -56,6 +56,12 @@ export const MENU_ITEMS: MenuItemType[] = [
     url: '/companies',
   },
   {
+    key: 'company-recruiters',
+    label: 'Asignar Reclutadores',
+    icon: 'user-plus',
+    url: '/company-recruiters',
+  },
+  {
     key: 'graduates',
     label: 'Directorio de Graduados',
     icon: 'users',

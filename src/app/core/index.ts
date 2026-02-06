@@ -8,6 +8,8 @@ export * from './services/api/application.service';
 export * from './services/api/graduate.service';
 export * from './services/api/company.service';
 export * from './services/api/profile.service';
+export * from './services/api/notification.service';
+export * from './services/api/socket.service';
 
 export * from './services/ui/theme.service';
 export * from './services/ui/title.service';
@@ -29,6 +31,7 @@ export * from './interfaces/api/application.interface';
 export * from './interfaces/api/graduate.interface';
 export * from './interfaces/api/company.interface';
 export * from './interfaces/api/profile.interface';
+export * from './interfaces/api/notification.interface';
 
 export * from './store';
 

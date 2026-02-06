@@ -26,6 +26,10 @@ export class CompanyService {
     return this.http.get<Company>(`${this.apiUrl}/${id}`);
   }
 
+  getMyCompany(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/my/company`);
+  }
+
   createCompany(data: CreateCompanyRequest): Observable<Company> {
     return this.http.post<Company>(`${this.apiUrl}`, data);
   }
@@ -39,6 +43,22 @@ export class CompanyService {
 
   deleteCompany(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
+  }
+
+  addRecruiter(userId: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}/recruiters`, { userId });
+  }
+
+  addRecruiterToCompany(companyId: number, userId: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}/${companyId}/recruiters`, { userId });
+  }
+
+  removeRecruiter(userId: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/recruiters/${userId}`);
+  }
+
+  removeRecruiterFromCompany(companyId: number, userId: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${companyId}/recruiters/${userId}`);
   }
 
   uploadLogo(id: number, file: File): Observable<any> {

@@ -37,6 +37,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'company-recruiters',
+        loadChildren: () =>
+          import(
+            './features/company-recruiters/company-recruiters.routes'
+          ).then((m) => m.COMPANY_RECRUITERS_ROUTES),
+      },
+      {
         path: 'job-offers',
         loadChildren: () =>
           import('./features/job-offers/job-offers.routes').then(

@@ -21,6 +21,9 @@ import { ProfileService } from '@core/services/api/profile.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { environment } from '@/environments/environment';
+import { SocketService } from '@core/services/api/socket.service';
+import { NotificationApiService } from '@core/services/api/notification.service';
+import { UserNotification } from '@core/interfaces/api/notification.interface';
 
 @Component({
   selector: 'app-topbar',
@@ -41,6 +44,8 @@ export class TopbarComponent implements OnInit, OnDestroy {
 
   currentUser = signal<any>(null);
   photoUrl = signal<string>('assets/images/users/user-13.jpg');
+  notifications = signal<UserNotification[]>([]);
+  unreadCount = signal<number>(0);
 
   private destroy$ = new Subject<void>();
 
@@ -51,6 +56,8 @@ export class TopbarComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef,
     private themeService: ThemeService,
     private profileService: ProfileService,
+    private socketService: SocketService,
+    private notificationApiService: NotificationApiService,
     rendererFactory: RendererFactory2,
   ) {
     this.renderer = rendererFactory.createRenderer(null, null);
@@ -66,11 +73,44 @@ export class TopbarComponent implements OnInit, OnDestroy {
 
     // Cargar datos del usuario
     this.loadUserProfile();
+
+    // Conectar socket y cargar notificaciones
+    this.socketService.connect();
+    this.loadNotifications();
+
+    // Suscribirse a notificaciones en tiempo real
+    this.socketService.notifications$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((notifications) => {
+        this.notifications.set(notifications);
+      });
+
+    this.socketService.unreadCount$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((count) => {
+        this.unreadCount.set(count);
+      });
   }
 
   ngOnDestroy() {
+    this.socketService.disconnect();
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  loadNotifications(): void {
+    this.notificationApiService
+      .getMyNotifications({ page: 1, pageSize: 10 })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.socketService.setNotifications(response.data);
+          this.socketService.setUnreadCount(response.unreadCount || 0);
+        },
+        error: (error) => {
+          console.error('Error loading notifications:', error);
+        },
+      });
   }
 
   loadUserProfile(): void {
@@ -97,6 +137,70 @@ export class TopbarComponent implements OnInit, OnDestroy {
           console.error('Error loading profile:', error);
         },
       });
+  }
+
+  onNotificationClick(notification: UserNotification): void {
+    if (!notification.isRead) {
+      this.notificationApiService
+        .markAsRead(notification.id)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            this.socketService.markAsRead(notification.id);
+          },
+          error: (error) => {
+            console.error('Error marking notification as read:', error);
+          },
+        });
+    }
+
+    // Navegar según el tipo de notificación
+    // TODO: Implementar navegación según relatedId y eventType
+  }
+
+  onClearAllNotifications(): void {
+    this.notificationApiService
+      .markAllAsRead()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.socketService.markAllAsRead();
+        },
+        error: (error) => {
+          console.error('Error marking all as read:', error);
+        },
+      });
+  }
+
+  getNotificationIcon(notification: UserNotification): string {
+    switch (notification.eventType) {
+      case 'application_submitted':
+        return 'file-text';
+      case 'application_reviewed':
+        return 'check-circle';
+      case 'interview_scheduled':
+        return 'calendar';
+      case 'new_message':
+        return 'message-square';
+      case 'job_posted':
+        return 'briefcase';
+      default:
+        return 'bell';
+    }
+  }
+
+  getNotificationTime(notification: UserNotification): string {
+    const now = new Date();
+    const created = new Date(notification.createdAt);
+    const diff = now.getTime() - created.getTime();
+    const minutes = Math.floor(diff / 60000);
+
+    if (minutes < 1) return 'Justo ahora';
+    if (minutes < 60) return `${minutes} min`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h`;
+    const days = Math.floor(hours / 24);
+    return `${days}d`;
   }
 
   get theme(): string {
