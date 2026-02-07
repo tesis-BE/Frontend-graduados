@@ -14,6 +14,8 @@ import { CommonModule } from '@angular/common';
 import { NgbCollapse, NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
 import { findAllParent, findMenuItem } from '../../../utils/utils';
 import { basePath } from '@shared/constants/app.constants';
+import { PermissionService } from '@core/services/api/permission.service';
+import { AuthenticationService } from '@core/services/api/auth.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -35,6 +37,9 @@ export class SidebarComponent implements OnInit, AfterViewInit {
     basePath !== '' ? basePath + '/' : '',
     '/',
   );
+  private permissionService = inject(PermissionService);
+  private authService = inject(AuthenticationService);
+
   constructor(
     private renderer: Renderer2,
     private el: ElementRef,
@@ -59,7 +64,50 @@ export class SidebarComponent implements OnInit, AfterViewInit {
     });
   }
   initMenu(): void {
-    this.menuItems = MENU_ITEMS;
+    this.menuItems = this.filterMenuByPermissions(MENU_ITEMS);
+  }
+
+  /**
+   * Filtra recursivamente los items del menú según permisos y tipo de usuario
+   */
+  private filterMenuByPermissions(items: MenuItemType[]): MenuItemType[] {
+    const userType = this.authService.currentUser?.userType;
+
+    return items
+      .filter((item) => {
+        // Los títulos siempre pasan el filtro
+        if (item.isTitle) return true;
+
+        // Verificar tipo de usuario permitido
+        if (item.allowedUserTypes && item.allowedUserTypes.length > 0) {
+          if (!userType || !item.allowedUserTypes.includes(userType)) {
+            return false;
+          }
+        }
+
+        // Verificar permisos
+        if (item.requiredPermissions && item.requiredPermissions.length > 0) {
+          const mode = item.permissionMode || 'any';
+          if (mode === 'all') {
+            if (!this.permissionService.hasAllPermissions(item.requiredPermissions)) return false;
+          } else {
+            if (!this.permissionService.hasAnyPermission(item.requiredPermissions)) return false;
+          }
+        }
+
+        return true;
+      })
+      .map((item) => {
+        // Filtrar children recursivamente
+        if (item.children && item.children.length > 0) {
+          const filteredChildren = this.filterMenuByPermissions(item.children);
+          // Si no quedan children visibles, no mostrar el padre
+          if (filteredChildren.length === 0) return null;
+          return { ...item, children: filteredChildren };
+        }
+        return item;
+      })
+      .filter((item): item is MenuItemType => item !== null);
   }
 
   getFeatherIcon(icon: string): string {

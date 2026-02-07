@@ -255,6 +255,24 @@ export class UserService {
     return this.http.delete<any>(`${this.apiUrl}/${id}`);
   }
 
+  // ==================== USER ROLES ====================
+
+  getUserRoles(userId: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${userId}/roles`);
+  }
+
+  assignRoleToUser(userId: number, roleId: number): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/${userId}/roles`, { roleId });
+  }
+
+  removeRoleFromUser(userId: number, roleId: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/${userId}/roles/${roleId}`);
+  }
+
+  getUserPermissions(userId: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${userId}/permissions`);
+  }
+
   // Helper para normalizar niveles de competencia
   private normalizeProficiencyLevel(level: string | undefined): string {
     if (!level) return 'intermediate';

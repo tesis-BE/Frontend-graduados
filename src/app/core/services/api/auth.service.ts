@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { map, tap } from 'rxjs/operators';
 import { CookieService } from 'ngx-cookie-service';
 import type { Observable } from 'rxjs';
-import { User } from '../../store/authentication/auth.model';
+import { User, RoleInfo } from '../../store/authentication/auth.model';
 import { environment } from '@/environments/environment';
 
 // Tipos para el nuevo backend Backend-bolsa-empleo
@@ -22,6 +22,8 @@ type BackendUser = {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  roles?: Array<{ id: number; name: string; description?: string }>;
+  permissions?: string[];
 };
 
 type LoginResponse = {
@@ -96,16 +98,7 @@ export class AuthenticationService {
         }
 
         const { user: backendUser, token } = response.data;
-
-        const mappedUser: User = {
-          id: backendUser.id,
-          email: backendUser.email,
-          firstName: backendUser.firstName,
-          lastName: backendUser.lastName,
-          role: backendUser.userType,
-          roles: [backendUser.userType],
-          token: token,
-        };
+        const mappedUser: User = this.mapBackendUser(backendUser, token);
 
         this.user = mappedUser;
         this.saveSession(token);
@@ -125,16 +118,7 @@ export class AuthenticationService {
         }
 
         const { user: backendUser, token } = response.data;
-
-        const mappedUser: User = {
-          id: backendUser.id,
-          email: backendUser.email,
-          firstName: backendUser.firstName,
-          lastName: backendUser.lastName,
-          role: backendUser.userType,
-          roles: [backendUser.userType],
-          token: token,
-        };
+        const mappedUser: User = this.mapBackendUser(backendUser, token);
 
         this.user = mappedUser;
         this.saveSession(token);
@@ -189,15 +173,7 @@ export class AuthenticationService {
         }
 
         const backendUser = response.data;
-        const mappedUser: User = {
-          id: backendUser.id,
-          email: backendUser.email,
-          firstName: backendUser.firstName,
-          lastName: backendUser.lastName,
-          role: backendUser.userType,
-          roles: [backendUser.userType],
-          token: this.session,
-        };
+        const mappedUser: User = this.mapBackendUser(backendUser, this.session);
 
         this.user = mappedUser;
         this.saveUserData(mappedUser);
@@ -205,5 +181,24 @@ export class AuthenticationService {
         return mappedUser;
       }),
     );
+  }
+
+  /**
+   * Mapea un usuario del backend al modelo del frontend,
+   * incluyendo roles y permisos
+   */
+  private mapBackendUser(backendUser: BackendUser, token: string): User {
+    return {
+      id: backendUser.id,
+      email: backendUser.email,
+      firstName: backendUser.firstName,
+      lastName: backendUser.lastName,
+      role: backendUser.userType,
+      roles: [backendUser.userType],
+      userType: backendUser.userType,
+      token: token,
+      rolesList: backendUser.roles ?? [],
+      permissions: backendUser.permissions ?? [],
+    };
   }
 }

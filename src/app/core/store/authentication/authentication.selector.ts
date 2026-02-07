@@ -30,3 +30,13 @@ export const getLoading = createSelector(
 );
 
 export const selectAuthUser = getUser;
+
+export const getPermissions = createSelector(
+  getUserState,
+  (state: AuthenticationState) => state.user?.permissions ?? [],
+);
+
+export const getUserType = createSelector(
+  getUserState,
+  (state: AuthenticationState) => state.user?.userType,
+);
