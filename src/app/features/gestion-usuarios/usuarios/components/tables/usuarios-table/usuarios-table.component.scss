@@ -59,6 +59,17 @@
   }
 }
 
+.btn-soft-info {
+  background-color: var(--bs-info-bg-subtle);
+  color: var(--bs-info-text-emphasis);
+  border: none;
+
+  &:hover {
+    background-color: var(--bs-info);
+    color: #fff;
+  }
+}
+
 .btn-soft-danger {
   background-color: var(--bs-danger-bg-subtle);
   color: var(--bs-danger);

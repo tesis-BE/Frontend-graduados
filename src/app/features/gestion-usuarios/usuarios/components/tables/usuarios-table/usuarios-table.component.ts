@@ -12,6 +12,7 @@ import { FormsModule } from '@angular/forms';
 import { UserService } from '@core/services/api/user.service';
 import { SweetAlertService } from '@shared/services/sweet-alert.service';
 import { UsuarioFormComponent } from '../../forms/usuario-form/usuario-form.component';
+import { UserRolesModalComponent } from '../../modals/user-roles-modal/user-roles-modal.component';
 import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
 
 export interface User {
@@ -27,7 +28,7 @@ export interface User {
 @Component({
   selector: 'app-usuarios-table',
   standalone: true,
-  imports: [CommonModule, FormsModule, UsuarioFormComponent],
+  imports: [CommonModule, FormsModule, UsuarioFormComponent, UserRolesModalComponent],
   templateUrl: './usuarios-table.component.html',
   styleUrls: ['./usuarios-table.component.scss'],
 })
@@ -51,6 +52,11 @@ export class UsuariosTableComponent implements OnInit, OnDestroy {
   // Modal
   showFormModal = signal(false);
   editingUser = signal<User | null>(null);
+
+  // Modal Roles
+  showRolesModal = signal(false);
+  rolesUserId = signal<number | null>(null);
+  rolesUserName = signal('');
 
   // Computed
   totalPages = computed(() => Math.ceil(this.total() / this.pageSize()));
@@ -140,6 +146,24 @@ export class UsuariosTableComponent implements OnInit, OnDestroy {
   closeModal(): void {
     this.showFormModal.set(false);
     setTimeout(() => this.editingUser.set(null), 300);
+  }
+
+  openRolesModal(user: User): void {
+    this.rolesUserId.set(user.id);
+    this.rolesUserName.set(`${user.firstName} ${user.lastName}`);
+    setTimeout(() => this.showRolesModal.set(true), 0);
+  }
+
+  closeRolesModal(): void {
+    this.showRolesModal.set(false);
+    setTimeout(() => {
+      this.rolesUserId.set(null);
+      this.rolesUserName.set('');
+    }, 300);
+  }
+
+  onRolesChanged(): void {
+    // Los cambios de roles se aplican en tiempo real
   }
 
   onFormSaved(): void {

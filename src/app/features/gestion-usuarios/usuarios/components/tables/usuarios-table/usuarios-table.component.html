@@ -103,6 +103,9 @@
                 <td class="text-muted">{{ user.createdAt | date: 'dd/MM/yyyy' }}</td>
                 <td class="text-end">
                   <div class="d-flex justify-content-end gap-1">
+                    <button class="btn btn-soft-info btn-sm" (click)="openRolesModal(user)" title="Gestionar Roles">
+                      <i class="mdi mdi-shield-account-outline"></i>
+                    </button>
                     <button class="btn btn-soft-primary btn-sm" (click)="openEditModal(user)" title="Editar">
                       <i class="mdi mdi-pencil-outline"></i>
                     </button>
@@ -158,6 +161,9 @@
                       {{ user.createdAt | date: 'dd/MM/yyyy' }}
                     </small>
                     <div class="d-flex gap-1">
+                      <button class="btn btn-soft-info btn-sm" (click)="openRolesModal(user)" title="Roles">
+                        <i class="mdi mdi-shield-account-outline"></i>
+                      </button>
                       <button class="btn btn-soft-primary btn-sm" (click)="openEditModal(user)">
                         <i class="mdi mdi-pencil-outline"></i>
                       </button>
@@ -217,5 +223,15 @@
     [user]="editingUser()"
     (saved)="onFormSaved()"
     (cancelled)="closeModal()"
+  />
+}
+
+<!-- Modal de roles -->
+@if (showRolesModal() && rolesUserId()) {
+  <app-user-roles-modal
+    [userId]="rolesUserId()!"
+    [userName]="rolesUserName()"
+    (closed)="closeRolesModal()"
+    (rolesChanged)="onRolesChanged()"
   />
 }

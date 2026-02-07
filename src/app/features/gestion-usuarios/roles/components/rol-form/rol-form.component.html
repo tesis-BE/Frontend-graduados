@@ -1,0 +1,165 @@
+<div class="rol-form-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <button class="btn-back" (click)="onCancel()">
+        <i class="mdi mdi-arrow-left"></i>
+      </button>
+      <div>
+        <h1>{{ pageTitle() }}</h1>
+        <p>{{ isEditMode() ? 'Modifica los datos y permisos del rol' : 'Define un nuevo rol con sus permisos' }}</p>
+      </div>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+      <p>Cargando información...</p>
+    </div>
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="form-layout">
+        <!-- Datos del rol -->
+        <div class="card form-card">
+          <div class="card-header">
+            <div class="card-header-icon">
+              <i class="mdi mdi-shield-edit-outline"></i>
+            </div>
+            <div>
+              <h5 class="card-title mb-0">Información del Rol</h5>
+              <small class="text-muted">Nombre y descripción del rol</small>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-12">
+                <label for="name" class="form-label">
+                  Nombre del rol <span class="text-danger">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  class="form-control"
+                  formControlName="name"
+                  placeholder="Ej: Editor de contenido, Supervisor..."
+                  [class.is-invalid]="isFieldInvalid('name')"
+                />
+                @if (isFieldInvalid('name')) {
+                  <div class="invalid-feedback">{{ getFieldError('name') }}</div>
+                }
+              </div>
+              <div class="col-12">
+                <label for="description" class="form-label">
+                  Descripción <span class="text-danger">*</span>
+                </label>
+                <textarea
+                  id="description"
+                  class="form-control"
+                  formControlName="description"
+                  rows="3"
+                  placeholder="Describe qué puede hacer un usuario con este rol..."
+                  [class.is-invalid]="isFieldInvalid('description')"
+                ></textarea>
+                @if (isFieldInvalid('description')) {
+                  <div class="invalid-feedback">{{ getFieldError('description') }}</div>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Permisos -->
+        <div class="card form-card">
+          <div class="card-header">
+            <div class="card-header-icon">
+              <i class="mdi mdi-key-variant"></i>
+            </div>
+            <div>
+              <h5 class="card-title mb-0">Permisos</h5>
+              <small class="text-muted">
+                {{ selectedPermissionIds().size }} permiso(s) seleccionado(s)
+              </small>
+            </div>
+          </div>
+          <div class="card-body">
+            @if (permissionGroups().length === 0) {
+              <div class="text-center py-4">
+                <i class="mdi mdi-key-remove text-muted fs-1 opacity-50"></i>
+                <p class="text-muted mt-2 mb-0">No hay permisos disponibles</p>
+              </div>
+            } @else {
+              <div class="permission-groups">
+                @for (group of permissionGroups(); track group.module) {
+                  <div class="permission-group">
+                    <div class="group-header" (click)="toggleModulePermissions(group)">
+                      <div class="group-check">
+                        <input
+                          type="checkbox"
+                          class="form-check-input"
+                          [checked]="isModuleAllSelected(group)"
+                          [indeterminate]="isModulePartial(group)"
+                          (click)="$event.stopPropagation()"
+                          (change)="toggleModulePermissions(group)"
+                        />
+                      </div>
+                      <div class="group-info">
+                        <span class="group-label">{{ group.label }}</span>
+                        <span class="group-count">
+                          {{ group.permissions.length }} permiso(s)
+                        </span>
+                      </div>
+                    </div>
+                    <div class="group-permissions">
+                      @for (perm of group.permissions; track perm.id) {
+                        <label class="permission-item" [class.selected]="isPermissionSelected(perm.id)">
+                          <input
+                            type="checkbox"
+                            class="form-check-input"
+                            [checked]="isPermissionSelected(perm.id)"
+                            (change)="togglePermission(perm.id)"
+                          />
+                          <div class="permission-info">
+                            <i class="mdi {{ getPermissionIcon(perm.name) }}"></i>
+                            <div>
+                              <span class="permission-name">{{ getPermissionLabel(perm.name) }}</span>
+                              @if (perm.description) {
+                                <small class="permission-desc">{{ perm.description }}</small>
+                              }
+                            </div>
+                          </div>
+                        </label>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="form-actions">
+        <button type="button" class="btn btn-light" (click)="onCancel()" [disabled]="isSubmitting()">
+          <i class="mdi mdi-close me-1"></i> Cancelar
+        </button>
+        <button
+          type="submit"
+          class="btn btn-primary d-flex align-items-center gap-2"
+          [disabled]="form.invalid || isSubmitting()"
+        >
+          @if (isSubmitting()) {
+            <span class="spinner-border spinner-border-sm"></span>
+            Guardando...
+          } @else {
+            <i class="mdi" [class]="isEditMode() ? 'mdi-content-save' : 'mdi-plus'"></i>
+            {{ isEditMode() ? 'Guardar Cambios' : 'Crear Rol' }}
+          }
+        </button>
+      </div>
+    </form>
+  }
+</div>

@@ -5,12 +5,7 @@
       <h1>Gestión de Roles y Permisos</h1>
       <p>Administra los roles y permisos del sistema</p>
     </div>
-    <button
-      class="btn-crear"
-      (click)="openCreateModal()"
-      disabled
-      title="Función próximamente"
-    >
+    <button class="btn-crear" (click)="openCreateForm()">
       <i class="bi bi-plus"></i>
       Nuevo Rol
     </button>
@@ -27,7 +22,10 @@
       <div class="estado-vacio">
         <i class="bi bi-shield"></i>
         <h3>No hay roles definidos</h3>
-        <p>Los roles se configuran en el sistema</p>
+        <p>Crea tu primer rol para asignar permisos a los usuarios</p>
+        <button class="btn btn-primary mt-3" (click)="openCreateForm()">
+          <i class="bi bi-plus me-1"></i> Crear Rol
+        </button>
       </div>
     } @else {
       <div class="roles-grid">
@@ -41,6 +39,22 @@
                 <h3>{{ role.name }}</h3>
                 <p>{{ role.description }}</p>
               </div>
+              <div class="role-actions">
+                <button
+                  class="btn-action btn-edit"
+                  (click)="editRole(role)"
+                  title="Editar rol"
+                >
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button
+                  class="btn-action btn-delete"
+                  (click)="deleteRole(role)"
+                  title="Eliminar rol"
+                >
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
             </div>
 
             @if (role.permissions && role.permissions.length > 0) {
@@ -49,15 +63,14 @@
                   {{ role.permissions.length }} permisos
                 </span>
                 <div class="permisos-preview">
-                  @for (perm of role.permissions.slice(0, 3); track perm.id) {
-                    <span class="permiso-tag">{{ perm.name }}</span>
-                  }
-                  @if (role.permissions.length > 3) {
-                    <span class="permiso-tag more"
-                      >+{{ role.permissions.length - 3 }}</span
-                    >
+                  @for (perm of role.permissions; track perm.id) {
+                    <span class="permiso-tag">{{ getPermissionLabel(perm.name) }}</span>
                   }
                 </div>
+              </div>
+            } @else {
+              <div class="role-permissions">
+                <span class="permisos-label text-warning">Sin permisos asignados</span>
               </div>
             }
           </div>
