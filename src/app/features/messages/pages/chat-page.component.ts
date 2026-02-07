@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ConversationService } from '@core/services/api/conversation.service';
 import { ChatSocketService } from '@core/services/api/chat-socket.service';
@@ -24,8 +24,18 @@ export class ChatPageComponent implements OnInit, OnDestroy {
   isLoadingMessages = signal(false);
   error = signal<string | null>(null);
   currentUserId = signal<number | null>(null);
+  isMobileView = signal(false);
 
   private destroy$ = new Subject<void>();
+
+  @HostListener('window:resize')
+  onResize(): void {
+    this.checkMobileView();
+  }
+
+  private checkMobileView(): void {
+    this.isMobileView.set(window.innerWidth < 768);
+  }
 
   constructor(
     private conversationService: ConversationService,
@@ -35,10 +45,9 @@ export class ChatPageComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    console.log('💬 Inicializando chat page...');
+    this.checkMobileView();
     
     this.currentUserId.set((this.authService.user?.id as number) ?? null);
-    console.log('👤 Usuario actual ID:', this.currentUserId());
     
     this.loadConversations();
     this.connectSocket();
@@ -48,14 +57,20 @@ export class ChatPageComponent implements OnInit, OnDestroy {
      this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((params) => {
        if (params['conversationId']) {
          const conversationId = Number(params['conversationId']);
-         console.log('🔗 Deep link a conversación:', conversationId);
-         const conversation = this.conversations().find((c) => c.id === conversationId);
-         if (conversation) {
-           this.onSelectConversation(conversation);
-         } else {
-           // Si la conversación no está en la lista, cargar directamente
-           this.loadConversationById(conversationId);
-         }
+         // Esperar a que las conversaciones estén cargadas
+         const trySelect = () => {
+           const conversation = this.conversations().find((c) => c.id === conversationId);
+           if (conversation) {
+             this.onSelectConversation(conversation);
+           } else if (!this.isLoadingConversations()) {
+             // Si la conversación no está en la lista, cargar directamente
+             this.loadConversationById(conversationId);
+           } else {
+             // Reintentar en 500ms si aún está cargando
+             setTimeout(trySelect, 500);
+           }
+         };
+         trySelect();
        }
      });
   }
@@ -68,18 +83,11 @@ export class ChatPageComponent implements OnInit, OnDestroy {
 
   private connectSocket(): void {
     const token = this.authService.session;
-    console.log('🔌 Conectando chat socket desde chat page...');
-    console.log('🔑 Token disponible:', token ? 'Sí' : 'No');
     
     if (token) {
       this.chatSocket.connect(token);
       
-      // Verificar estado de conexión
-      this.chatSocket.isConnected$.pipe(takeUntil(this.destroy$)).subscribe(status => {
-        console.log('🔌 Chat socket status en chat page:', status ? 'CONECTADO ✅' : 'DESCONECTADO ❌');
-      });
-    } else {
-      console.error('❌ No se puede conectar chat socket: token faltante');
+      this.chatSocket.isConnected$.pipe(takeUntil(this.destroy$)).subscribe(status => {});
     }
   }
 
@@ -87,30 +95,31 @@ export class ChatPageComponent implements OnInit, OnDestroy {
     this.chatSocket.messages$.pipe(takeUntil(this.destroy$)).subscribe((messages) => {
       this.messages.set(messages);
     });
+
+    // Escuchar mensajes que llegan a otras conversaciones para actualizar la lista
+    this.chatSocket.newMessageOutside$.pipe(takeUntil(this.destroy$)).subscribe((message) => {
+      if (message) {
+        this.loadConversations();
+      }
+    });
   }
 
   loadConversations(): void {
-    console.log('💬 Cargando conversaciones...');
     this.isLoadingConversations.set(true);
     this.error.set(null);
     
     this.conversationService.getMyConversations().subscribe({
       next: (response) => {
-        console.log('✅ Conversaciones recibidas:', response);
-        
         if (response && response.data) {
           this.conversations.set(response.data);
-          console.log('💬 Total conversaciones cargadas:', response.data.length);
         } else {
-          console.log('⚠️ Respuesta sin datos:', response);
           this.conversations.set([]);
         }
         
         this.isLoadingConversations.set(false);
       },
       error: (error) => {
-        console.error('❌ Error cargando conversaciones:', error);
-        this.error.set('Error cargando conversaciones: ' + (error.message || error));
+        this.error.set('Error cargando conversaciones');
         this.conversations.set([]);
         this.isLoadingConversations.set(false);
       },
@@ -118,48 +127,48 @@ export class ChatPageComponent implements OnInit, OnDestroy {
   }
 
   onSelectConversation(conversation: Conversation): void {
-    console.log('📝 Seleccionando conversación:', conversation.id);
     this.selectedConversation.set(conversation);
     this.loadMessages(conversation.id);
     
     const userId = this.currentUserId();
     if (userId) {
-      console.log('🔗 Uniéndose a sala de conversación:', conversation.id, 'usuario:', userId);
       this.chatSocket.joinConversation(conversation.id, userId);
-    } else {
-      console.error('❌ No se puede unir a conversación: userId no disponible');
     }
     
-    // Marcar como leído
+    // Marcar como leído y actualizar contador
     this.conversationService.markAsRead(conversation.id).subscribe({
-      next: () => console.log('✅ Conversación marcada como leída:', conversation.id),
-      error: (err) => console.error('❌ Error marcando como leída:', err)
+      next: () => {
+        // Actualizar unreadCount localmente
+        this.conversations.update(convs => 
+          convs.map(c => c.id === conversation.id ? { ...c, unreadCount: 0 } : c)
+        );
+      },
+      error: (err) => console.error('Error marcando como leída:', err)
     });
   }
 
+  onGoBack(): void {
+    this.selectedConversation.set(null);
+    this.messages.set([]);
+  }
+
   loadMessages(conversationId: number): void {
-    console.log('💬 Cargando mensajes para conversación:', conversationId);
     this.isLoadingMessages.set(true);
     this.error.set(null);
     
     this.conversationService.getMessages(conversationId).subscribe({
       next: (response) => {
-        console.log('✅ Mensajes recibidos:', response);
-        
         if (response && response.data) {
           this.messages.set(response.data);
           this.chatSocket.setMessages(response.data);
-          console.log('💬 Total mensajes cargados:', response.data.length);
         } else {
-          console.log('⚠️ Respuesta de mensajes sin datos:', response);
           this.messages.set([]);
         }
         
         this.isLoadingMessages.set(false);
       },
       error: (error) => {
-        console.error('❌ Error cargando mensajes:', error);
-        this.error.set('Error cargando mensajes: ' + (error.message || error));
+        this.error.set('Error cargando mensajes');
         this.messages.set([]);
         this.isLoadingMessages.set(false);
       },
@@ -191,18 +200,7 @@ export class ChatPageComponent implements OnInit, OnDestroy {
     const conversation = this.selectedConversation();
     const userId = this.currentUserId();
     
-    if (!conversation) {
-      console.error('❌ No se puede enviar mensaje: no hay conversación seleccionada');
-      return;
-    }
-
-    if (!userId) {
-      console.error('❌ No se puede enviar mensaje: userId no disponible');
-      return;
-    }
-
-    console.log('📤 Enviando mensaje POR SOCKET a conversación:', conversation.id);
-    console.log('📝 Contenido:', content);
+    if (!conversation || !userId) return;
 
     // Crear mensaje temporal optimista
     const optimisticMessage: Message = {
@@ -223,17 +221,12 @@ export class ChatPageComponent implements OnInit, OnDestroy {
   }
 
   onDeleteConversation(conversationId: number): void {
-    console.log('🗑️ Eliminando conversación:', conversationId);
-    
-    // Confirmación antes de eliminar
     if (!confirm('¿Estás seguro de que deseas eliminar esta conversación? Esta acción no se puede deshacer.')) {
       return;
     }
 
     this.conversationService.deleteConversation(conversationId).subscribe({
       next: () => {
-        console.log('✅ Conversación eliminada:', conversationId);
-        
         // Actualizar lista de conversaciones
         const updatedConversations = this.conversations().filter(
           (c) => c.id !== conversationId
@@ -247,8 +240,7 @@ export class ChatPageComponent implements OnInit, OnDestroy {
         }
       },
       error: (error) => {
-        console.error('❌ Error eliminando conversación:', error);
-        this.error.set('Error al eliminar la conversación: ' + (error.message || error));
+        this.error.set('Error al eliminar la conversación');
       },
     });
   }

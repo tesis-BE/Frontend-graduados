@@ -1,8 +1,8 @@
-<div class="container-fluid h-100">
-  <div class="row h-100">
+<div class="chat-page-container">
+  <div class="chat-layout">
     <!-- Lista de conversaciones -->
-    <div class="col-lg-4 col-xl-3 border-end h-100">
-      <div class="p-3 border-bottom">
+    <div class="chat-sidebar" [class.d-none]="selectedConversation() && isMobileView()" [class.d-md-flex]="true">
+      <div class="sidebar-header p-3 border-bottom">
         <h4 class="mb-0">
           <i class="mdi mdi-message-text-outline me-2"></i>
           Mensajes
@@ -46,28 +46,23 @@
           (selectConversation)="onSelectConversation($event)"
           (deleteConversation)="onDeleteConversation($event)"
         />
-        
-        <!-- Debug info -->
-        @if (conversations().length > 0) {
-          <div class="small text-muted text-center p-2 border-top">
-            {{ conversations().length }} conversación(es) cargadas
-          </div>
-        }
       }
     </div>
 
     <!-- Panel de chat -->
-    <div class="col-lg-8 col-xl-9 h-100 d-flex flex-column">
+    <div class="chat-main" [class.d-none]="!selectedConversation() && isMobileView()" [class.d-md-flex]="true">
       @if (selectedConversation()) {
         <app-chat-panel
           [conversation]="selectedConversation()!"
           [messages]="messages()"
           [currentUserId]="currentUserId() ?? 0"
           [isLoading]="isLoadingMessages()"
+          [showBackButton]="isMobileView()"
           (sendMessage)="onSendMessage($event)"
+          (goBack)="onGoBack()"
         />
       } @else {
-        <div class="d-flex align-items-center justify-content-center h-100">
+        <div class="d-none d-md-flex align-items-center justify-content-center h-100 w-100">
           <div class="text-center text-muted">
             <i class="mdi mdi-message-outline display-1 mb-3"></i>
             <h5>Selecciona una conversación</h5>

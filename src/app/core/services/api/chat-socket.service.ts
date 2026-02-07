@@ -29,6 +29,10 @@ export class ChatSocketService implements OnDestroy {
   typing$ = this.typingSubject.asObservable();
   isConnected$ = this.connectionStatusSubject.asObservable();
 
+  // Observable para emitir cuando llega un mensaje fuera de la conversación actual
+  private newMessageOutsideSubject = new BehaviorSubject<Message | null>(null);
+  newMessageOutside$ = this.newMessageOutsideSubject.asObservable();
+
   connect(token: string): void {
     if (this.socket?.connected) {
       this.connectionStatusSubject.next(true);
@@ -79,6 +83,9 @@ export class ChatSocketService implements OnDestroy {
         if (!isDuplicate) {
           this.messagesSubject.next([...current, message]);
         }
+      } else {
+        // Mensaje para otra conversación - notificar para actualizar lista
+        this.newMessageOutsideSubject.next(message);
       }
     });
 

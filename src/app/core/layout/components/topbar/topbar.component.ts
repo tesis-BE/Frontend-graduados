@@ -12,9 +12,10 @@ import {
   RendererFactory2,
   signal,
   OnDestroy,
+  ViewChild,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDropdown, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import * as feather from 'feather-icons';
 import { SimplebarAngularModule } from 'simplebar-angular';
 import { ProfileService } from '@core/services/api/profile.service';
@@ -76,6 +77,8 @@ export class TopbarComponent implements OnInit, OnDestroy {
   notifications = signal<UserNotification[]>([]);
   unreadCount = signal<number>(0);
   isSocketConnected = signal<boolean>(false);
+
+  @ViewChild('notificationDropdown', { static: false }) notificationDropdown?: NgbDropdown;
 
   private destroy$ = new Subject<void>();
 
@@ -188,7 +191,7 @@ export class TopbarComponent implements OnInit, OnDestroy {
   }
 
   onNotificationClick(notification: UserNotification): void {
-
+    // Marcar como leída si no lo está
     if (!notification.isRead) {
       this.notificationApiService
         .markAsRead(notification.id)
@@ -210,14 +213,27 @@ export class TopbarComponent implements OnInit, OnDestroy {
   private navigateToNotification(notification: UserNotification): void {
     const { eventType, relatedId } = notification;
 
+    // Cerrar el dropdown de notificaciones
+    if (this.notificationDropdown) {
+      this.notificationDropdown.close();
+    }
 
     try {
       switch (eventType) {
         case 'new_message':
           if (relatedId) {
-            this.router.navigate(['/messages'], {
-              queryParams: { conversationId: relatedId },
-            });
+            // Si ya estamos en /messages, forzar recarga con timestamp
+            if (this.router.url.startsWith('/messages')) {
+              this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+                this.router.navigate(['/messages'], {
+                  queryParams: { conversationId: relatedId },
+                });
+              });
+            } else {
+              this.router.navigate(['/messages'], {
+                queryParams: { conversationId: relatedId },
+              });
+            }
           } else {
             this.router.navigate(['/messages']);
           }
@@ -419,8 +435,12 @@ export class TopbarComponent implements OnInit, OnDestroy {
   }
 
   onViewAllNotifications(): void {
-    // Por ahora, cargar más notificaciones o simplemente cerrar el dropdown
-    // TODO: Crear página de notificaciones cuando esté disponible
+    // Cerrar el dropdown
+    if (this.notificationDropdown) {
+      this.notificationDropdown.close();
+    }
+    
+    // Cargar todas las notificaciones (hasta 50)
     this.notificationApiService
       .getMyNotifications({ page: 1, pageSize: 50 })
       .pipe(takeUntil(this.destroy$))
@@ -428,6 +448,13 @@ export class TopbarComponent implements OnInit, OnDestroy {
         next: (response) => {
           this.socketService.setNotifications(response.data);
           this.socketService.setUnreadCount(response.unreadCount || 0);
+          
+          // Reabrir el dropdown para mostrar todas las notificaciones cargadas
+          setTimeout(() => {
+            if (this.notificationDropdown) {
+              this.notificationDropdown.open();
+            }
+          }, 100);
         },
         error: (error) => {
           console.error('Error loading all notifications:', error);

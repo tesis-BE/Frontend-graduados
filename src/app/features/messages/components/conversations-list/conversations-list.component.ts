@@ -50,7 +50,12 @@ export class ConversationsListComponent {
       return 'Sin mensajes aún';
     }
     const content = conversation.lastMessage.content;
-    return content.length > 50 ? content.substring(0, 50) + '...' : content;
+    return content.length > 45 ? content.substring(0, 45) + '...' : content;
+  }
+
+  isLastMessageFromMe(conversation: Conversation): boolean {
+    if (!conversation.lastMessage) return false;
+    return conversation.lastMessage.senderId === this.currentUserId;
   }
 
   formatTime(dateString: Date | string | undefined): string {

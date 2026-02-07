@@ -27,7 +27,9 @@ export class ChatPanelComponent implements OnChanges, AfterViewChecked {
   @Input() messages: Message[] = [];
   @Input() currentUserId: number = 0;
   @Input() isLoading: boolean = false;
+  @Input() showBackButton: boolean = false;
   @Output() sendMessage = new EventEmitter<string>();
+  @Output() goBack = new EventEmitter<void>();
 
   @ViewChild('messagesContainer') messagesContainer?: ElementRef;
 
@@ -66,6 +68,10 @@ export class ChatPanelComponent implements OnChanges, AfterViewChecked {
 
   isSentByCurrentUser(message: Message): boolean {
     return message.senderId === this.currentUserId;
+  }
+
+  onGoBack(): void {
+    this.goBack.emit();
   }
 
   onSendMessage(): void {

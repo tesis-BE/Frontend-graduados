@@ -11,9 +11,11 @@
           href="javascript:void(0)"
           class="list-group-item list-group-item-action conversation-item"
           [class.active]="conversation.id === selectedConversationId"
+          [class.has-unread]="conversation.unreadCount && conversation.unreadCount > 0"
           (click)="onSelectConversation(conversation)"
         >
-          <div class="d-flex align-items-start">
+          <div class="d-flex align-items-center">
+            <!-- Avatar con badge -->
             <div class="flex-shrink-0 me-3 position-relative">
               <img
                 [src]="getOtherUserPhoto(conversation)"
@@ -22,41 +24,47 @@
               />
               @if (conversation.unreadCount && conversation.unreadCount > 0) {
                 <span class="badge bg-danger badge-unread">
-                  {{ conversation.unreadCount }}
+                  {{ conversation.unreadCount > 99 ? '99+' : conversation.unreadCount }}
                 </span>
               }
             </div>
             
+            <!-- Info de conversación -->
             <div class="flex-grow-1 overflow-hidden">
-              <div class="d-flex justify-content-between align-items-start mb-1">
-                <h6 class="mb-0 text-truncate conversation-name">
+              <!-- Nombre + Hora -->
+              <div class="d-flex justify-content-between align-items-center mb-0">
+                <h6 class="mb-0 text-truncate conversation-name pe-2">
                   {{ getOtherUserName(conversation) }}
                 </h6>
-                <div class="d-flex align-items-center gap-2">
-                  <small class="text-muted conversation-time">
-                    {{ formatTime(conversation.lastMessageAt || conversation.createdAt) }}
-                  </small>
-                  <button
-                    class="btn btn-sm btn-link text-danger p-0"
-                    (click)="onDeleteConversation($event, conversation.id)"
-                    title="Eliminar conversación"
-                    style="font-size: 1.2rem; line-height: 1;"
-                  >
-                    <i class="mdi mdi-delete-outline"></i>
-                  </button>
-                </div>
+                <small class="conversation-time flex-shrink-0">
+                  {{ formatTime(conversation.lastMessageAt || conversation.createdAt) }}
+                </small>
               </div>
               
               @if (getCompanyName(conversation); as companyName) {
-                <p class="mb-1 text-muted small">
-                  <i class="mdi mdi-office-building me-1"></i>
-                  {{ companyName }}
+                <p class="mb-0 text-muted company-name text-truncate">
+                  <i class="mdi mdi-office-building me-1"></i>{{ companyName }}
                 </p>
               }
               
-              <p class="mb-0 text-muted small text-truncate last-message">
-                {{ getLastMessagePreview(conversation) }}
-              </p>
+              <!-- Último mensaje + Eliminar -->
+              <div class="d-flex justify-content-between align-items-center mt-1">
+                <p class="mb-0 text-truncate last-message"
+                   [class.fw-semibold]="conversation.unreadCount && conversation.unreadCount > 0"
+                   [class.text-body]="conversation.unreadCount && conversation.unreadCount > 0">
+                  @if (isLastMessageFromMe(conversation)) {
+                    <span class="text-muted me-1">Tú:</span>
+                  }
+                  {{ getLastMessagePreview(conversation) }}
+                </p>
+                <button
+                  class="btn btn-sm btn-link text-danger p-0 ms-2 btn-delete flex-shrink-0"
+                  (click)="onDeleteConversation($event, conversation.id)"
+                  title="Eliminar conversación"
+                >
+                  <i class="mdi mdi-delete-outline"></i>
+                </button>
+              </div>
             </div>
           </div>
         </a>

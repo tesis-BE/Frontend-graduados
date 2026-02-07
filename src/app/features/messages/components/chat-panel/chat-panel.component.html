@@ -1,16 +1,25 @@
 <div class="chat-panel d-flex flex-column h-100">
   <!-- Header -->
-  <div class="chat-header p-3 border-bottom bg-light">
+  <div class="chat-header p-3 border-bottom flex-shrink-0">
     <div class="d-flex align-items-center">
+      @if (showBackButton) {
+        <button 
+          class="btn btn-sm btn-link p-0 me-2 text-muted"
+          (click)="onGoBack()"
+          aria-label="Volver a conversaciones"
+        >
+          <i class="mdi mdi-arrow-left fs-4"></i>
+        </button>
+      }
       <img
         [src]="getOtherUserPhoto()"
         [alt]="getOtherUserName()"
         class="rounded-circle avatar-md me-3"
       />
-      <div>
-        <h5 class="mb-0">{{ getOtherUserName() }}</h5>
+      <div class="flex-grow-1 min-width-0">
+        <h6 class="mb-0 text-truncate">{{ getOtherUserName() }}</h6>
         @if (conversation.recruiter?.company?.name && currentUserId === conversation.graduateId) {
-          <small class="text-muted">
+          <small class="text-muted text-truncate d-block">
             <i class="mdi mdi-office-building me-1"></i>
             {{ conversation.recruiter?.company?.name }}
           </small>
@@ -20,7 +29,7 @@
   </div>
 
   <!-- Messages -->
-  <div class="chat-messages flex-grow-1 p-3" #messagesContainer>
+  <div class="chat-messages flex-grow-1 overflow-auto p-3" #messagesContainer>
     @if (isLoading) {
       <div class="text-center py-5">
         <div class="spinner-border text-primary" role="status">
@@ -37,7 +46,7 @@
         <!-- Separador de fecha -->
         @if (shouldShowDateSeparator(i)) {
           <div class="date-separator text-center my-3">
-            <span class="badge bg-light text-muted">
+            <span class="badge">
               {{ formatDate(message.createdAt) }}
             </span>
           </div>
@@ -77,7 +86,7 @@
   </div>
 
   <!-- Input -->
-  <div class="chat-input border-top p-3 bg-light">
+  <div class="chat-input border-top p-2 p-md-3 flex-shrink-0">
     <div class="input-group">
       <textarea
         class="form-control"
@@ -96,7 +105,7 @@
         <i class="mdi mdi-send"></i>
       </button>
     </div>
-    <small class="text-muted mt-1 d-block">
+    <small class="text-muted mt-1 d-none d-md-block">
       Presiona Enter para enviar, Shift+Enter para nueva línea
     </small>
   </div>
