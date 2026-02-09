@@ -15,7 +15,6 @@ import { NgbCollapse, NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
 import { findAllParent, findMenuItem } from '../../../utils/utils';
 import { basePath } from '@shared/constants/app.constants';
 import { PermissionService } from '@core/services/api/permission.service';
-import { AuthenticationService } from '@core/services/api/auth.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -38,7 +37,6 @@ export class SidebarComponent implements OnInit, AfterViewInit {
     '/',
   );
   private permissionService = inject(PermissionService);
-  private authService = inject(AuthenticationService);
 
   constructor(
     private renderer: Renderer2,
@@ -68,22 +66,13 @@ export class SidebarComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Filtra recursivamente los items del menú según permisos y tipo de usuario
+   * Filtra recursivamente los items del menú según permisos
    */
   private filterMenuByPermissions(items: MenuItemType[]): MenuItemType[] {
-    const userType = this.authService.currentUser?.userType;
-
     return items
       .filter((item) => {
         // Los títulos siempre pasan el filtro
         if (item.isTitle) return true;
-
-        // Verificar tipo de usuario permitido
-        if (item.allowedUserTypes && item.allowedUserTypes.length > 0) {
-          if (!userType || !item.allowedUserTypes.includes(userType)) {
-            return false;
-          }
-        }
 
         // Verificar permisos
         if (item.requiredPermissions && item.requiredPermissions.length > 0) {

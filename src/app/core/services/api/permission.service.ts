@@ -23,19 +23,15 @@ export class PermissionService {
 
   /**
    * Verifica si el usuario tiene un permiso específico
-   * Admin siempre retorna true
    */
   hasPermission(permission: string): boolean {
-    if (this.isAdmin()) return true;
     return this.getUserPermissions().includes(permission);
   }
 
   /**
    * Verifica si el usuario tiene AL MENOS UNO de los permisos
-   * Admin siempre retorna true
    */
   hasAnyPermission(permissions: string[]): boolean {
-    if (this.isAdmin()) return true;
     if (!permissions || permissions.length === 0) return true;
     const userPermissions = this.getUserPermissions();
     return permissions.some((p) => userPermissions.includes(p));
@@ -43,10 +39,8 @@ export class PermissionService {
 
   /**
    * Verifica si el usuario tiene TODOS los permisos
-   * Admin siempre retorna true
    */
   hasAllPermissions(permissions: string[]): boolean {
-    if (this.isAdmin()) return true;
     if (!permissions || permissions.length === 0) return true;
     const userPermissions = this.getUserPermissions();
     return permissions.every((p) => userPermissions.includes(p));
