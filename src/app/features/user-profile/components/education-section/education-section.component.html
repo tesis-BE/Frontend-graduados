@@ -32,15 +32,50 @@
             <input
               type="text"
               class="form-control"
-              formControlName="institutionName"
+              formControlName="institution"
               placeholder="Universidad, Instituto, etc."
             />
             @if (
-              educationForm.get("institutionName")?.touched &&
-              educationForm.get("institutionName")?.invalid
+              educationForm.get("institution")?.touched &&
+              educationForm.get("institution")?.invalid
             ) {
               <div class="text-danger small mt-1">Campo requerido</div>
             }
+          </div>
+          <div class="col-12">
+            <label class="form-label small">Extensión (opcional)</label>
+            <select class="form-select" formControlName="universityId">
+              <option [value]="null">Seleccione extensión (opcional)</option>
+              @for (uni of universities(); track uni.id) {
+                <option [value]="uni.id">{{ uni.name }}</option>
+              }
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small">Facultad (opcional)</label>
+            <select
+              class="form-select"
+              formControlName="facultyId"
+              [disabled]="!educationForm.get('universityId')?.value"
+            >
+              <option [value]="null">Seleccione facultad</option>
+              @for (faculty of faculties(); track faculty.id) {
+                <option [value]="faculty.id">{{ faculty.name }}</option>
+              }
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small">Carrera (opcional)</label>
+            <select
+              class="form-select"
+              formControlName="careerId"
+              [disabled]="!educationForm.get('facultyId')?.value"
+            >
+              <option [value]="null">Seleccione carrera</option>
+              @for (career of careers(); track career.id) {
+                <option [value]="career.id">{{ career.name }}</option>
+              }
+            </select>
           </div>
           <div class="col-md-6">
             <label class="form-label small">Título *</label>

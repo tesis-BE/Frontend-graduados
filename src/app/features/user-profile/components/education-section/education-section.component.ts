@@ -5,6 +5,7 @@ import {
   EventEmitter,
   inject,
   signal,
+  OnInit,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
@@ -20,6 +21,9 @@ import {
   UpdateEducation,
 } from '@core/interfaces/api/profile.interface';
 import { SweetAlertService } from '@shared/services/sweet-alert.service';
+import { UniversitiesApiService } from '@core/services/api/universities-api.service';
+import { FacultyService } from '@core/services/api/faculty.service';
+import { CareerService } from '@core/services/api/career.service';
 
 @Component({
   selector: 'app-education-section',
@@ -28,19 +32,28 @@ import { SweetAlertService } from '@shared/services/sweet-alert.service';
   templateUrl: './education-section.component.html',
   styleUrls: ['./education-section.component.scss'],
 })
-export class EducationSectionComponent {
+export class EducationSectionComponent implements OnInit {
   @Input() educations: Education[] = [];
   @Output() educationsChanged = new EventEmitter<void>();
 
   private fb = inject(FormBuilder);
   private profileService = inject(ProfileService);
   private sweetAlert = inject(SweetAlertService);
+  private universitiesService = inject(UniversitiesApiService);
+  private facultyService = inject(FacultyService);
+  private careerService = inject(CareerService);
 
   educationForm: FormGroup;
   showForm = signal(false);
   isSubmitting = signal(false);
   editingId = signal<number | null>(null);
   deletingId = signal<number | null>(null);
+
+  universities = signal<any[]>([]);
+  faculties = signal<any[]>([]);
+  allFaculties = signal<any[]>([]);
+  careers = signal<any[]>([]);
+  allCareers = signal<any[]>([]);
 
   degreeTypes = [
     'Bachillerato',
@@ -57,7 +70,7 @@ export class EducationSectionComponent {
 
   constructor() {
     this.educationForm = this.fb.group({
-      institutionName: [
+      institution: [
         '',
         [
           Validators.required,
@@ -65,6 +78,9 @@ export class EducationSectionComponent {
           Validators.maxLength(150),
         ],
       ],
+      universityId: [null],
+      facultyId: [null],
+      careerId: [null],
       degree: [
         '',
         [
@@ -91,6 +107,66 @@ export class EducationSectionComponent {
     });
   }
 
+  ngOnInit(): void {
+    this.loadUniversities();
+    this.loadFaculties();
+    this.loadCareers();
+    this.setupFormListeners();
+  }
+
+  loadUniversities(): void {
+    this.universitiesService.findAll().subscribe({
+      next: (universities) => {
+        this.universities.set(universities || []);
+      },
+      error: (error) => console.error('Error loading universities:', error),
+    });
+  }
+
+  loadFaculties(): void {
+    this.facultyService.getAll().subscribe({
+      next: (response: any) => {
+        this.allFaculties.set(response.data || []);
+      },
+      error: (error: any) => console.error('Error loading faculties:', error),
+    });
+  }
+
+  loadCareers(): void {
+    this.careerService.getAll().subscribe({
+      next: (response: any) => {
+        this.allCareers.set(response.data || []);
+      },
+      error: (error: any) => console.error('Error loading careers:', error),
+    });
+  }
+
+  setupFormListeners(): void {
+    this.educationForm.get('universityId')?.valueChanges.subscribe((universityId) => {
+      if (universityId) {
+        this.faculties.set(
+          this.allFaculties().filter((f) => f.universityId === universityId)
+        );
+        this.educationForm.patchValue({ facultyId: null, careerId: null }, { emitEvent: false });
+        this.careers.set([]);
+      } else {
+        this.faculties.set([]);
+        this.careers.set([]);
+      }
+    });
+
+    this.educationForm.get('facultyId')?.valueChanges.subscribe((facultyId) => {
+      if (facultyId) {
+        this.careers.set(
+          this.allCareers().filter((c) => c.facultyId === facultyId)
+        );
+        this.educationForm.patchValue({ careerId: null }, { emitEvent: false });
+      } else {
+        this.careers.set([]);
+      }
+    });
+  }
+
   toggleForm(): void {
     this.showForm.update((v) => !v);
     if (!this.showForm()) {
@@ -102,13 +178,31 @@ export class EducationSectionComponent {
     this.educationForm.reset({ isCurrent: false, degreeType: 'Licenciatura' });
     this.educationForm.get('endDate')?.enable();
     this.editingId.set(null);
+    this.faculties.set([]);
+    this.careers.set([]);
   }
 
   editEducation(edu: Education): void {
     this.editingId.set(edu.id);
     this.showForm.set(true);
+    
+    if (edu.universityId) {
+      this.faculties.set(
+        this.allFaculties().filter((f: any) => f.universityId === edu.universityId)
+      );
+    }
+    
+    if (edu.facultyId) {
+      this.careers.set(
+        this.allCareers().filter((c: any) => c.facultyId === edu.facultyId)
+      );
+    }
+    
     this.educationForm.patchValue({
-      institutionName: edu.institution,
+      institution: edu.institution,
+      universityId: edu.universityId || null,
+      facultyId: edu.facultyId || null,
+      careerId: edu.careerId || null,
       degree: edu.degree,
       fieldOfStudy: edu.fieldOfStudy || '',
       degreeType: 'Licenciatura',

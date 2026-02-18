@@ -65,6 +65,9 @@ export interface Education {
   gpa?: number;
   honors?: string;
   isCurrent: boolean;
+  universityId?: number;
+  facultyId?: number;
+  careerId?: number;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -79,6 +82,9 @@ export interface CreateEducation {
   gpa?: number;
   honors?: string;
   isCurrent: boolean;
+  universityId?: number;
+  facultyId?: number;
+  careerId?: number;
 }
 
 export interface UpdateEducation extends Partial<CreateEducation> {}

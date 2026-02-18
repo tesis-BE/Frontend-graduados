@@ -157,25 +157,90 @@
 
         <!-- Facultad -->
         <div class="col-12">
-          <label for="facultyId" class="form-label">
-            Facultad
+          <label for="universityId" class="form-label">
+            Extensión <span class="text-danger">*</span>
           </label>
           <div class="input-group">
             <span class="input-group-text bg-light">
-              <i class="mdi mdi-school-outline text-muted"></i>
+              <i class="mdi mdi-domain text-muted"></i>
             </span>
             <select
-              id="facultyId"
+              id="universityId"
               class="form-select"
-              formControlName="facultyId"
+              formControlName="universityId"
+              [class.is-invalid]="isFieldInvalid('universityId')"
             >
-              <option value="">Sin facultad asignada</option>
-              @for (faculty of faculties(); track faculty.id) {
-                <option [value]="faculty.id">{{ faculty.name }}</option>
+              <option value="">Selecciona una extensión</option>
+              @for (university of universities(); track university.id) {
+                <option [value]="university.id">{{ university.name }}</option>
               }
             </select>
           </div>
+          @if (isFieldInvalid('universityId')) {
+            <div class="invalid-feedback d-block">{{ getFieldError('universityId') }}</div>
+          }
         </div>
+
+        <!-- Facultad -->
+        @if (form.get('userType')?.value === 'graduate' || form.get('facultyId')?.value) {
+          <div class="col-12 col-sm-6">
+            <label for="facultyId" class="form-label">
+              Facultad 
+              @if (form.get('userType')?.value === 'graduate') {
+                <span class="text-danger">*</span>
+              }
+            </label>
+            <div class="input-group">
+              <span class="input-group-text bg-light">
+                <i class="mdi mdi-school-outline text-muted"></i>
+              </span>
+              <select
+                id="facultyId"
+                class="form-select"
+                formControlName="facultyId"
+                [class.is-invalid]="isFieldInvalid('facultyId')"
+                [disabled]="!form.get('universityId')?.value"
+              >
+                <option value="">Selecciona una facultad</option>
+                @for (faculty of faculties(); track faculty.id) {
+                  <option [value]="faculty.id">{{ faculty.name }}</option>
+                }
+              </select>
+            </div>
+            @if (isFieldInvalid('facultyId')) {
+              <div class="invalid-feedback d-block">{{ getFieldError('facultyId') }}</div>
+            }
+          </div>
+        }
+
+        <!-- Carrera -->
+        @if (form.get('userType')?.value === 'graduate') {
+          <div class="col-12 col-sm-6">
+            <label for="careerId" class="form-label">
+              Carrera <span class="text-danger">*</span>
+            </label>
+            <div class="input-group">
+              <span class="input-group-text bg-light">
+                <i class="mdi mdi-book-education-outline text-muted"></i>
+              </span>
+              <select
+                id="careerId"
+                class="form-select"
+                formControlName="careerId"
+                [class.is-invalid]="isFieldInvalid('careerId')"
+                [disabled]="!form.get('facultyId')?.value"
+              >
+                <option value="">Selecciona una carrera</option>
+                @for (career of careers(); track career.id) {
+                  <option [value]="career.id">{{ career.name }}</option>
+                }
+              </select>
+            </div>
+            @if (isFieldInvalid('careerId')) {
+              <div class="invalid-feedback d-block">{{ getFieldError('careerId') }}</div>
+            }
+          </div>
+        }
 
         <!-- Tipo de usuario -->
         <div class="col-12">
