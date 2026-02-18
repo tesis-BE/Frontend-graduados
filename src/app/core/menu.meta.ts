@@ -38,6 +38,13 @@ export const MENU_ITEMS: MenuItemType[] = [
     isTitle: true,
   },
   {
+    key: 'job-board',
+    label: 'Tablero de Empleos',
+    icon: 'grid',
+    url: '/job-board',
+    requiredPermissions: ['view_analytics'],
+  },
+  {
     key: 'job-offers',
     label: 'Ofertas de Empleo',
     icon: 'briefcase',
@@ -48,14 +55,12 @@ export const MENU_ITEMS: MenuItemType[] = [
     label: 'Mis Favoritos',
     icon: 'heart',
     url: '/saved-jobs',
-    allowedUserTypes: ['graduate', 'admin'],
   },
   {
     key: 'recruiter-job-creation',
-    label: 'Crear Ofertas (Reclutadores)',
+    label: 'Crear Ofertas',
     icon: 'edit-3',
     url: '/recruiter-job-creation',
-    allowedUserTypes: ['recruiter', 'admin'],
     requiredPermissions: ['manage_jobs'],
   },
   {
@@ -77,7 +82,6 @@ export const MENU_ITEMS: MenuItemType[] = [
     label: 'Asignar Reclutadores',
     icon: 'user-plus',
     url: '/company-recruiters',
-    allowedUserTypes: ['admin'],
     requiredPermissions: ['manage_companies'],
   },
   {
@@ -93,6 +97,11 @@ export const MENU_ITEMS: MenuItemType[] = [
     url: '/messages',
   },
   {
+    key: 'admin-section',
+    label: 'ADMINISTRACIÓN',
+    isTitle: true,
+  },
+  {
     key: 'faculties',
     label: 'Facultades',
     icon: 'school',
@@ -102,8 +111,15 @@ export const MENU_ITEMS: MenuItemType[] = [
   {
     key: 'careers',
     label: 'Carreras',
-    icon: 'book-education',
+    icon: 'book-open',
     url: '/careers',
+    requiredPermissions: ['manage_settings'],
+  },
+  {
+    key: 'universities-module',
+    label: 'Extensiones Universitarias',
+    icon: 'map-pin',
+    url: '/universities/list',
     requiredPermissions: ['manage_settings'],
   },
   {
@@ -129,17 +145,5 @@ export const MENU_ITEMS: MenuItemType[] = [
         requiredPermissions: ['manage_roles'],
       },
     ],
-  },
-  {
-    key: 'job-board',
-    label: 'Tablero de Empleos',
-    icon: 'grid',
-    url: '/job-board',
-  },
-  {
-    key: 'universities-module',
-    label: 'Extensiones Universitarias',
-    icon: 'map-pin',
-    url: '/universities/list',
   },
 ];

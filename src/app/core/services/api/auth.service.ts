@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map, tap } from 'rxjs/operators';
 import { CookieService } from 'ngx-cookie-service';
-import type { Observable } from 'rxjs';
+import { BehaviorSubject, type Observable } from 'rxjs';
 import { User, RoleInfo } from '../../store/authentication/auth.model';
 import { environment } from '@/environments/environment';
 
@@ -66,6 +66,10 @@ export interface RegisterData {
 export class AuthenticationService {
   user: User | null = null;
 
+
+  private _userUpdated$ = new BehaviorSubject<User | null>(null);
+  readonly userUpdated$ = this._userUpdated$.asObservable();
+
   public readonly authSessionKey = '_BOLSA_EMPLEO_AUTH_';
   public readonly userDataKey = '_BOLSA_EMPLEO_USER_';
   private readonly baseUrl = environment.apiUrl;
@@ -103,6 +107,7 @@ export class AuthenticationService {
         this.user = mappedUser;
         this.saveSession(token);
         this.saveUserData(mappedUser);
+        this._userUpdated$.next(mappedUser);
 
         return mappedUser;
       }),
@@ -123,6 +128,7 @@ export class AuthenticationService {
         this.user = mappedUser;
         this.saveSession(token);
         this.saveUserData(mappedUser);
+        this._userUpdated$.next(mappedUser);
 
         return mappedUser;
       }),
@@ -133,6 +139,7 @@ export class AuthenticationService {
     this.removeSession();
     this.removeUserData();
     this.user = null;
+    this._userUpdated$.next(null);
   }
 
   get session(): string {
@@ -177,6 +184,7 @@ export class AuthenticationService {
 
         this.user = mappedUser;
         this.saveUserData(mappedUser);
+        this._userUpdated$.next(mappedUser);
 
         return mappedUser;
       }),

@@ -2,11 +2,13 @@ import {
   AfterViewInit,
   Component,
   CUSTOM_ELEMENTS_SCHEMA,
+  DestroyRef,
   ElementRef,
   inject,
   OnInit,
   Renderer2,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SimplebarAngularModule } from 'simplebar-angular';
 import { MENU_ITEMS, MenuItemType } from '../../../menu.meta';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
@@ -15,6 +17,8 @@ import { NgbCollapse, NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
 import { findAllParent, findMenuItem } from '../../../utils/utils';
 import { basePath } from '@shared/constants/app.constants';
 import { PermissionService } from '@core/services/api/permission.service';
+import { AuthenticationService } from '@core/services/api/auth.service';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-sidebar',
@@ -37,6 +41,8 @@ export class SidebarComponent implements OnInit, AfterViewInit {
     '/',
   );
   private permissionService = inject(PermissionService);
+  private authService = inject(AuthenticationService);
+  private destroyRef = inject(DestroyRef);
 
   constructor(
     private renderer: Renderer2,
@@ -54,6 +60,16 @@ export class SidebarComponent implements OnInit, AfterViewInit {
   }
   ngOnInit(): void {
     this.initMenu();
+
+    this.authService.userUpdated$
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        filter((user) => !!user),
+      )
+      .subscribe(() => {
+        this.initMenu();
+        setTimeout(() => this._activateMenu());
+      });
   }
 
   ngAfterViewInit() {
