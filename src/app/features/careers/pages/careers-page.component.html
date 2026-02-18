@@ -148,7 +148,7 @@
               >
                 <option [ngValue]="0">Selecciona una facultad</option>
                 @for (faculty of faculties(); track faculty.id) {
-                  <option [ngValue]="faculty.id">{{ faculty.name }}</option>
+                  <option [ngValue]="faculty.id">{{ faculty.name }} - {{ faculty.university?.name || 'Sin extensión' }}</option>
                 }
               </select>
             </div>

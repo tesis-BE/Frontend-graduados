@@ -2,6 +2,8 @@ import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FacultyService, Faculty } from '@core/services/api/faculty.service';
+import { UniversitiesApiService } from '@core/services/api/universities-api.service';
+import { University } from '@core/interfaces/api/university.interface';
 import { SweetAlertService } from '@shared/services/sweet-alert.service';
 
 @Component({
@@ -13,6 +15,7 @@ import { SweetAlertService } from '@shared/services/sweet-alert.service';
 })
 export class FacultiesPageComponent implements OnInit {
   faculties = signal<Faculty[]>([]);
+  universities = signal<University[]>([]);
   isLoading = signal(false);
   showModal = signal(false);
   editingFaculty = signal<Faculty | null>(null);
@@ -20,17 +23,30 @@ export class FacultiesPageComponent implements OnInit {
   formData = {
     name: '',
     description: '',
-    universityId: 1,
+    universityId: 0,
     isActive: true,
   };
 
   constructor(
     private facultyService: FacultyService,
+    private universitiesService: UniversitiesApiService,
     private sweetAlert: SweetAlertService
   ) {}
 
   ngOnInit(): void {
     this.loadFaculties();
+    this.loadUniversities();
+  }
+
+  loadUniversities(): void {
+    this.universitiesService.findAll().subscribe({
+      next: (universities) => {
+        this.universities.set(universities);
+      },
+      error: () => {
+        this.sweetAlert.error('Error', 'No se pudieron cargar las extensiones');
+      },
+    });
   }
 
   loadFaculties(): void {
@@ -55,7 +71,7 @@ export class FacultiesPageComponent implements OnInit {
     this.formData = {
       name: '',
       description: '',
-      universityId: 1,
+      universityId: 0,
       isActive: true,
     };
     this.showModal.set(true);
@@ -78,8 +94,13 @@ export class FacultiesPageComponent implements OnInit {
   }
 
   onSubmit(): void {
+    if (!this.formData.universityId) {
+      this.sweetAlert.error('Error', 'Debes seleccionar una extensión');
+      return;
+    }
+
     const editing = this.editingFaculty();
-    
+
     if (editing) {
       this.updateFaculty(editing.id);
     } else {

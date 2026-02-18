@@ -19,6 +19,8 @@ import {
   Validators,
 } from '@angular/forms';
 import { UserService } from '@core/services/api/user.service';
+import { RoleService } from '@core/services/api/role.service';
+import { FacultyService, Faculty } from '@core/services/api/faculty.service';
 import { SweetAlertService } from '@shared/services/sweet-alert.service';
 import { Subject, takeUntil } from 'rxjs';
 
@@ -27,6 +29,10 @@ interface User {
   firstName: string;
   lastName: string;
   email: string;
+  institutionalEmail?: string;
+  phone?: string;
+  cedula?: string;
+  facultyId?: number;
   userType: 'graduate' | 'recruiter' | 'admin';
   isActive: boolean;
 }
@@ -45,6 +51,8 @@ export class UsuarioFormComponent implements OnInit, OnChanges, OnDestroy {
 
   private fb = inject(FormBuilder);
   private userService = inject(UserService);
+  private roleService = inject(RoleService);
+  private facultyService = inject(FacultyService);
   private sweetAlert = inject(SweetAlertService);
   private cdr = inject(ChangeDetectorRef);
   private destroy$ = new Subject<void>();
@@ -52,6 +60,8 @@ export class UsuarioFormComponent implements OnInit, OnChanges, OnDestroy {
   form!: FormGroup;
   isSubmitting = signal(false);
   showPassword = signal(false);
+  roles = signal<any[]>([]);
+  faculties = signal<Faculty[]>([]);
 
   get isEditMode(): boolean {
     return !!this.user;
@@ -59,6 +69,8 @@ export class UsuarioFormComponent implements OnInit, OnChanges, OnDestroy {
 
   ngOnInit(): void {
     this.initForm();
+    this.loadRoles();
+    this.loadFaculties();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -84,11 +96,36 @@ export class UsuarioFormComponent implements OnInit, OnChanges, OnDestroy {
         [Validators.required, Validators.minLength(2)],
       ],
       email: [this.user?.email || '', [Validators.required, Validators.email]],
+      institutionalEmail: [this.user?.institutionalEmail || '', [Validators.email]],
+      phone: [this.user?.phone || ''],
+      cedula: [this.user?.cedula || '', [Validators.minLength(10), Validators.maxLength(10)]],
+      facultyId: [this.user?.facultyId || ''],
       userType: [this.user?.userType || 'graduate', Validators.required],
       password: [
         '',
         this.isEditMode ? [] : [Validators.required, Validators.minLength(6)],
       ],
+    });
+  }
+
+  private loadRoles(): void {
+    this.roleService.getRoles(1, 50).pipe(takeUntil(this.destroy$)).subscribe({
+      next: (response: any) => {
+        const data = response?.data || response || [];
+        this.roles.set(Array.isArray(data) ? data : []);
+        this.cdr.markForCheck();
+      },
+      error: () => {},
+    });
+  }
+
+  private loadFaculties(): void {
+    this.facultyService.getAll({ pageSize: 100 }).pipe(takeUntil(this.destroy$)).subscribe({
+      next: (response: any) => {
+        this.faculties.set(response?.data || []);
+        this.cdr.markForCheck();
+      },
+      error: () => {},
     });
   }
 
@@ -99,7 +136,6 @@ export class UsuarioFormComponent implements OnInit, OnChanges, OnDestroy {
   onSubmit(): void {
     if (this.form.invalid || this.isSubmitting()) return;
 
-    // Marcar todos los campos como tocados para mostrar errores
     this.form.markAllAsTouched();
 
     this.isSubmitting.set(true);
@@ -107,7 +143,6 @@ export class UsuarioFormComponent implements OnInit, OnChanges, OnDestroy {
 
     const data = { ...this.form.value };
 
-    // Si es edición y no hay password, lo quitamos
     if (this.isEditMode && !data.password) {
       delete data.password;
     }

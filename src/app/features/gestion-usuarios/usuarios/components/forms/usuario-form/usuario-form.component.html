@@ -66,10 +66,10 @@
           }
         </div>
 
-        <!-- Email -->
-        <div class="col-12">
+        <!-- Email personal -->
+        <div class="col-12 col-sm-6">
           <label for="email" class="form-label">
-            Correo electrónico <span class="text-danger">*</span>
+            Correo personal <span class="text-danger">*</span>
           </label>
           <div class="input-group">
             <span class="input-group-text bg-light">
@@ -87,6 +87,94 @@
           @if (isFieldInvalid('email')) {
             <div class="invalid-feedback d-block">{{ getFieldError('email') }}</div>
           }
+        </div>
+
+        <!-- Email institucional -->
+        <div class="col-12 col-sm-6">
+          <label for="institutionalEmail" class="form-label">
+            Correo institucional
+          </label>
+          <div class="input-group">
+            <span class="input-group-text bg-light">
+              <i class="mdi mdi-email-check-outline text-muted"></i>
+            </span>
+            <input
+              type="email"
+              id="institutionalEmail"
+              class="form-control"
+              formControlName="institutionalEmail"
+              placeholder="usuario@live.uleam.edu.ec"
+              [class.is-invalid]="isFieldInvalid('institutionalEmail')"
+            />
+          </div>
+          @if (isFieldInvalid('institutionalEmail')) {
+            <div class="invalid-feedback d-block">{{ getFieldError('institutionalEmail') }}</div>
+          }
+        </div>
+
+        <!-- Teléfono -->
+        <div class="col-12 col-sm-6">
+          <label for="phone" class="form-label">
+            Teléfono
+          </label>
+          <div class="input-group">
+            <span class="input-group-text bg-light">
+              <i class="mdi mdi-phone-outline text-muted"></i>
+            </span>
+            <input
+              type="tel"
+              id="phone"
+              class="form-control"
+              formControlName="phone"
+              placeholder="0999999999"
+            />
+          </div>
+        </div>
+
+        <!-- Cédula -->
+        <div class="col-12 col-sm-6">
+          <label for="cedula" class="form-label">
+            Cédula
+          </label>
+          <div class="input-group">
+            <span class="input-group-text bg-light">
+              <i class="mdi mdi-card-account-details-outline text-muted"></i>
+            </span>
+            <input
+              type="text"
+              id="cedula"
+              class="form-control"
+              formControlName="cedula"
+              placeholder="1234567890"
+              maxlength="10"
+              [class.is-invalid]="isFieldInvalid('cedula')"
+            />
+          </div>
+          @if (isFieldInvalid('cedula')) {
+            <div class="invalid-feedback d-block">{{ getFieldError('cedula') }}</div>
+          }
+        </div>
+
+        <!-- Facultad -->
+        <div class="col-12">
+          <label for="facultyId" class="form-label">
+            Facultad
+          </label>
+          <div class="input-group">
+            <span class="input-group-text bg-light">
+              <i class="mdi mdi-school-outline text-muted"></i>
+            </span>
+            <select
+              id="facultyId"
+              class="form-select"
+              formControlName="facultyId"
+            >
+              <option value="">Sin facultad asignada</option>
+              @for (faculty of faculties(); track faculty.id) {
+                <option [value]="faculty.id">{{ faculty.name }}</option>
+              }
+            </select>
+          </div>
         </div>
 
         <!-- Tipo de usuario -->

@@ -20,6 +20,10 @@ export interface User {
   firstName: string;
   lastName: string;
   email: string;
+  institutionalEmail?: string;
+  phone?: string;
+  cedula?: string;
+  facultyId?: number;
   userType: 'graduate' | 'recruiter' | 'admin';
   isActive: boolean;
   createdAt: string;

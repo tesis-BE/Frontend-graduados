@@ -134,6 +134,20 @@
                 rows="3"
               ></textarea>
             </div>
+            <div class="mb-3">
+              <label class="form-label">Extensión <span class="text-danger">*</span></label>
+              <select
+                class="form-select"
+                [(ngModel)]="formData.universityId"
+                name="universityId"
+                required
+              >
+                <option [ngValue]="0">Selecciona una extensión</option>
+                @for (university of universities(); track university.id) {
+                  <option [ngValue]="university.id">{{ university.name }}</option>
+                }
+              </select>
+            </div>
             <div class="form-check">
               <input
                 class="form-check-input"

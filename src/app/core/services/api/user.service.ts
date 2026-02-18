@@ -231,6 +231,10 @@ export class UserService {
     email: string;
     password: string;
     userType: string;
+    phone?: string;
+    institutionalEmail?: string;
+    cedula?: string;
+    facultyId?: number | string;
   }): Observable<any> {
     return this.http.post<any>(this.apiUrl, data);
   }
