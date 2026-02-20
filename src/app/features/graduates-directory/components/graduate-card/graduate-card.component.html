@@ -1,0 +1,120 @@
+<article class="grad-card" (click)="viewProfile.emit(graduate.id)">
+
+  <div class="card-header">
+    <div class="avatar-wrap">
+      <img
+        class="avatar"
+        [class.avatar--available]="graduate.availableForWork"
+        [src]="graduate.photoUrl || 'assets/images/users/sin-foto-perfil.jpg'"
+        [alt]="graduate.firstName"
+      />
+      @if (graduate.availableForWork) {
+        <span class="online-dot"></span>
+      }
+    </div>
+
+    <div class="identity">
+      <h3 class="identity__name">{{ graduate.firstName }} {{ graduate.lastName }}</h3>
+      @if (graduate.careerName) {
+        <p class="identity__career">{{ graduate.careerName }}</p>
+      }
+      @if (graduate.facultyName) {
+        <p class="identity__faculty">
+          <i class="mdi mdi-office-building"></i>
+          {{ graduate.facultyName }}
+        </p>
+      }
+    </div>
+
+    @if (graduate.availableForWork) {
+      <span class="badge-available">
+        <i class="mdi mdi-circle"></i>
+        Disponible
+      </span>
+    }
+  </div>
+
+  @if (graduate.bio) {
+    <p class="bio">{{ graduate.bio }}</p>
+  }
+
+  @if (graduate.skills && graduate.skills.length > 0) {
+    <div class="skills-row">
+      @for (skill of graduate.skills.slice(0, 4); track skill.id) {
+        <span class="skill" [attr.data-level]="skill.level">{{ skill.name }}</span>
+      }
+      @if (graduate.skills.length > 4) {
+        <span class="skill skill--more">+{{ graduate.skills.length - 4 }}</span>
+      }
+    </div>
+  }
+
+  @if (graduate.workExperiences && graduate.workExperiences.length > 0) {
+    <div class="experience-row">
+      <i class="mdi mdi-briefcase"></i>
+      <span class="experience-row__text">
+        {{ graduate.workExperiences[0].position }}
+        <span class="experience-row__sep"> en </span>
+        <strong>{{ graduate.workExperiences[0].company }}</strong>
+      </span>
+      @if (graduate.workExperiences[0].isCurrent) {
+        <span class="badge-current">Actual</span>
+      }
+    </div>
+  }
+
+  @if (
+    (graduate.certifications && graduate.certifications.length > 0) ||
+    (graduate.projects && graduate.projects.length > 0)
+  ) {
+    <div class="tags-row">
+      @for (cert of graduate.certifications?.slice(0, 2); track cert.id) {
+        <span class="tag tag--cert">
+          <i class="mdi mdi-certificate"></i>{{ cert.name }}
+        </span>
+      }
+      @for (project of graduate.projects?.slice(0, 1); track project.id) {
+        <span class="tag tag--project">
+          <i class="mdi mdi-folder"></i>{{ project.name }}
+        </span>
+      }
+    </div>
+  }
+
+  <div class="card-actions">
+    @if (graduate.cvUrl) {
+      <button
+        class="btn btn--icon"
+        title="Ver CV"
+        (click)="viewCV.emit(graduate.cvUrl!); $event.stopPropagation()"
+      >
+        <i class="mdi mdi-file-pdf-box"></i>
+        CV
+      </button>
+    }
+    @if (graduate.linkedinUrl) {
+      <button
+        class="btn btn--icon"
+        title="LinkedIn"
+        (click)="viewLinkedIn.emit(graduate.linkedinUrl!); $event.stopPropagation()"
+      >
+        <i class="mdi mdi-linkedin"></i>
+      </button>
+    }
+    <button
+      class="btn btn--primary"
+      (click)="viewProfile.emit(graduate.id); $event.stopPropagation()"
+    >
+      <i class="mdi mdi-account-details"></i>
+      Ver Perfil
+    </button>
+    <button
+      class="btn btn--icon"
+      title="Enviar mensaje"
+      (click)="openChat.emit(graduate.id); $event.stopPropagation()"
+    >
+      <i class="mdi mdi-message-text"></i>
+    </button>
+  </div>
+
+</article>

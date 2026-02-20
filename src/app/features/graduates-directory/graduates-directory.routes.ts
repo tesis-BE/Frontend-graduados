@@ -4,14 +4,14 @@ export const GRADUATES_DIRECTORY_ROUTES: Routes = [
   {
     path: '',
     loadComponent: () =>
-      import('./pages/graduates-list.component').then(
-        (m) => m.GraduatesListComponent,
+      import('./pages/graduates-page/graduates-page.component').then(
+        (m) => m.GraduatesPageComponent,
       ),
   },
   {
     path: ':id',
     loadComponent: () =>
-      import('./components/graduate-detail.component').then(
+      import('./components/graduate-detail/graduate-detail.component').then(
         (m) => m.GraduateDetailComponent,
       ),
   },

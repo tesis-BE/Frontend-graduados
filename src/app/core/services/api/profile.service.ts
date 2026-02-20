@@ -63,7 +63,10 @@ export class ProfileService {
       .pipe(
         map((response) => {
           const data = response.data;
-          // Mapear skillName a name y proficiencyLevel a level
+          if (!data) {
+            console.error('[ProfileService] getProfile: response.data es null/undefined. Respuesta completa:', response);
+            throw new Error('El servidor no devolvió datos de perfil');
+          }
           if (data.skills) {
             data.skills = data.skills.map((skill: any) => ({
               ...skill,

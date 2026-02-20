@@ -13,6 +13,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Conversation, Message } from '@core/interfaces/api/conversation.interface';
+import { environment } from '@/environments/environment';
 
 @Component({
   selector: 'app-chat-panel',
@@ -63,7 +64,10 @@ export class ChatPanelComponent implements OnChanges, AfterViewChecked {
 
   getOtherUserPhoto(): string {
     const user = this.getOtherUser();
-    return user?.photoUrl || 'assets/images/users/default-avatar.png';
+    if (!user?.photoUrl) return 'assets/images/users/sin-foto-perfil.jpg';
+    return user.photoUrl.startsWith('http')
+      ? user.photoUrl
+      : `${environment.assetsUrl}${user.photoUrl}`;
   }
 
   isSentByCurrentUser(message: Message): boolean {

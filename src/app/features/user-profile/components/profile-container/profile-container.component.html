@@ -13,17 +13,11 @@
         <div class="row align-items-center">
           <div class="col-auto">
             <div class="avatar-wrapper">
-              @if (profile()?.photoUrl) {
-                <img
-                  [src]="avatarUrl()"
-                  alt="Foto de perfil"
-                  class="avatar-img"
-                />
-              } @else {
-                <div class="avatar-placeholder">
-                  <i class="mdi mdi-account fs-1"></i>
-                </div>
-              }
+              <img
+                [src]="avatarUrl() || 'assets/images/users/sin-foto-perfil.jpg'"
+                alt="Foto de perfil"
+                class="avatar-img"
+              />
             </div>
           </div>
           <div class="col">

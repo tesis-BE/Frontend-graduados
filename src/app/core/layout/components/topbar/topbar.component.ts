@@ -73,7 +73,7 @@ export class TopbarComponent implements OnInit, OnDestroy {
   private config = { theme: 'light' };
 
   currentUser = signal<any>(null);
-  photoUrl = signal<string>('assets/images/users/user-13.jpg');
+  photoUrl = signal<string>('assets/images/users/sin-foto-perfil.jpg');
   notifications = signal<UserNotification[]>([]);
   unreadCount = signal<number>(0);
   isSocketConnected = signal<boolean>(false);
@@ -101,26 +101,37 @@ export class TopbarComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.elem = document.documentElement;
-    this.updateOnWindowResize();
-    this.themeService.initTheme();
-    feather.replace();
+
+    try {
+      this.updateOnWindowResize();
+    } catch (e) {
+      console.warn('[Topbar] updateOnWindowResize falló:', e);
+    }
+    try {
+      this.themeService.initTheme();
+    } catch (e) {
+      console.warn('[Topbar] themeService.initTheme falló:', e);
+    }
+    try {
+      feather.replace();
+    } catch (e) {
+      console.warn('[Topbar] feather.replace falló:', e);
+    }
 
     // Cargar datos del usuario
     this.loadUserProfile();
 
-    // Conectar socket y cargar notificaciones
-    console.log('🔌 Conectando socket desde topbar...');
-    this.socketService.connect();
+    try {
+      this.socketService.connect();
+    } catch (e) {
+      console.warn('[Topbar] socketService.connect falló:', e);
+    }
     this.loadNotifications();
 
     // Verificar estado de conexión
     this.socketService.isConnected$
       .pipe(takeUntil(this.destroy$))
       .subscribe((status) => {
-        console.log(
-          '🔌 Socket status en topbar:',
-          status ? 'CONECTADO ✅' : 'DESCONECTADO ❌',
-        );
         this.isSocketConnected.set(status);
       });
 
@@ -128,17 +139,12 @@ export class TopbarComponent implements OnInit, OnDestroy {
     this.socketService.notifications$
       .pipe(takeUntil(this.destroy$))
       .subscribe((notifications) => {
-        console.log(
-          '🔔 Notificaciones recibidas en topbar:',
-          notifications.length,
-        );
         this.notifications.set(notifications);
       });
 
     this.socketService.unreadCount$
       .pipe(takeUntil(this.destroy$))
       .subscribe((count) => {
-        console.log('🔔 Contador no leídas:', count);
         this.unreadCount.set(count);
       });
   }
@@ -165,27 +171,32 @@ export class TopbarComponent implements OnInit, OnDestroy {
   }
 
   loadUserProfile(): void {
+    console.log('[Topbar] loadUserProfile() llamado — iniciando petición a /users/profile');
     this.profileService
       .getProfile()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (profile) => {
-          console.log('Profile loaded:', profile);
-          console.log('Photo URL from backend:', profile.photoUrl);
-
+          console.log('[Topbar] Perfil recibido del servidor:', { id: profile?.id, nombre: profile?.firstName, photoUrl: profile?.photoUrl });
+          if (!profile) {
+            console.warn('[Topbar] ALERTA: El perfil llegó vacío (null/undefined)');
+            return;
+          }
           this.currentUser.set(profile);
 
-          // Actualizar foto de perfil usando la URL correcta (sin /api/v1)
           if (profile.photoUrl) {
             const photoUrl = profile.photoUrl.startsWith('http')
               ? profile.photoUrl
               : `${environment.assetsUrl}${profile.photoUrl}`;
-            console.log('Final photo URL:', photoUrl);
+            console.log('[Topbar] photoUrl final asignada al <img>:', photoUrl);
             this.photoUrl.set(photoUrl);
+          } else {
+            console.log('[Topbar] El perfil no tiene photoUrl — usando imagen por defecto');
+            this.photoUrl.set('assets/images/users/sin-foto-perfil.jpg');
           }
         },
         error: (error) => {
-          console.error('Error loading profile:', error);
+          console.error('[Topbar] ERROR al cargar perfil — status:', error.status, '| mensaje:', error.message, '| url:', error.url);
         },
       });
   }

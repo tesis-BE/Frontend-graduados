@@ -5,6 +5,7 @@ import {
   Output,
   EventEmitter,
   ChangeDetectionStrategy,
+  OnInit,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
@@ -25,7 +26,7 @@ export interface FilterOption {
   styleUrls: ['./filter-panel.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FilterPanelComponent {
+export class FilterPanelComponent implements OnInit {
   @Input() filters: FilterOption[] = [];
   @Input() isCollapsed = false;
 
@@ -48,7 +49,11 @@ export class FilterPanelComponent {
     });
   }
 
-  onFilterChange(): void {
+  onFilterChange(updatedKey?: string, updatedValue?: any): void {
+    // Si se pasa un valor directamente (desde ngModelChange), actualizamos primero el modelo
+    if (updatedKey !== undefined) {
+      this.filterValues[updatedKey] = updatedValue;
+    }
     const activeFilters = Object.fromEntries(
       Object.entries(this.filterValues).filter(
         ([_, value]) => value !== '' && value !== null,

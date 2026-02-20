@@ -1,0 +1,396 @@
+@if (isLoading()) {
+  <div class="loading-state">
+    <div class="spinner"></div>
+    <p>Cargando perfil...</p>
+  </div>
+} @else if (graduate()) {
+  <div class="detail-wrap">
+
+    <div class="detail-header">
+      <button class="btn-back" (click)="goBack()">
+        <i class="mdi mdi-arrow-left"></i>
+        Volver al directorio
+      </button>
+    </div>
+
+    <div class="profile-banner">
+      <div class="banner-bg"></div>
+      <div class="banner-body">
+        <div class="avatar-zone">
+          <div class="avatar-ring">
+            <img [src]="avatarUrl()" [alt]="graduate()!.firstName" />
+          </div>
+          @if (graduate()!.availableForWork) {
+            <span class="avail-badge avail-badge--yes">
+              <i class="mdi mdi-check-circle"></i> Disponible
+            </span>
+          } @else {
+            <span class="avail-badge avail-badge--no">
+              <i class="mdi mdi-close-circle"></i> No disponible
+            </span>
+          }
+        </div>
+
+        <div class="profile-header-info">
+          <h1 class="profile-name">{{ graduate()!.firstName }} {{ graduate()!.lastName }}</h1>
+
+          <div class="profile-meta-row">
+            @if (graduate()!.careerName) {
+              <span class="meta-chip meta-chip--primary">
+                <i class="mdi mdi-school"></i> {{ graduate()!.careerName }}
+              </span>
+            }
+            @if (graduate()!.facultyName) {
+              <span class="meta-chip">
+                <i class="mdi mdi-office-building"></i> {{ graduate()!.facultyName }}
+              </span>
+            }
+            @if (graduate()!.graduationYear) {
+              <span class="meta-chip">
+                <i class="mdi mdi-calendar-check"></i> Graduado {{ graduate()!.graduationYear }}
+              </span>
+            }
+          </div>
+
+          @if (graduate()!.bio) {
+            <p class="profile-bio">{{ graduate()!.bio }}</p>
+          }
+
+          <div class="profile-actions">
+            <button class="action-btn action-btn--primary" (click)="openChat()">
+              <i class="mdi mdi-message-text"></i> Contactar
+            </button>
+            @if (graduate()!.cvUrl) {
+              <button class="action-btn action-btn--outline" (click)="downloadCV()">
+                <i class="mdi mdi-file-pdf-box"></i> Descargar CV
+              </button>
+            }
+            @if (graduate()!.linkedinUrl) {
+              <button class="action-btn action-btn--outline" (click)="openLinkedIn()">
+                <i class="mdi mdi-linkedin"></i> LinkedIn
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="profile-stats">
+          <div class="stat-box">
+            <span class="stat-box__value">{{ graduate()!.workExperiences?.length || 0 }}</span>
+            <span class="stat-box__label">Experiencias</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-box__value">{{ graduate()!.skills?.length || 0 }}</span>
+            <span class="stat-box__label">Habilidades</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-box__value">{{ graduate()!.certifications?.length || 0 }}</span>
+            <span class="stat-box__label">Certificaciones</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-box__value">{{ graduate()!.projects?.length || 0 }}</span>
+            <span class="stat-box__label">Proyectos</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-bar">
+      @for (tab of tabs; track tab.id) {
+        <button
+          class="tab-btn"
+          [class.tab-btn--active]="activeTab() === tab.id"
+          (click)="setTab(tab.id)"
+        >
+          <i [class]="'mdi ' + tab.icon"></i>
+          {{ tab.label }}
+        </button>
+      }
+    </div>
+
+    <div class="tab-content">
+
+      @if (activeTab() === 'overview') {
+        <div class="tab-panel">
+          <div class="two-col">
+            <div class="col-main">
+              <div class="section-card">
+                <h2 class="section-title">
+                  <i class="mdi mdi-information"></i> Información de contacto
+                </h2>
+                <div class="info-list">
+                  <div class="info-row">
+                    <i class="mdi mdi-email"></i>
+                    <span>{{ graduate()!.email }}</span>
+                  </div>
+                  @if (graduate()!.phone) {
+                    <div class="info-row">
+                      <i class="mdi mdi-phone"></i>
+                      <span>{{ graduate()!.phone }}</span>
+                    </div>
+                  }
+                  @if (graduate()!.institutionalEmail) {
+                    <div class="info-row">
+                      <i class="mdi mdi-email-check"></i>
+                      <span>{{ graduate()!.institutionalEmail }}</span>
+                    </div>
+                  }
+                </div>
+              </div>
+
+              <div class="section-card">
+                <h2 class="section-title">
+                  <i class="mdi mdi-account-details"></i> Sobre mí
+                </h2>
+                @if (graduate()!.bio) {
+                  <p class="bio-text">{{ graduate()!.bio }}</p>
+                } @else {
+                  <div class="empty-inline">
+                    <i class="mdi mdi-text-box-outline"></i>
+                    <span>Este graduado aún no ha añadido una descripción</span>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <div class="col-side">
+              <div class="section-card">
+                <h2 class="section-title">
+                  <i class="mdi mdi-layers"></i> Portfolio
+                </h2>
+                @if ((graduate()!.portfolio?.length || 0) > 0) {
+                  <div class="portfolio-list">
+                    @for (item of graduate()!.portfolio; track item.id) {
+                      <a [href]="item.url" target="_blank" class="portfolio-item">
+                        <i class="mdi mdi-link-variant"></i>
+                        <span>{{ item.title }}</span>
+                        <i class="mdi mdi-open-in-new"></i>
+                      </a>
+                    }
+                  </div>
+                } @else {
+                  <div class="empty-inline">
+                    <i class="mdi mdi-layers-outline"></i>
+                    <span>Sin enlaces de portfolio</span>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+
+      @if (activeTab() === 'experience') {
+        <div class="tab-panel">
+          <div class="section-card">
+            <h2 class="section-title">
+              <i class="mdi mdi-briefcase"></i> Experiencia Laboral
+            </h2>
+            @if ((graduate()!.workExperiences?.length || 0) > 0) {
+              <div class="timeline">
+                @for (exp of graduate()!.workExperiences; track exp.id) {
+                  <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-card">
+                      <div class="tcard-header">
+                        <div>
+                          <h3 class="tcard-title">{{ exp.position }}</h3>
+                          <p class="tcard-sub">{{ exp.company }}</p>
+                        </div>
+                        @if (exp.isCurrent) {
+                          <span class="badge-current">Actual</span>
+                        }
+                      </div>
+                      <p class="tcard-dates">
+                        <i class="mdi mdi-calendar-range"></i>
+                        {{ exp.startDate | date: 'MMM yyyy' }} –
+                        {{ exp.isCurrent ? 'Presente' : (exp.endDate | date: 'MMM yyyy') }}
+                      </p>
+                      @if (exp.description) {
+                        <p class="tcard-desc">{{ exp.description }}</p>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="empty-section">
+                <i class="mdi mdi-briefcase-outline"></i>
+                <h3>Sin experiencia laboral registrada</h3>
+                <p>Este graduado aún no ha añadido experiencias laborales</p>
+              </div>
+            }
+          </div>
+
+          <div class="section-card">
+            <h2 class="section-title">
+              <i class="mdi mdi-certificate"></i> Certificaciones
+            </h2>
+            @if ((graduate()!.certifications?.length || 0) > 0) {
+              <div class="cert-grid">
+                @for (cert of graduate()!.certifications; track cert.id) {
+                  <div class="cert-card">
+                    <div class="cert-card__icon"><i class="mdi mdi-check-decagram"></i></div>
+                    <div class="cert-card__body">
+                      <h4>{{ cert.name }}</h4>
+                      <p>{{ cert.issuingOrganization }}</p>
+                      @if (cert.issueDate) {
+                        <span class="cert-date">
+                          <i class="mdi mdi-calendar"></i> {{ cert.issueDate | date: 'MMM yyyy' }}
+                        </span>
+                      }
+                      @if (cert.credentialUrl) {
+                        <a [href]="cert.credentialUrl" target="_blank" class="cert-link">
+                          <i class="mdi mdi-link-variant"></i> Ver credencial
+                        </a>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="empty-inline">
+                <i class="mdi mdi-certificate-outline"></i>
+                <span>Sin certificaciones registradas</span>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      @if (activeTab() === 'education') {
+        <div class="tab-panel">
+          <div class="section-card">
+            <h2 class="section-title">
+              <i class="mdi mdi-book-open-page-variant"></i> Formación Académica
+            </h2>
+            @if ((graduate()?.education?.length || 0) > 0) {
+              <div class="timeline">
+                @for (edu of graduate()?.education; track edu.id) {
+                  <div class="timeline-item">
+                    <div class="timeline-dot timeline-dot--edu"></div>
+                    <div class="timeline-card">
+                      <h3 class="tcard-title">{{ edu.degree }}</h3>
+                      <p class="tcard-sub">{{ edu.institutionName || edu.institution }}</p>
+                      @if (edu.startDate) {
+                        <p class="tcard-dates">
+                          <i class="mdi mdi-calendar-range"></i>
+                          {{ edu.startDate | date: 'yyyy' }} –
+                          {{ edu.isCurrent ? 'Presente' : (edu.endDate | date: 'yyyy') }}
+                        </p>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="empty-section">
+                <i class="mdi mdi-book-outline"></i>
+                <h3>Sin formación académica registrada</h3>
+                <p>Este graduado aún no ha añadido su historial educativo</p>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      @if (activeTab() === 'skills') {
+        <div class="tab-panel">
+          <div class="section-card">
+            <h2 class="section-title">
+              <i class="mdi mdi-star-shooting"></i> Habilidades
+            </h2>
+            @if ((graduate()?.skills?.length || 0) > 0) {
+              <div class="skills-grid">
+                @for (skill of graduate()?.skills; track skill.id) {
+                  <div class="skill-card">
+                    <div class="skill-card__top">
+                      <span class="skill-card__name">{{ skill.name }}</span>
+                      <span class="skill-badge" [class]="getLevelBadgeClass(skill.level!)">
+                        {{ getLevelText(skill.level!) }}
+                      </span>
+                    </div>
+                    @if (skill.yearsExperience && skill.yearsExperience > 0) {
+                      <div class="skill-card__exp">
+                        <i class="mdi mdi-clock-outline"></i>
+                        {{ skill.yearsExperience }} {{ skill.yearsExperience === 1 ? 'año' : 'años' }}
+                      </div>
+                    }
+                    <div class="skill-progress">
+                      <div
+                        class="skill-progress__bar"
+                        [style.width.%]="
+                          skill.level === 'beginner' ? 25 :
+                          skill.level === 'intermediate' ? 50 :
+                          skill.level === 'advanced' ? 75 : 100
+                        "
+                        [class]="'skill-progress__bar--' + skill.level"
+                      ></div>
+                    </div>
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="empty-section">
+                <i class="mdi mdi-star-outline"></i>
+                <h3>Sin habilidades registradas</h3>
+                <p>Este graduado aún no ha añadido sus habilidades técnicas</p>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      @if (activeTab() === 'projects') {
+        <div class="tab-panel">
+          <div class="section-card">
+            <h2 class="section-title">
+              <i class="mdi mdi-folder-multiple"></i> Proyectos
+            </h2>
+            @if ((graduate()?.projects?.length || 0) > 0) {
+              <div class="projects-grid">
+                @for (project of graduate()?.projects; track project.id) {
+                  <div class="project-card">
+                    <div class="project-card__header">
+                      <i class="mdi mdi-folder project-card__icon"></i>
+                      <h3 class="project-card__name">{{ project.name }}</h3>
+                    </div>
+                    @if (project.description) {
+                      <p class="project-card__desc">{{ project.description }}</p>
+                    }
+                    @if (project.technologies && project.technologies.length > 0) {
+                      <div class="tech-row">
+                        @for (tech of project.technologies; track $index) {
+                          <span class="tech-badge">{{ tech }}</span>
+                        }
+                      </div>
+                    }
+                    <div class="project-card__links">
+                      @if (project.projectUrl) {
+                        <a [href]="project.projectUrl" target="_blank" class="project-link">
+                          <i class="mdi mdi-link-variant"></i> Ver proyecto
+                        </a>
+                      }
+                      @if (project.repositoryUrl) {
+                        <a [href]="project.repositoryUrl" target="_blank" class="project-link">
+                          <i class="mdi mdi-github"></i> Repositorio
+                        </a>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="empty-section">
+                <i class="mdi mdi-folder-open-outline"></i>
+                <h3>Sin proyectos registrados</h3>
+                <p>Este graduado aún no ha añadido proyectos a su perfil</p>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+    </div>
+
+  </div>
+}

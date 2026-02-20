@@ -1,0 +1,34 @@
+<div class="filters-bar">
+  <div class="filter-search">
+    <i class="mdi mdi-magnify filter-search__icon"></i>
+    <input
+      class="filter-search__input"
+      type="text"
+      placeholder="Buscar por nombre o email..."
+      [(ngModel)]="search"
+      (input)="onSearchInput()"
+    />
+    @if (search) {
+      <button class="filter-search__clear" (click)="clearSearch()">
+        <i class="mdi mdi-close"></i>
+      </button>
+    }
+  </div>
+
+  <div class="filter-group">
+    <label class="filter-group__label" for="availability-select">
+      <i class="mdi mdi-circle-medium"></i>
+      Disponibilidad
+    </label>
+    <select
+      id="availability-select"
+      class="filter-group__select"
+      [(ngModel)]="availableForWork"
+      (change)="onAvailabilityChange()"
+    >
+      <option value="">Todos</option>
+      <option value="true">Disponibles</option>
+      <option value="false">No disponibles</option>
+    </select>
+  </div>
+</div>

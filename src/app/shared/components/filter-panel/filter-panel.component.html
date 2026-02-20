@@ -34,7 +34,7 @@
             class="form-control"
             [(ngModel)]="filterValues[filter.key]"
             [placeholder]="filter.placeholder"
-            (change)="onFilterChange()"
+            (ngModelChange)="onFilterChange(filter.key, $event)"
           />
         </div>
 
@@ -46,7 +46,7 @@
             [id]="filter.key"
             class="form-select"
             [(ngModel)]="filterValues[filter.key]"
-            (change)="onFilterChange()"
+            (ngModelChange)="onFilterChange(filter.key, $event)"
           >
             <option value="">Seleccionar...</option>
             <option
@@ -67,7 +67,7 @@
             type="date"
             class="form-control"
             [(ngModel)]="filterValues[filter.key]"
-            (change)="onFilterChange()"
+            (ngModelChange)="onFilterChange(filter.key, $event)"
           />
         </div>
 
@@ -78,7 +78,7 @@
               type="checkbox"
               [id]="filter.key"
               [(ngModel)]="filterValues[filter.key]"
-              (change)="onFilterChange()"
+              (ngModelChange)="onFilterChange(filter.key, $event)"
             />
             <label class="form-check-label" [for]="filter.key">
               {{ filter.label }}

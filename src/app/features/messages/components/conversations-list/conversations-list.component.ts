@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Conversation } from '@core/interfaces/api/conversation.interface';
+import { environment } from '@/environments/environment';
 
 @Component({
   selector: 'app-conversations-list',
@@ -35,7 +36,10 @@ export class ConversationsListComponent {
 
   getOtherUserPhoto(conversation: Conversation): string {
     const user = this.getOtherUser(conversation);
-    return user?.photoUrl || 'assets/images/users/default-avatar.png';
+    if (!user?.photoUrl) return 'assets/images/users/sin-foto-perfil.jpg';
+    return user.photoUrl.startsWith('http')
+      ? user.photoUrl
+      : `${environment.assetsUrl}${user.photoUrl}`;
   }
 
   getCompanyName(conversation: Conversation): string | null {

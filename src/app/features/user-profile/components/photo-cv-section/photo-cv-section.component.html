@@ -9,13 +9,16 @@
     </div>
     <div class="card-body text-center">
       <div class="photo-container mb-3">
-        @if (photoUrl) {
-          <img [src]="photoUrl" alt="Foto de perfil" class="profile-photo" />
-        } @else {
-          <div class="photo-placeholder">
-            <i class="mdi mdi-account fs-1"></i>
-          </div>
-        }
+        <div class="avatar-wrapper" [class.available]="profile.availableForWork">
+          <img
+            [src]="photoUrl || 'assets/images/users/sin-foto-perfil.jpg'"
+            alt="Foto de perfil"
+            class="profile-photo"
+          />
+          @if (profile.availableForWork) {
+            <span class="availability-indicator" title="Disponible para trabajar"></span>
+          }
+        </div>
         @if (isUploadingPhoto()) {
           <div class="upload-overlay">
             <div class="spinner-border spinner-border-sm text-white"></div>

@@ -16,7 +16,6 @@ export interface Graduate {
   facultyName?: string;
   careerName?: string;
   graduationYear?: number;
-  isAvailable?: boolean;
   availableForWork?: boolean;
   skills?: Array<{ 
     id: number; 
@@ -92,7 +91,7 @@ export class UserService {
     search?: string;
     facultyId?: number;
     careerId?: number;
-    isAvailable?: boolean;
+    availableForWork?: boolean;
   }): Observable<any> {
     let httpParams = new HttpParams();
     if (params?.page)
@@ -104,40 +103,55 @@ export class UserService {
       httpParams = httpParams.set('facultyId', params.facultyId.toString());
     if (params?.careerId)
       httpParams = httpParams.set('careerId', params.careerId.toString());
-    if (params?.isAvailable !== undefined)
-      httpParams = httpParams.set('isAvailable', params.isAvailable.toString());
+    if (params?.availableForWork !== undefined)
+      httpParams = httpParams.set('availableForWork', params.availableForWork.toString());
+
+    console.log('[UserService] GET /graduates con params:', httpParams.toString());
 
     return this.http.get<any>(`${this.apiUrl}/graduates`, {
       params: httpParams,
     }).pipe(
       map((response: any) => {
         if (response.data) {
-          response.data = response.data.map((graduate: any) => ({
-            ...graduate,
-            isAvailable: graduate.availableForWork,
-            facultyName: graduate.faculty?.name || graduate.facultyName || null,
-            careerName: graduate.educations?.[0]?.fieldOfStudy || graduate.careerName || null,
-            graduationYear: graduate.educations?.[0]?.graduationYear || graduate.graduationYear || null,
-            photoUrl: graduate.photoUrl?.startsWith('http') 
-              ? graduate.photoUrl 
-              : graduate.photoUrl 
-                ? `${environment.assetsUrl}${graduate.photoUrl}` 
-                : null,
-            cvUrl: graduate.cvUrl?.startsWith('http')
-              ? graduate.cvUrl
-              : graduate.cvUrl
-                ? `${environment.assetsUrl}${graduate.cvUrl}`
-                : null,
-            skills: graduate.skills?.map((skill: any) => ({
-              id: skill.id,
-              name: skill.skillName || skill.name,
-              level: this.normalizeProficiencyLevel(skill.proficiencyLevel || skill.level),
-              yearsExperience: skill.yearsExperience,
-            })) || [],
-            portfolio: graduate.portfolios || graduate.portfolio || [],
-            workExperiences: graduate.workExperiences || [],
-            education: graduate.educations || graduate.education || [],
-          }));
+          response.data = response.data.map((graduate: any) => {
+            const afwRaw = graduate.availableForWork;
+            const isAvailable = afwRaw === true || afwRaw === 1;
+
+            let photoUrl: string | null = null;
+            if (graduate.photoUrl) {
+              photoUrl = graduate.photoUrl.startsWith('http')
+                ? graduate.photoUrl
+                : `${environment.assetsUrl}${graduate.photoUrl.startsWith('/') ? '' : '/'}${graduate.photoUrl}`;
+            }
+
+            let cvUrl: string | null = null;
+            if (graduate.cvUrl) {
+              cvUrl = graduate.cvUrl.startsWith('http')
+                ? graduate.cvUrl
+                : `${environment.assetsUrl}${graduate.cvUrl.startsWith('/') ? '' : '/'}${graduate.cvUrl}`;
+            }
+
+            return {
+              ...graduate,
+              availableForWork: isAvailable,
+              photoUrl,
+              cvUrl,
+              facultyName: graduate.faculty?.name || graduate.facultyName || null,
+              careerName: graduate.educations?.[0]?.fieldOfStudy || graduate.careerName || null,
+              graduationYear: graduate.educations?.[0]?.graduationYear || graduate.graduationYear || null,
+              skills: graduate.skills?.map((skill: any) => ({
+                id: skill.id,
+                name: skill.skillName || skill.name,
+                level: this.normalizeProficiencyLevel(skill.proficiencyLevel || skill.level),
+                yearsExperience: skill.yearsExperience,
+              })) || [],
+              portfolio: graduate.portfolios || graduate.portfolio || [],
+              workExperiences: graduate.workExperiences || [],
+              education: graduate.educations || graduate.education || [],
+              certifications: graduate.certifications || [],
+              projects: graduate.projects || [],
+            };
+          });
         }
         return response;
       })

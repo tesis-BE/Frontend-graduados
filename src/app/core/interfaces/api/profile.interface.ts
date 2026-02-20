@@ -31,6 +31,7 @@ export interface WorkExperience {
   userId: number;
   company: string;
   position: string;
+  location?: string;
   startDate: string;
   endDate?: string;
   isCurrent: boolean;
@@ -43,6 +44,7 @@ export interface WorkExperience {
 export interface CreateWorkExperience {
   company: string;
   position: string;
+  location?: string;
   startDate: string;
   endDate?: string;
   isCurrent: boolean;
@@ -58,6 +60,7 @@ export interface Education {
   userId: number;
   institution: string;
   degree: string;
+  degreeType?: string;
   fieldOfStudy: string;
   startDate: string;
   endDate?: string;
@@ -75,6 +78,7 @@ export interface Education {
 export interface CreateEducation {
   institution: string;
   degree: string;
+  degreeType?: string;
   fieldOfStudy: string;
   startDate: string;
   endDate?: string;
@@ -123,6 +127,7 @@ export interface Project {
   technologies: string[];
   projectUrl?: string;
   liveUrl?: string;
+  repositoryUrl?: string;
   thumbnailUrl?: string;
   startDate: string;
   endDate?: string;
@@ -137,6 +142,7 @@ export interface CreateProject {
   technologies?: string[];
   projectUrl?: string;
   liveUrl?: string;
+  repositoryUrl?: string;
   thumbnailUrl?: string;
   startDate: string;
   endDate?: string;

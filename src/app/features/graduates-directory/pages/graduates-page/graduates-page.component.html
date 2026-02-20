@@ -1,0 +1,70 @@
+<div class="graduates-page">
+  <div class="page-header">
+    <h1 class="page-title">
+      <i class="mdi mdi-account-group"></i>
+      Directorio de Egresados
+    </h1>
+    <p class="page-subtitle">Encuentra y conecta con los mejores profesionales egresados</p>
+  </div>
+
+  <app-graduate-filters (filtersChange)="onFiltersChange($event)" />
+
+  @if (isLoading) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Cargando graduados...</p>
+    </div>
+  } @else if (graduates.length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon">
+        <i class="mdi mdi-account-group-outline"></i>
+      </div>
+      <h3>No se encontraron graduados</h3>
+      <p>Intenta ajustar los filtros de búsqueda</p>
+    </div>
+  } @else {
+    <div class="results-bar">
+      <span>{{ total }} resultado{{ total !== 1 ? 's' : '' }}</span>
+    </div>
+
+    <div class="graduates-grid">
+      @for (graduate of graduates; track graduate.id) {
+        <app-graduate-card
+          [graduate]="graduate"
+          (viewProfile)="onViewProfile($event)"
+          (openChat)="onOpenChat($event)"
+          (viewCV)="onViewCV($event)"
+          (viewLinkedIn)="onViewLinkedIn($event)"
+        />
+      }
+    </div>
+
+    @if (totalPages > 1) {
+      <div class="pagination">
+        <button
+          class="btn-page"
+          (click)="goToPage(currentPage - 1)"
+          [disabled]="currentPage === 1"
+        >
+          <i class="mdi mdi-chevron-left"></i>
+        </button>
+        @for (page of pages; track page) {
+          <button
+            class="btn-page"
+            [class.active]="currentPage === page"
+            (click)="goToPage(page)"
+          >
+            {{ page }}
+          </button>
+        }
+        <button
+          class="btn-page"
+          (click)="goToPage(currentPage + 1)"
+          [disabled]="currentPage === totalPages"
+        >
+          <i class="mdi mdi-chevron-right"></i>
+        </button>
+      </div>
+    }
+  }
+</div>

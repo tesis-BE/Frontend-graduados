@@ -100,7 +100,7 @@ export class WorkExperienceSectionComponent {
       companyName: exp.company,
       position: exp.position,
       description: exp.description || '',
-      location: '',
+      location: exp.location || '',
       startDate: exp.startDate ? exp.startDate.substring(0, 10) : '',
       endDate: exp.endDate ? exp.endDate.substring(0, 10) : '',
       isCurrent: exp.isCurrent || false,
