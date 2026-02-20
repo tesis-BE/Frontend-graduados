@@ -8,6 +8,7 @@ import { Conversation, Message } from '@core/interfaces/api/conversation.interfa
 import { ConversationsListComponent } from '../components/conversations-list/conversations-list.component';
 import { ChatPanelComponent } from '../components/chat-panel/chat-panel.component';
 import { Subject, takeUntil } from 'rxjs';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-chat-page',
@@ -221,27 +222,47 @@ export class ChatPageComponent implements OnInit, OnDestroy {
   }
 
   onDeleteConversation(conversationId: number): void {
-    if (!confirm('¿Estás seguro de que deseas eliminar esta conversación? Esta acción no se puede deshacer.')) {
-      return;
-    }
+    Swal.fire({
+      title: '¿Eliminar conversación?',
+      text: 'Esta acción no se puede deshacer.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+    }).then((result) => {
+      if (!result.isConfirmed) return;
 
-    this.conversationService.deleteConversation(conversationId).subscribe({
-      next: () => {
-        // Actualizar lista de conversaciones
-        const updatedConversations = this.conversations().filter(
-          (c) => c.id !== conversationId
-        );
-        this.conversations.set(updatedConversations);
-        
-        // Si era la conversación seleccionada, limpiar selección
-        if (this.selectedConversation()?.id === conversationId) {
-          this.selectedConversation.set(null);
-          this.messages.set([]);
-        }
-      },
-      error: (error) => {
-        this.error.set('Error al eliminar la conversación');
-      },
+      this.conversationService.deleteConversation(conversationId).subscribe({
+        next: () => {
+          const updatedConversations = this.conversations().filter(
+            (c) => c.id !== conversationId
+          );
+          this.conversations.set(updatedConversations);
+
+          if (this.selectedConversation()?.id === conversationId) {
+            this.selectedConversation.set(null);
+            this.messages.set([]);
+          }
+
+          Swal.fire({
+            title: 'Eliminada',
+            text: 'La conversación fue eliminada correctamente.',
+            icon: 'success',
+            timer: 2000,
+            showConfirmButton: false,
+          });
+        },
+        error: () => {
+          Swal.fire({
+            title: 'Error',
+            text: 'No se pudo eliminar la conversación. Inténtalo de nuevo.',
+            icon: 'error',
+            confirmButtonText: 'Cerrar',
+          });
+        },
+      });
     });
   }
 }

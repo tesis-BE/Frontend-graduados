@@ -7,6 +7,7 @@
           <button
             (click)="onToggleSidebar()"
             class="button-toggle-menu nav-link"
+            title="Mostrar / ocultar menú"
           >
             <i data-feather="menu" class="noti-icon"></i>
           </button>
@@ -17,26 +18,13 @@
       </ul>
 
       <ul class="list-unstyled topnav-menu mb-0 d-flex align-items-center">
-        <li class="d-none d-lg-block">
-          <form class="app-search d-none d-md-block me-auto">
-            <div class="position-relative topbar-search">
-              <input
-                type="text"
-                class="form-control ps-4"
-                placeholder="Search..."
-              />
-              <i
-                class="mdi mdi-magnify fs-16 position-absolute text-muted top-50 translate-middle-y ms-2"
-              ></i>
-            </div>
-          </form>
-        </li>
         <li class="d-none d-sm-flex">
           <button
             (click)="openFullscreen()"
             type="button"
             class="btn nav-link"
             data-toggle="fullscreen"
+            title="{{ isFullscreen ? 'Salir de pantalla completa' : 'Pantalla completa' }}"
           >
             <i
               id="fullscreen-icon"
@@ -51,6 +39,7 @@
             class="btn nav-link"
             (click)="changeTheme()"
             id="light-dark-mode"
+            title="{{ theme === 'light' ? 'Cambiar a modo oscuro' : 'Cambiar a modo claro' }}"
           >
             <i
               id="theme-icon"
@@ -61,10 +50,10 @@
         </li>
         
         <!-- Indicador de conexión socket -->
-        <li class="d-none d-sm-flex">
+        <!-- <li class="d-none d-sm-flex">
           <div class="nav-link d-flex align-items-center">
             @if (isSocketConnected()) {
-              <div class="connection-indicator connected" title="Conectado">
+              <div class="connection-indicator connected" title="En línea">
                 <i class="mdi mdi-wifi text-success"></i>
               </div>
             } @else {
@@ -72,13 +61,13 @@
                 type="button" 
                 class="btn btn-sm btn-outline-warning"
                 (click)="reconnectSocket()"
-                title="Desconectado - Clic para reconectar"
+                title="Sin conexión — Clic para reconectar"
               >
                 <i class="mdi mdi-wifi-off"></i>
               </button>
             }
           </div>
-        </li>
+        </li> -->
         
         <li class="dropdown notification-list topbar-dropdown" ngbDropdown #notificationDropdown="ngbDropdown">
           <a
@@ -89,6 +78,7 @@
             role="button"
             aria-haspopup="false"
             aria-expanded="false"
+            title="Notificaciones"
           >
             <i data-feather="bell" class="noti-icon"></i>
             @if (unreadCount() > 0) {
@@ -215,12 +205,6 @@
             <a routerLink="/profile" class="dropdown-item notify-item">
               <i class="mdi mdi-account-circle-outline fs-16 align-middle"></i>
               <span>Mi perfil</span>
-            </a>
-
-            <!-- item-->
-            <a routerLink="/auth/lock-screen" class="dropdown-item notify-item">
-              <i class="mdi mdi-lock-outline fs-16 align-middle"></i>
-              <span>Lock Screen</span>
             </a>
 
             <div class="dropdown-divider"></div>
