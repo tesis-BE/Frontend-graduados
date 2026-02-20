@@ -139,16 +139,34 @@
               ></textarea>
             </div>
             <div class="mb-3">
+              <label class="form-label">Extensión <span class="text-danger">*</span></label>
+              <select
+                class="form-select"
+                [(ngModel)]="formData.universityId"
+                name="universityId"
+                (ngModelChange)="onExtensionChange()"
+                required
+              >
+                <option [ngValue]="0">Selecciona una extensión</option>
+                @for (uni of universities(); track uni.id) {
+                  <option [ngValue]="uni.id">{{ uni.name }}</option>
+                }
+              </select>
+            </div>
+            <div class="mb-3">
               <label class="form-label">Facultad <span class="text-danger">*</span></label>
               <select
                 class="form-select"
                 [(ngModel)]="formData.facultyId"
                 name="facultyId"
                 required
+                [disabled]="!formData.universityId"
               >
-                <option [ngValue]="0">Selecciona una facultad</option>
-                @for (faculty of faculties(); track faculty.id) {
-                  <option [ngValue]="faculty.id">{{ faculty.name }} - {{ faculty.university?.name || 'Sin extensión' }}</option>
+                <option [ngValue]="0">
+                  {{ formData.universityId ? 'Selecciona una facultad' : 'Selecciona primero una extensión' }}
+                </option>
+                @for (faculty of filteredFaculties(); track faculty.id) {
+                  <option [ngValue]="faculty.id">{{ faculty.name }}</option>
                 }
               </select>
             </div>

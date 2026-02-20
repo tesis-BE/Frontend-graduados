@@ -157,13 +157,18 @@
 
   .form-control,
   .input-group-text {
-    background-color: var(--bs-dark);
-    border-color: rgba(255, 255, 255, 0.1);
-    color: var(--bs-light);
+    background-color: var(--bs-body-bg);
+    border-color: var(--bs-border-color);
+    color: var(--bs-body-color);
+
+    &::placeholder {
+      color: var(--bs-secondary-color);
+    }
 
     &:focus {
-      background-color: var(--bs-dark);
+      background-color: var(--bs-body-bg);
       border-color: var(--bs-primary);
+      color: var(--bs-body-color);
     }
   }
 

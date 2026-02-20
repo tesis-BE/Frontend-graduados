@@ -20,6 +20,9 @@ import {
 import { Subject, takeUntil } from 'rxjs';
 import { CedulaService } from '@core/services/api/cedula.service';
 import { FacultyService, Faculty } from '@core/services/api/faculty.service';
+import { CareerService, Career } from '@core/services/api/career.service';
+import { UniversitiesApiService } from '@core/services/api/universities-api.service';
+import { University } from '@core/interfaces/api/university.interface';
 
 @Component({
   selector: 'app-register',
@@ -34,32 +37,38 @@ export class RegisterComponent implements OnInit, OnDestroy {
   loading = false;
   showPassword = false;
   showConfirmPassword = false;
-  acceptTerms = false;
   cedulaLoading = false;
   cedulaError = '';
-  faculties: Faculty[] = [];
+
+  universities: University[] = [];
+  filteredFaculties: Faculty[] = [];
+  careers: Career[] = [];
 
   private fb = inject(UntypedFormBuilder);
   private store = inject(Store);
   private destroy$ = new Subject<void>();
   private cedulaService = inject(CedulaService);
   private facultyService = inject(FacultyService);
+  private careerService = inject(CareerService);
+  private universitiesApi = inject(UniversitiesApiService);
 
   ngOnInit(): void {
     this.registerForm = this.fb.group({
       cedula: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(10)]],
-      firstName: [{ value: '', disabled: true }, [Validators.required, Validators.minLength(2)]],
-      lastName: [{ value: '', disabled: true }, [Validators.required, Validators.minLength(2)]],
-      institutionalEmail: [{ value: '', disabled: true }],
+      firstName: ['', [Validators.required, Validators.minLength(2)]],
+      lastName: ['', [Validators.required, Validators.minLength(2)]],
+      institutionalEmail: ['', [Validators.required, Validators.email]],
+      universityId: ['', [Validators.required]],
       facultyId: ['', [Validators.required]],
+      careerId: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
+      phone: ['', [Validators.required, Validators.pattern(/^[0-9]{7,15}$/)]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', [Validators.required]],
-      phone: [''],
       userType: ['graduate', [Validators.required]],
     });
 
-    this.loadFaculties();
+    this.loadUniversities();
 
     this.store
       .select(getError)
@@ -91,17 +100,37 @@ export class RegisterComponent implements OnInit, OnDestroy {
     return this.registerForm.controls;
   }
 
-  loadFaculties(): void {
-    this.facultyService.getAll().subscribe({
-      next: (response) => {
-        console.log('Respuesta de facultades:', response);
-        this.faculties = response.data || [];
-        console.log('Facultades asignadas:', this.faculties);
+  loadUniversities(): void {
+    this.universitiesApi.findAll().subscribe({
+      next: (data) => { this.universities = data || []; },
+      error: () => { this.universities = []; },
+    });
+  }
+
+  onExtensionChange(): void {
+    const universityId = +this.registerForm.get('universityId')?.value;
+    this.registerForm.patchValue({ facultyId: '', careerId: '' });
+    this.careers = [];
+    this.filteredFaculties = [];
+    if (!universityId) return;
+
+    this.facultyService.getByUniversity(universityId).subscribe({
+      next: (data: any) => {
+        // la API puede devolver el array directamente o envuelto en { data: [] }
+        this.filteredFaculties = Array.isArray(data) ? data : (data?.data ?? []);
       },
-      error: (error) => {
-        console.error('Error al cargar facultades:', error);
-        this.faculties = [];
-      },
+      error: () => { this.filteredFaculties = []; },
+    });
+  }
+
+  onFacultyChange(): void {
+    const facultyId = +this.registerForm.get('facultyId')?.value;
+    this.registerForm.patchValue({ careerId: '' });
+    this.careers = [];
+    if (!facultyId) return;
+    this.careerService.getByFaculty(facultyId).subscribe({
+      next: (response) => { this.careers = response.data || []; },
+      error: () => { this.careers = []; },
     });
   }
 
@@ -126,7 +155,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
       },
       error: () => {
         this.cedulaLoading = false;
-        this.cedulaError = 'No se pudo consultar la cédula, intenta de nuevo';
+        this.cedulaError = 'No se pudo consultar la cédula, puedes llenar los datos manualmente';
       },
     });
   }
@@ -141,33 +170,18 @@ export class RegisterComponent implements OnInit, OnDestroy {
 
   onSubmit(): void {
     this.submitted = true;
-
-    if (!this.acceptTerms) {
-      this.errorMessage = 'Debes aceptar los términos y condiciones';
-      setTimeout(() => (this.errorMessage = ''), 3000);
-      return;
-    }
-
-    if (this.registerForm.invalid) {
-      return;
-    }
+    if (this.registerForm.invalid) return;
 
     const password = this.registerForm.get('password')?.value;
     const confirmPassword = this.registerForm.get('confirmPassword')?.value;
-
     if (password !== confirmPassword) {
       this.errorMessage = 'Las contraseñas no coinciden';
       setTimeout(() => (this.errorMessage = ''), 3000);
       return;
     }
 
-    const formData = {
-      ...this.registerForm.value,
-      firstName: this.registerForm.get('firstName')?.value,
-      lastName: this.registerForm.get('lastName')?.value,
-      institutionalEmail: this.registerForm.get('institutionalEmail')?.value,
-    };
-
+    const rawValue = this.registerForm.getRawValue();
+    const formData = { ...rawValue };
     delete formData.confirmPassword;
 
     this.store.dispatch(register({ data: formData }));

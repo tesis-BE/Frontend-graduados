@@ -73,7 +73,7 @@ export const MENU_ITEMS: MenuItemType[] = [
   {
     key: 'companies',
     label: 'Empresas',
-    icon: 'office-building',
+    icon: 'layers',
     url: '/companies',
     requiredPermissions: ['manage_companies'],
   },
@@ -104,7 +104,7 @@ export const MENU_ITEMS: MenuItemType[] = [
   {
     key: 'faculties',
     label: 'Facultades',
-    icon: 'school',
+    icon: 'book',
     url: '/faculties',
     requiredPermissions: ['manage_settings'],
   },

@@ -1,303 +1,354 @@
-<div class="register-container">
-  <div class="register-content">
-    <div class="card register-card">
-      <div class="card-body">
-        <div class="card-inner">
-          <!-- Logo discreto -->
-          <div class="logo-section">
-            <a routerLink="/" class="auth-logo">
-              <img
-                src="assets/images/logos/uleam-logo-ligth.png"
-                alt="logo-uleam"
-                height="40"
-              />
-            </a>
+<div class="auth-page">
+
+
+  <div class="brand-panel">
+    <div class="brand-inner">
+
+      <a routerLink="/" class="brand-logo">
+        <img src="assets/images/logos/uleam-logo-ligth.png" alt="ULEAM" height="48" />
+      </a>
+
+      <div class="brand-copy">
+        <h1 class="brand-title">Únete a la<br/>comunidad<br/><span>de graduados.</span></h1>
+        <p class="brand-desc">
+          Crea tu perfil profesional y accede a ofertas laborales pensadas 
+          especialmente para egresados de la ULEAM.
+        </p>
+      </div>
+
+      <ul class="brand-steps">
+        <li>
+          <span class="step-num">1</span>
+          <div>
+            <strong>Regístrate</strong>
+            <span>en segundos con tu cédula</span>
           </div>
-
-          <!-- Título y descripción -->
-          <div class="auth-title-section">
-            <h3 class="title">Crear Cuenta</h3>
-            <p class="subtitle">
-              Únete para postular a ofertas laborales, conectar con empresas y hacer seguimiento a tus postulaciones.
-            </p>
+        </li>
+        <li>
+          <span class="step-num">2</span>
+          <div>
+            <strong>Completa tu perfil</strong>
+            <span>con tu CV y experiencia</span>
           </div>
+        </li>
+        <li>
+          <span class="step-num">3</span>
+          <div>
+            <strong>Postúlate</strong>
+            <span>a empleos que te interesan</span>
+          </div>
+        </li>
+      </ul>
 
-          <!-- Alertas de error -->
-          @if (errorMessage) {
-            <div
-              class="alert alert-danger alert-dismissible fade show"
-              role="alert"
-            >
-              {{ errorMessage }}
-              <button
-                type="button"
-                class="btn-close"
-                (click)="errorMessage = ''"
-              ></button>
-            </div>
+      <p class="brand-footer-text">¿Ya tienes cuenta? <a routerLink="/auth/login">Inicia sesión</a></p>
+
+    </div>
+
+    <div class="deco deco-1"></div>
+    <div class="deco deco-2"></div>
+    <div class="deco deco-3"></div>
+  </div>
+
+  <!-- ─── Panel derecho: Formulario ──────────────────────── -->
+  <div class="form-panel">
+    <div class="form-inner">
+
+      <div class="form-header">
+        <h2 class="form-title">Crear cuenta</h2>
+        <p class="form-subtitle">Completa los datos para registrarte</p>
+      </div>
+
+      @if (errorMessage) {
+        <div class="auth-alert auth-alert-error">
+          <i class="mdi mdi-alert-circle-outline"></i>
+          <span>{{ errorMessage }}</span>
+          <button type="button" class="alert-close" (click)="errorMessage = ''">
+            <i class="mdi mdi-close"></i>
+          </button>
+        </div>
+      }
+
+      @if (cedulaError) {
+        <div class="auth-alert auth-alert-warning">
+          <i class="mdi mdi-alert-outline"></i>
+          <span>{{ cedulaError }}</span>
+          <button type="button" class="alert-close" (click)="cedulaError = ''">
+            <i class="mdi mdi-close"></i>
+          </button>
+        </div>
+      }
+
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+
+        <!-- Cédula -->
+        <div class="field-group">
+          <label for="cedula" class="field-label">Número de Cédula</label>
+          <div class="field-wrap" [class.has-error]="submitted && f['cedula'].errors">
+            <i class="mdi mdi-card-account-details-outline field-icon"></i>
+            <input
+              type="text"
+              id="cedula"
+              class="field-input"
+              formControlName="cedula"
+              placeholder="10 dígitos"
+              maxlength="10"
+              (blur)="onCedulaBlur()"
+              autocomplete="off"
+            />
+            @if (cedulaLoading) {
+              <span class="field-spinner"></span>
+            }
+          </div>
+          @if (submitted && f['cedula'].errors) {
+            <span class="field-error">
+              @if (f['cedula'].errors['required']) { La cédula es requerida }
+              @if (f['cedula'].errors['minlength'] || f['cedula'].errors['maxlength']) { Debe tener 10 dígitos }
+            </span>
           }
+        </div>
 
-          @if (cedulaError) {
-            <div class="alert alert-warning alert-dismissible fade show" role="alert">
-              {{ cedulaError }}
-              <button type="button" class="btn-close" (click)="cedulaError = ''"></button>
-            </div>
-          }
-
-          <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="my-3">
-            <!-- Cédula -->
-            <div class="form-group mb-3">
-              <label for="cedula" class="form-label">Número de Cédula</label>
-              <div class="input-group">
-                <input
-                  class="form-control"
-                  type="text"
-                  id="cedula"
-                  formControlName="cedula"
-                  [ngClass]="{ 'is-invalid': submitted && f['cedula'].errors }"
-                  placeholder="10 dígitos"
-                  maxlength="10"
-                  (blur)="onCedulaBlur()"
-                />
-                @if (cedulaLoading) {
-                  <span class="input-group-text">
-                    <span class="spinner-border spinner-border-sm"></span>
-                  </span>
-                }
-              </div>
-              @if (submitted && f["cedula"].errors) {
-                <div class="invalid-feedback d-block">
-                  @if (f["cedula"].errors["required"]) {
-                    La cédula es requerida
-                  }
-                  @if (f["cedula"].errors["minlength"] || f["cedula"].errors["maxlength"]) {
-                    Debe tener 10 dígitos
-                  }
-                </div>
-              }
-              <small class="form-text text-muted d-block mt-1">10/10 dígitos</small>
-            </div>
-
-            <!-- Nombre y Apellido -->
-            <div class="row">
-              <div class="col-md-6">
-                <div class="form-group mb-3">
-                  <label for="firstName" class="form-label">Nombre</label>
-                  <input
-                    class="form-control"
-                    type="text"
-                    id="firstName"
-                    formControlName="firstName"
-                    [ngClass]="{ 'is-invalid': submitted && f['firstName'].errors }"
-                    placeholder="Se autocompletará"
-                    readonly
-                  />
-                  @if (submitted && f["firstName"].errors) {
-                    <div class="invalid-feedback d-block">
-                      @if (f["firstName"].errors["required"]) {
-                        El nombre es requerido
-                      }
-                    </div>
-                  }
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="form-group mb-3">
-                  <label for="lastName" class="form-label">Apellido</label>
-                  <input
-                    class="form-control"
-                    type="text"
-                    id="lastName"
-                    formControlName="lastName"
-                    [ngClass]="{ 'is-invalid': submitted && f['lastName'].errors }"
-                    placeholder="Se autocompletará"
-                    readonly
-                  />
-                  @if (submitted && f["lastName"].errors) {
-                    <div class="invalid-feedback d-block">
-                      @if (f["lastName"].errors["required"]) {
-                        El apellido es requerido
-                      }
-                    </div>
-                  }
-                </div>
-              </div>
-            </div>
-
-            <!-- Email Personal -->
-            <div class="form-group mb-3">
-              <label for="email" class="form-label">Correo Personal</label>
+        <!-- Nombre y Apellido -->
+        <div class="field-row">
+          <div class="field-group">
+            <label for="firstName" class="field-label">Nombre</label>
+            <div class="field-wrap" [class.has-error]="submitted && f['firstName'].errors">
+              <i class="mdi mdi-account-outline field-icon"></i>
               <input
-                class="form-control"
-                type="email"
-                id="email"
-                formControlName="email"
-                [ngClass]="{ 'is-invalid': submitted && f['email'].errors }"
-                placeholder="correo@ejemplo.com"
-              />
-              @if (submitted && f["email"].errors) {
-                <div class="invalid-feedback d-block">
-                  @if (f["email"].errors["required"]) {
-                    El correo es requerido
-                  }
-                  @if (f["email"].errors["email"]) {
-                    Ingresa un correo válido
-                  }
-                </div>
-              }
-            </div>
-
-            <!-- Email Institucional -->
-            <div class="form-group mb-3">
-              <label for="institutionalEmail" class="form-label">Correo Institucional</label>
-              <input
-                class="form-control"
-                type="email"
-                id="institutionalEmail"
-                formControlName="institutionalEmail"
-                placeholder="Se autocompletará"
-                readonly
+                type="text"
+                id="firstName"
+                class="field-input"
+                formControlName="firstName"
+                placeholder="Nombre(s)"
+                autocomplete="given-name"
               />
             </div>
-
-            <!-- Contraseña -->
-            <div class="row">
-              <div class="col-md-6">
-                <div class="form-group mb-3">
-                  <label for="password" class="form-label">Contraseña</label>
-                  <div class="input-group">
-                    <input
-                      class="form-control"
-                      [type]="showPassword ? 'text' : 'password'"
-                      id="password"
-                      formControlName="password"
-                      [ngClass]="{ 'is-invalid': submitted && f['password'].errors }"
-                      placeholder="Mínimo 6 caracteres"
-                    />
-                    <button
-                      class="btn btn-outline-secondary"
-                      type="button"
-                      tabindex="-1"
-                      (click)="togglePassword()"
-                    >
-                      <i [class]="showPassword ? 'ti ti-eye-off' : 'ti ti-eye'"></i>
-                    </button>
-                  </div>
-                  @if (submitted && f["password"].errors) {
-                    <div class="invalid-feedback d-block">
-                      @if (f["password"].errors["required"]) {
-                        La contraseña es requerida
-                      }
-                      @if (f["password"].errors["minlength"]) {
-                        Mínimo 6 caracteres
-                      }
-                    </div>
-                  }
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="form-group mb-3">
-                  <label for="confirmPassword" class="form-label">Repetir Contraseña</label>
-                  <div class="input-group">
-                    <input
-                      class="form-control"
-                      [type]="showConfirmPassword ? 'text' : 'password'"
-                      id="confirmPassword"
-                      formControlName="confirmPassword"
-                      [ngClass]="{ 'is-invalid': submitted && f['confirmPassword'].errors }"
-                      placeholder="Repetir contraseña"
-                    />
-                    <button
-                      class="btn btn-outline-secondary"
-                      type="button"
-                      tabindex="-1"
-                      (click)="toggleConfirmPassword()"
-                    >
-                      <i [class]="showConfirmPassword ? 'ti ti-eye-off' : 'ti ti-eye'"></i>
-                    </button>
-                  </div>
-                  @if (submitted && f["confirmPassword"].errors) {
-                    <div class="invalid-feedback d-block">
-                      @if (f["confirmPassword"].errors["required"]) {
-                        Debes repetir la contraseña
-                      }
-                    </div>
-                  }
-                </div>
-              </div>
+            @if (submitted && f['firstName'].errors) {
+              <span class="field-error">Requerido (mín. 2 caracteres)</span>
+            }
+          </div>
+          <div class="field-group">
+            <label for="lastName" class="field-label">Apellido</label>
+            <div class="field-wrap" [class.has-error]="submitted && f['lastName'].errors">
+              <i class="mdi mdi-account-outline field-icon"></i>
+              <input
+                type="text"
+                id="lastName"
+                class="field-input"
+                formControlName="lastName"
+                placeholder="Apellido(s)"
+                autocomplete="family-name"
+              />
             </div>
+            @if (submitted && f['lastName'].errors) {
+              <span class="field-error">Requerido (mín. 2 caracteres)</span>
+            }
+          </div>
+        </div>
 
-            <!-- Facultad -->
-            <div class="form-group mb-3">
-              <label for="facultyId" class="form-label">Selecciona tu Facultad</label>
-              <select
-                class="form-select"
-                id="facultyId"
-                formControlName="facultyId"
-                [ngClass]="{ 'is-invalid': submitted && f['facultyId'].errors }"
-              >
-                <option value="">Selecciona tu facultad</option>
-                <option *ngFor="let faculty of faculties" [value]="faculty.id">
-                  {{ faculty.name }}
-                </option>
-              </select>
-              @if (submitted && f["facultyId"].errors) {
-                <div class="invalid-feedback d-block">
-                  @if (f["facultyId"].errors["required"]) {
-                    Debes seleccionar una facultad
-                  }
-                </div>
-              }
-            </div>
+        <!-- Correo personal -->
+        <div class="field-group">
+          <label for="email" class="field-label">Correo Personal</label>
+          <div class="field-wrap" [class.has-error]="submitted && f['email'].errors">
+            <i class="mdi mdi-email-outline field-icon"></i>
+            <input
+              type="email"
+              id="email"
+              class="field-input"
+              formControlName="email"
+              placeholder="correo@ejemplo.com"
+              autocomplete="email"
+            />
+          </div>
+          @if (submitted && f['email'].errors) {
+            <span class="field-error">
+              @if (f['email'].errors['required']) { El correo es requerido }
+              @if (f['email'].errors['email']) { Ingresa un correo válido }
+            </span>
+          }
+        </div>
 
-            <!-- Términos -->
-            <div class="form-group d-flex mb-3">
-              <div class="form-check">
-                <input
-                  type="checkbox"
-                  class="form-check-input"
-                  id="checkbox-terms"
-                  [(ngModel)]="acceptTerms"
-                  [ngModelOptions]="{ standalone: true }"
-                />
-                <label class="form-check-label fs-14" for="checkbox-terms">
-                  Al registrarte, aceptas nuestras Condiciones, la Política de privacidad y la Política de cookies.
-                </label>
-              </div>
-            </div>
+        <!-- Correo institucional -->
+        <div class="field-group">
+          <label for="institutionalEmail" class="field-label">
+            Correo Institucional
+            <span class="field-hint">Autocompletado o escríbelo manualmente</span>
+          </label>
+          <div class="field-wrap" [class.has-error]="submitted && f['institutionalEmail'].errors">
+            <i class="mdi mdi-school-outline field-icon"></i>
+            <input
+              type="email"
+              id="institutionalEmail"
+              class="field-input"
+              formControlName="institutionalEmail"
+              placeholder="eXXXXXXXXXX@live.uleam.edu.ec"
+              autocomplete="off"
+            />
+          </div>
+          @if (submitted && f['institutionalEmail'].errors) {
+            <span class="field-error">
+              @if (f['institutionalEmail'].errors['required']) { Requerido }
+              @if (f['institutionalEmail'].errors['email']) { Ingresa un correo válido }
+            </span>
+          }
+        </div>
 
-            <!-- Botón Enviar -->
-            <div class="d-grid">
-              <button
-                class="btn btn-primary fw-medium"
-                type="submit"
-                [disabled]="loading"
-              >
-                @if (loading) {
-                  <span
-                    class="spinner-border spinner-border-sm me-2"
-                    role="status"
-                  ></span>
-                  Registrando...
-                } @else {
-                  Registrarte
-                }
+        <!-- Contraseñas -->
+        <div class="field-row">
+          <div class="field-group">
+            <label for="password" class="field-label">Contraseña</label>
+            <div class="field-wrap" [class.has-error]="submitted && f['password'].errors">
+              <i class="mdi mdi-lock-outline field-icon"></i>
+              <input
+                [type]="showPassword ? 'text' : 'password'"
+                id="password"
+                class="field-input"
+                formControlName="password"
+                placeholder="Mín. 6 caracteres"
+                autocomplete="new-password"
+              />
+              <button type="button" class="toggle-pass" (click)="togglePassword()" tabindex="-1">
+                <i class="mdi" [class.mdi-eye-outline]="!showPassword" [class.mdi-eye-off-outline]="showPassword"></i>
               </button>
             </div>
-
-            <!-- Enlace login -->
-            <div class="text-center mt-3">
-              <p class="text-muted mb-0 fs-14">
-                ¿Ya tienes una cuenta?
-                <a
-                  class="text-primary ms-2 fw-medium"
-                  routerLink="/auth/login"
-                >Inicia sesión aquí</a>
-              </p>
+            @if (submitted && f['password'].errors) {
+              <span class="field-error">
+                @if (f['password'].errors['required']) { Requerida }
+                @if (f['password'].errors['minlength']) { Mín. 6 caracteres }
+              </span>
+            }
+          </div>
+          <div class="field-group">
+            <label for="confirmPassword" class="field-label">Repetir contraseña</label>
+            <div class="field-wrap" [class.has-error]="submitted && f['confirmPassword'].errors">
+              <i class="mdi mdi-lock-check-outline field-icon"></i>
+              <input
+                [type]="showConfirmPassword ? 'text' : 'password'"
+                id="confirmPassword"
+                class="field-input"
+                formControlName="confirmPassword"
+                placeholder="Repetir contraseña"
+                autocomplete="new-password"
+              />
+              <button type="button" class="toggle-pass" (click)="toggleConfirmPassword()" tabindex="-1">
+                <i class="mdi" [class.mdi-eye-outline]="!showConfirmPassword" [class.mdi-eye-off-outline]="showConfirmPassword"></i>
+              </button>
             </div>
-          </form>
+            @if (submitted && f['confirmPassword'].errors) {
+              <span class="field-error">
+                @if (f['confirmPassword'].errors['required']) { Requerida }
+              </span>
+            }
+          </div>
         </div>
-      </div>
+
+        <!-- Teléfono -->
+        <div class="field-group">
+          <label for="phone" class="field-label">Número de Teléfono</label>
+          <div class="field-wrap" [class.has-error]="submitted && f['phone'].errors">
+            <i class="mdi mdi-phone-outline field-icon"></i>
+            <input
+              type="tel"
+              id="phone"
+              class="field-input"
+              formControlName="phone"
+              placeholder="Ej: 0991234567"
+              autocomplete="tel"
+            />
+          </div>
+          @if (submitted && f['phone'].errors) {
+            <span class="field-error">
+              @if (f['phone'].errors['required']) { El teléfono es requerido }
+              @if (f['phone'].errors['pattern']) { Ingresa solo números (7–15 dígitos) }
+            </span>
+          }
+        </div>
+
+        <!-- Extensión -->
+        <div class="field-group">
+          <label for="universityId" class="field-label">Extensión universitaria</label>
+          <div class="field-wrap select-wrap" [class.has-error]="submitted && f['universityId'].errors">
+            <i class="mdi mdi-map-marker-outline field-icon"></i>
+            <select
+              id="universityId"
+              class="field-input field-select"
+              formControlName="universityId"
+              (change)="onExtensionChange()"
+            >
+              <option value="">Selecciona una extensión</option>
+              <option *ngFor="let uni of universities" [value]="uni.id">
+                {{ uni.name }}
+              </option>
+            </select>
+            <i class="mdi mdi-chevron-down select-arrow"></i>
+          </div>
+          @if (submitted && f['universityId'].errors) {
+            <span class="field-error">Selecciona una extensión</span>
+          }
+        </div>
+
+        <!-- Facultad -->
+        <div class="field-group">
+          <label for="facultyId" class="field-label">Facultad</label>
+          <div class="field-wrap select-wrap" [class.has-error]="submitted && f['facultyId'].errors">
+            <i class="mdi mdi-domain field-icon"></i>
+            <select
+              id="facultyId"
+              class="field-input field-select"
+              formControlName="facultyId"
+              (change)="onFacultyChange()"
+              [attr.disabled]="!f['universityId'].value ? true : null"
+            >
+              <option value="">{{ f['universityId'].value ? 'Selecciona una facultad' : 'Selecciona primero una extensión' }}</option>
+              <option *ngFor="let faculty of filteredFaculties" [value]="faculty.id">
+                {{ faculty.name }}
+              </option>
+            </select>
+            <i class="mdi mdi-chevron-down select-arrow"></i>
+          </div>
+          @if (submitted && f['facultyId'].errors) {
+            <span class="field-error">Selecciona una facultad</span>
+          }
+        </div>
+
+        <!-- Carrera -->
+        <div class="field-group">
+          <label for="careerId" class="field-label">Carrera</label>
+          <div class="field-wrap select-wrap" [class.has-error]="submitted && f['careerId'].errors">
+            <i class="mdi mdi-school-outline field-icon"></i>
+            <select
+              id="careerId"
+              class="field-input field-select"
+              formControlName="careerId"
+              [attr.disabled]="!f['facultyId'].value ? true : null"
+            >
+              <option value="">{{ f['facultyId'].value ? 'Selecciona una carrera' : 'Selecciona primero una facultad' }}</option>
+              <option *ngFor="let career of careers" [value]="career.id">
+                {{ career.name }}
+              </option>
+            </select>
+            <i class="mdi mdi-chevron-down select-arrow"></i>
+          </div>
+          @if (submitted && f['careerId'].errors) {
+            <span class="field-error">Selecciona una carrera</span>
+          }
+        </div>
+
+        <button type="submit" class="btn-submit" [disabled]="registerForm.invalid || loading">
+          @if (loading) {
+            <span class="spinner"></span>
+            Creando cuenta...
+          } @else {
+            Crear cuenta
+          }
+        </button>
+
+        <p class="form-footer">
+          ¿Ya tienes una cuenta?
+          <a routerLink="/auth/login">Inicia sesión</a>
+        </p>
+
+      </form>
     </div>
   </div>
+
 </div>

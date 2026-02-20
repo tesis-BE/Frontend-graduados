@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CareerService, Career } from '@core/services/api/career.service';
 import { FacultyService, Faculty } from '@core/services/api/faculty.service';
+import { UniversitiesApiService } from '@core/services/api/universities-api.service';
+import { University } from '@core/interfaces/api/university.interface';
 import { SweetAlertService } from '@shared/services/sweet-alert.service';
 
 @Component({
@@ -15,6 +17,8 @@ import { SweetAlertService } from '@shared/services/sweet-alert.service';
 export class CareersPageComponent implements OnInit {
   careers = signal<Career[]>([]);
   faculties = signal<Faculty[]>([]);
+  filteredFaculties = signal<Faculty[]>([]);
+  universities = signal<University[]>([]);
   isLoading = signal(false);
   showModal = signal(false);
   editingCareer = signal<Career | null>(null);
@@ -22,6 +26,7 @@ export class CareersPageComponent implements OnInit {
   formData = {
     name: '',
     description: '',
+    universityId: 0,
     facultyId: 0,
     isActive: true,
   };
@@ -29,12 +34,33 @@ export class CareersPageComponent implements OnInit {
   constructor(
     private careerService: CareerService,
     private facultyService: FacultyService,
+    private universitiesApi: UniversitiesApiService,
     private sweetAlert: SweetAlertService
   ) {}
 
   ngOnInit(): void {
     this.loadCareers();
-    this.loadFaculties();
+    this.loadUniversities();
+  }
+
+  loadUniversities(): void {
+    this.universitiesApi.findAll().subscribe({
+      next: (data) => this.universities.set(data || []),
+      error: () => this.universities.set([]),
+    });
+  }
+
+  onExtensionChange(): void {
+    this.formData.facultyId = 0;
+    this.filteredFaculties.set([]);
+    if (!this.formData.universityId) return;
+    this.facultyService.getByUniversity(this.formData.universityId).subscribe({
+      next: (data: any) => {
+        const list = Array.isArray(data) ? data : (data?.data ?? []);
+        this.filteredFaculties.set(list);
+      },
+      error: () => this.filteredFaculties.set([]),
+    });
   }
 
   loadCareers(): void {
@@ -54,24 +80,13 @@ export class CareersPageComponent implements OnInit {
     });
   }
 
-  loadFaculties(): void {
-    this.facultyService.getAll({ pageSize: 100 }).subscribe({
-      next: (response: any) => {
-        if (response && response.data) {
-          this.faculties.set(response.data);
-        }
-      },
-      error: (error) => {
-        console.error('Error cargando facultades:', error);
-      },
-    });
-  }
-
-  openCreateModal(): void {
+openCreateModal(): void {
     this.editingCareer.set(null);
+    this.filteredFaculties.set([]);
     this.formData = {
       name: '',
       description: '',
+      universityId: 0,
       facultyId: 0,
       isActive: true,
     };
@@ -80,12 +95,26 @@ export class CareersPageComponent implements OnInit {
 
   openEditModal(career: Career): void {
     this.editingCareer.set(career);
+    const universityId = career.faculty?.university?.id ?? 0;
     this.formData = {
       name: career.name,
       description: career.description || '',
+      universityId,
       facultyId: career.facultyId,
       isActive: career.isActive,
     };
+    // Cargar facultades de esa extensión para que el select de facultad funcione al editar
+    if (universityId) {
+      this.facultyService.getByUniversity(universityId).subscribe({
+        next: (data: any) => {
+          const list = Array.isArray(data) ? data : (data?.data ?? []);
+          this.filteredFaculties.set(list);
+        },
+        error: () => this.filteredFaculties.set([]),
+      });
+    } else {
+      this.filteredFaculties.set([]);
+    }
     this.showModal.set(true);
   }
 
@@ -95,13 +124,16 @@ export class CareersPageComponent implements OnInit {
   }
 
   onSubmit(): void {
+    if (!this.formData.universityId) {
+      this.sweetAlert.error('Error', 'Debes seleccionar una extensión');
+      return;
+    }
     if (!this.formData.facultyId) {
       this.sweetAlert.error('Error', 'Debes seleccionar una facultad');
       return;
     }
 
     const editing = this.editingCareer();
-    
     if (editing) {
       this.updateCareer(editing.id);
     } else {
@@ -110,7 +142,8 @@ export class CareersPageComponent implements OnInit {
   }
 
   createCareer(): void {
-    this.careerService.create(this.formData).subscribe({
+    const { universityId, ...payload } = this.formData;
+    this.careerService.create(payload).subscribe({
       next: () => {
         this.sweetAlert.success('Éxito', 'Carrera creada correctamente');
         this.loadCareers();
@@ -124,7 +157,8 @@ export class CareersPageComponent implements OnInit {
   }
 
   updateCareer(id: number): void {
-    this.careerService.update(id, this.formData).subscribe({
+    const { universityId, ...payload } = this.formData;
+    this.careerService.update(id, payload).subscribe({
       next: () => {
         this.sweetAlert.success('Éxito', 'Carrera actualizada correctamente');
         this.loadCareers();

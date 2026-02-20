@@ -5,15 +5,16 @@
     background-image: url(../../../images/person.jpg);
 }
 .account-page {
-    align-items: center;
+    align-items: stretch;
     display: flex;
-    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
     .account-page-bg{
         // background: linear-gradient(135deg, $primary 0, #06162E 100%);
         background-image: url(../../../images/principal-login.jpg);
         background-size: cover;
         background-position: center center;
-        min-height: 890px;
+        height: 100%;
         display: flex;
         justify-content: center;
         .auth-image {
