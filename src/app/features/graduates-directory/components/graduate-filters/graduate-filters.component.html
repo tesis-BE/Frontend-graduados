@@ -1,10 +1,12 @@
 <div class="filters-bar">
+
+  <!-- Búsqueda -->
   <div class="filter-search">
     <i class="mdi mdi-magnify filter-search__icon"></i>
     <input
       class="filter-search__input"
       type="text"
-      placeholder="Buscar por nombre o email..."
+      placeholder="Nombre, correo o habilidad..."
       [(ngModel)]="search"
       (input)="onSearchInput()"
     />
@@ -15,6 +17,7 @@
     }
   </div>
 
+  <!-- Disponibilidad -->
   <div class="filter-group">
     <label class="filter-group__label" for="availability-select">
       <i class="mdi mdi-circle-medium"></i>
@@ -31,4 +34,74 @@
       <option value="false">No disponibles</option>
     </select>
   </div>
+
+  <!-- Facultad -->
+  <div class="filter-group">
+    <label class="filter-group__label" for="faculty-select">
+      <i class="mdi mdi-school-outline"></i>
+      Facultad
+    </label>
+    <select
+      id="faculty-select"
+      class="filter-group__select"
+      [(ngModel)]="facultyId"
+      (change)="onFacultyChange()"
+      [disabled]="loadingFaculties"
+    >
+      <option value="">Todas</option>
+      @for (faculty of faculties; track faculty.id) {
+        <option [value]="faculty.id">{{ faculty.name }}</option>
+      }
+    </select>
+  </div>
+
+  <!-- Carrera (dependiente de facultad) -->
+  <div class="filter-group">
+    <label class="filter-group__label" for="career-select">
+      <i class="mdi mdi-book-open-outline"></i>
+      Carrera
+    </label>
+    <select
+      id="career-select"
+      class="filter-group__select"
+      [(ngModel)]="careerId"
+      (change)="onCareerChange()"
+      [disabled]="!facultyId || loadingCareers"
+    >
+      <option value="">
+        @if (!facultyId) { Selecciona facultad } @else if (loadingCareers) { Cargando... } @else { Todas }
+      </option>
+      @for (career of careers; track career.id) {
+        <option [value]="career.id">{{ career.name }}</option>
+      }
+    </select>
+  </div>
+
+  <!-- Año de graduación -->
+  <div class="filter-group">
+    <label class="filter-group__label" for="year-select">
+      <i class="mdi mdi-calendar-check-outline"></i>
+      Año de graduación
+    </label>
+    <select
+      id="year-select"
+      class="filter-group__select"
+      [(ngModel)]="graduationYear"
+      (change)="onGraduationYearChange()"
+    >
+      <option value="">Todos</option>
+      @for (yr of graduationYears; track yr) {
+        <option [value]="yr">{{ yr }}</option>
+      }
+    </select>
+  </div>
+
+  <!-- Limpiar filtros -->
+  @if (hasActiveFilters) {
+    <button class="filter-clear-btn" (click)="clearAll()" title="Limpiar todos los filtros">
+      <i class="mdi mdi-filter-off-outline"></i>
+      Limpiar
+    </button>
+  }
+
 </div>

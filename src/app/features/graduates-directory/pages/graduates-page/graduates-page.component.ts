@@ -106,6 +106,9 @@ export class GraduatesPageComponent implements OnInit {
         pageSize: this.pageSize,
         search: this.activeFilters.search || undefined,
         availableForWork,
+        facultyId: this.activeFilters.facultyId || undefined,
+        careerId: this.activeFilters.careerId || undefined,
+        graduationYear: this.activeFilters.graduationYear || undefined,
       })
       .subscribe({
         next: (response) => {

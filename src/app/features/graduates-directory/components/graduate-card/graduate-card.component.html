@@ -17,10 +17,12 @@
       <h3 class="identity__name">{{ graduate.firstName }} {{ graduate.lastName }}</h3>
       @if (graduate.careerName) {
         <p class="identity__career">{{ graduate.careerName }}</p>
+      } @else {
+        <p class="identity__career identity__career--empty">Sin carrera registrada</p>
       }
       @if (graduate.facultyName) {
         <p class="identity__faculty">
-          <i class="mdi mdi-office-building"></i>
+          <i class="mdi mdi-school-outline"></i>
           {{ graduate.facultyName }}
         </p>
       }
@@ -34,8 +36,30 @@
     }
   </div>
 
+  <!-- Info row: email, teléfono, año de graduación -->
+  <div class="info-row">
+    <span class="info-item" [title]="graduate.email">
+      <i class="mdi mdi-email-outline"></i>
+      {{ graduate.email }}
+    </span>
+    @if (graduate.phone) {
+      <span class="info-item">
+        <i class="mdi mdi-phone-outline"></i>
+        {{ graduate.phone }}
+      </span>
+    }
+    @if (graduate.graduationYear) {
+      <span class="info-item">
+        <i class="mdi mdi-calendar-check-outline"></i>
+        Graduado {{ graduate.graduationYear }}
+      </span>
+    }
+  </div>
+
   @if (graduate.bio) {
     <p class="bio">{{ graduate.bio }}</p>
+  } @else {
+    <p class="bio bio--empty">Sin descripción profesional</p>
   }
 
   @if (graduate.skills && graduate.skills.length > 0) {
@@ -46,6 +70,10 @@
       @if (graduate.skills.length > 4) {
         <span class="skill skill--more">+{{ graduate.skills.length - 4 }}</span>
       }
+    </div>
+  } @else {
+    <div class="skills-row">
+      <span class="skill skill--empty">Sin habilidades registradas</span>
     </div>
   }
 
@@ -60,6 +88,11 @@
       @if (graduate.workExperiences[0].isCurrent) {
         <span class="badge-current">Actual</span>
       }
+    </div>
+  } @else {
+    <div class="experience-row experience-row--empty">
+      <i class="mdi mdi-briefcase-outline"></i>
+      <span class="experience-row__text">Sin experiencia registrada</span>
     </div>
   }
 

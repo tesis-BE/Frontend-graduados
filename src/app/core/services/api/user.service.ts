@@ -91,6 +91,7 @@ export class UserService {
     search?: string;
     facultyId?: number;
     careerId?: number;
+    graduationYear?: number;
     availableForWork?: boolean;
   }): Observable<any> {
     let httpParams = new HttpParams();
@@ -103,6 +104,8 @@ export class UserService {
       httpParams = httpParams.set('facultyId', params.facultyId.toString());
     if (params?.careerId)
       httpParams = httpParams.set('careerId', params.careerId.toString());
+    if (params?.graduationYear)
+      httpParams = httpParams.set('graduationYear', params.graduationYear.toString());
     if (params?.availableForWork !== undefined)
       httpParams = httpParams.set('availableForWork', params.availableForWork.toString());
 
@@ -137,7 +140,7 @@ export class UserService {
               photoUrl,
               cvUrl,
               facultyName: graduate.faculty?.name || graduate.facultyName || null,
-              careerName: graduate.educations?.[0]?.fieldOfStudy || graduate.careerName || null,
+              careerName: graduate.career?.name || graduate.careerName || graduate.educations?.[0]?.fieldOfStudy || null,
               graduationYear: graduate.educations?.[0]?.graduationYear || graduate.graduationYear || null,
               skills: graduate.skills?.map((skill: any) => ({
                 id: skill.id,
