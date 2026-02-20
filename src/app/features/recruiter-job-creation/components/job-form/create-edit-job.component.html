@@ -1,246 +1,334 @@
-<div class="container-fluid py-4">
-  <div class="row mb-4">
-    <div class="col-12">
-      <div class="card border-0 shadow-sm">
-        <div class="card-header bg-white border-bottom">
-          <h4 class="mb-0">
-            {{ isEditMode ? 'Editar Oferta de Trabajo' : 'Crear Nueva Oferta de Trabajo' }}
-          </h4>
+<div class="job-form-wrapper py-4">
+  <div class="container-fluid">
+
+    <!-- Cabecera de página -->
+    <div class="page-header mb-4">
+      <div class="d-flex align-items-center gap-2 mb-1">
+        <button type="button" class="btn btn-link btn-back p-0" (click)="onCancel()" title="Volver">
+          <i class="mdi mdi-arrow-left fs-5"></i>
+        </button>
+        <h4 class="mb-0 page-title">
+          {{ isEditMode ? 'Editar oferta' : 'Nueva oferta de trabajo' }}
+        </h4>
+      </div>
+      <p class="text-secondary mb-0 page-subtitle">
+        {{ isEditMode
+            ? 'Modifica los datos de la oferta. Los cambios se aplican de inmediato.'
+            : 'Completa al menos el título, descripción y fecha límite para guardar como borrador.' }}
+      </p>
+    </div>
+
+    @if (isLoading && isEditMode) {
+      <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+        <p class="text-secondary mt-3">Cargando datos de la oferta...</p>
+      </div>
+    } @else {
+      <form [formGroup]="jobForm" (ngSubmit)="onSubmit()" novalidate>
+
+        <!-- ── Sección 1: Información básica ── -->
+        <div class="form-section card border-0 shadow-sm mb-4">
+          <div class="card-header section-header">
+            <div class="section-icon">
+              <i class="mdi mdi-briefcase-outline"></i>
+            </div>
+            <div>
+              <h6 class="mb-0 section-title">Información básica</h6>
+              <small class="text-secondary">Campos requeridos para publicar la oferta</small>
+            </div>
+          </div>
+          <div class="card-body pt-3">
+            <div class="row g-3">
+
+              <!-- Título -->
+              <div class="col-12">
+                <label for="title" class="form-label fw-semibold required-label">
+                  Título del puesto
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="title"
+                  formControlName="title"
+                  placeholder="Ej: Desarrollador Full Stack · Analista de Datos · Diseñador UX"
+                  maxlength="120"
+                  [class.is-invalid]="submitted && f['title'].invalid"
+                />
+                <div class="d-flex justify-content-between mt-1">
+                  @if (submitted && f['title'].invalid) {
+                    <span class="field-error">{{ f['title'].hasError('required') ? 'El título es obligatorio.' : 'Mínimo 3 caracteres.' }}</span>
+                  } @else {
+                    <span></span>
+                  }
+                  <small class="text-secondary char-count">{{ f['title'].value?.length || 0 }}/120</small>
+                </div>
+              </div>
+
+              <!-- Descripción -->
+              <div class="col-12">
+                <label for="description" class="form-label fw-semibold required-label">
+                  Descripción del puesto
+                </label>
+                <textarea
+                  class="form-control"
+                  id="description"
+                  formControlName="description"
+                  rows="6"
+                  placeholder="Describe las responsabilidades principales, el equipo de trabajo y los objetivos del rol."
+                  maxlength="3000"
+                  [class.is-invalid]="submitted && f['description'].invalid"
+                ></textarea>
+                <div class="d-flex justify-content-between mt-1">
+                  @if (submitted && f['description'].invalid) {
+                    <span class="field-error">{{ f['description'].hasError('required') ? 'La descripción es obligatoria.' : 'Describe el puesto con al menos 10 caracteres.' }}</span>
+                  } @else {
+                    <span></span>
+                  }
+                  <small class="text-secondary char-count">{{ f['description'].value?.length || 0 }}/3000</small>
+                </div>
+              </div>
+
+              <!-- Requisitos -->
+              <div class="col-12">
+                <label for="requirements" class="form-label fw-semibold">
+                  Requisitos
+                  <span class="badge-optional">Opcional</span>
+                </label>
+                <textarea
+                  class="form-control"
+                  id="requirements"
+                  formControlName="requirements"
+                  rows="4"
+                  placeholder="Ej: 2 años de experiencia en desarrollo web, manejo de Git, inglés intermedio…"
+                  maxlength="2000"
+                ></textarea>
+                <small class="text-secondary mt-1 d-block">{{ f['requirements'].value?.length || 0 }}/2000</small>
+              </div>
+
+            </div>
+          </div>
         </div>
 
-        <div class="card-body">
-          @if (isLoading) {
-            <div class="text-center py-5">
-              <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Cargando...</span>
-              </div>
+        <!-- ── Sección 2: Condiciones ── -->
+        <div class="form-section card border-0 shadow-sm mb-4">
+          <div class="card-header section-header">
+            <div class="section-icon">
+              <i class="mdi mdi-tune"></i>
             </div>
-          } @else {
-            <form [formGroup]="jobForm" (ngSubmit)="onSubmit()">
-              <div class="row">
-                <!-- Título -->
-                <div class="col-12 mb-3">
-                  <label for="title" class="form-label fw-semibold">
-                    Título del Puesto <span class="text-danger">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="title"
-                    formControlName="title"
-                    [class.is-invalid]="submitted && f['title'].invalid"
-                  />
-                  @if (submitted && f['title'].invalid) {
-                    <div class="invalid-feedback">
-                      El título es requerido
-                    </div>
+            <div>
+              <h6 class="mb-0 section-title">Condiciones del empleo</h6>
+              <small class="text-secondary">Todos opcionales, pero mejoran la calidad de postulaciones</small>
+            </div>
+          </div>
+          <div class="card-body pt-3">
+            <div class="row g-3">
+
+              <!-- Tipo de Empleo -->
+              <div class="col-sm-6">
+                <label for="jobType" class="form-label fw-semibold">
+                  Tipo de empleo
+                </label>
+                <select class="form-select" id="jobType" formControlName="jobType">
+                  @for (type of jobTypes; track type.value) {
+                    <option [value]="type.value">{{ type.label }}</option>
                   }
-                </div>
-
-                <!-- Descripción -->
-                <div class="col-12 mb-3">
-                  <label for="description" class="form-label fw-semibold">
-                    Descripción <span class="text-danger">*</span>
-                  </label>
-                  <textarea
-                    class="form-control"
-                    id="description"
-                    formControlName="description"
-                    rows="5"
-                    [class.is-invalid]="submitted && f['description'].invalid"
-                  ></textarea>
-                  @if (submitted && f['description'].invalid) {
-                    <div class="invalid-feedback">
-                      La descripción es requerida
-                    </div>
-                  }
-                </div>
-
-                <!-- Requisitos -->
-                <div class="col-12 mb-3">
-                  <label for="requirements" class="form-label fw-semibold">
-                    Requisitos
-                  </label>
-                  <textarea
-                    class="form-control"
-                    id="requirements"
-                    formControlName="requirements"
-                    rows="4"
-                  ></textarea>
-                </div>
-
-                <!-- Tipo de Empleo -->
-                <div class="col-md-6 mb-3">
-                  <label for="jobType" class="form-label fw-semibold">
-                    Tipo de Empleo
-                  </label>
-                  <select
-                    class="form-select"
-                    id="jobType"
-                    formControlName="jobType"
-                  >
-                    @for (type of jobTypes; track type.value) {
-                      <option [value]="type.value">{{ type.label }}</option>
-                    }
-                  </select>
-                </div>
-
-                <!-- Modalidad de Trabajo -->
-                <div class="col-md-6 mb-3">
-                  <label for="workMode" class="form-label fw-semibold">
-                    Modalidad
-                  </label>
-                  <select
-                    class="form-select"
-                    id="workMode"
-                    formControlName="workMode"
-                  >
-                    @for (mode of workModes; track mode.value) {
-                      <option [value]="mode.value">{{ mode.label }}</option>
-                    }
-                  </select>
-                </div>
-
-                <!-- Ubicación -->
-                <div class="col-md-6 mb-3">
-                  <label for="location" class="form-label fw-semibold">
-                    Ubicación
-                  </label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="location"
-                    formControlName="location"
-                    placeholder="Ej: Ciudad, País"
-                  />
-                </div>
-
-                <!-- Salario Mínimo -->
-                <div class="col-md-6 mb-3">
-                  <label for="salaryMin" class="form-label fw-semibold">
-                    Salario Mínimo
-                  </label>
-                  <input
-                    type="number"
-                    class="form-control"
-                    id="salaryMin"
-                    formControlName="salaryMin"
-                    placeholder="Ej: 1000"
-                  />
-                </div>
-
-                <!-- Salario Máximo -->
-                <div class="col-md-6 mb-3">
-                  <label for="salaryMax" class="form-label fw-semibold">
-                    Salario Máximo
-                  </label>
-                  <input
-                    type="number"
-                    class="form-control"
-                    id="salaryMax"
-                    formControlName="salaryMax"
-                    placeholder="Ej: 3000"
-                  />
-                </div>
-
-                <!-- Habilidades Requeridas -->
-                <div class="col-12 mb-3">
-                  <label for="skills" class="form-label fw-semibold">
-                    Habilidades Requeridas
-                  </label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="skills"
-                    formControlName="skills"
-                    placeholder="Ej: JavaScript, React, Angular (separadas por comas)"
-                  />
-                  <small class="text-muted">Ingresa las habilidades separadas por comas</small>
-                </div>
-
-                <!-- Fecha Límite -->
-                <div class="col-md-6 mb-3">
-                  <label for="deadline" class="form-label fw-semibold">
-                    Fecha Límite de Aplicación <span class="text-danger">*</span>
-                  </label>
-                  <input
-                    type="date"
-                    class="form-control"
-                    id="deadline"
-                    formControlName="deadline"
-                    [class.is-invalid]="submitted && f['deadline'].invalid"
-                  />
-                  @if (submitted && f['deadline'].invalid) {
-                    <div class="invalid-feedback">
-                      La fecha límite es requerida
-                    </div>
-                  }
-                </div>
+                </select>
               </div>
 
-              <!-- Estado de la Oferta -->
-              @if (isEditMode && jobStatus) {
-                <div class="row mb-4 mt-3">
-                  <div class="col-12">
-                    <div class="alert alert-info d-flex align-items-center gap-2 mb-0">
-                      <i class="mdi mdi-information"></i>
-                      <div>
-                        <strong>Estado: </strong>
-                        <span class="text-capitalize">{{ jobStatus }}</span>
-                        @if (jobStatus === 'borrador') {
-                          <em class="text-muted">(oferta no visible aún para graduados)</em>
-                        } @else if (jobStatus === 'publicado') {
-                          <em class="text-success">(oferta visible para graduados)</em>
-                        }
-                      </div>
-                    </div>
+              <!-- Modalidad -->
+              <div class="col-sm-6">
+                <label for="workMode" class="form-label fw-semibold">
+                  Modalidad
+                </label>
+                <select class="form-select" id="workMode" formControlName="workMode">
+                  @for (mode of workModes; track mode.value) {
+                    <option [value]="mode.value">{{ mode.label }}</option>
+                  }
+                </select>
+              </div>
+
+              <!-- Ubicación -->
+              <div class="col-sm-6">
+                <label for="location" class="form-label fw-semibold">
+                  Ubicación
+                  <span class="badge-optional">Opcional</span>
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="location"
+                  formControlName="location"
+                  placeholder="Ej: Quito, Ecuador · Remoto · Guayaquil"
+                />
+              </div>
+
+              <!-- Fecha Límite -->
+              <div class="col-sm-6">
+                <label for="deadline" class="form-label fw-semibold">
+                  Fecha límite de aplicación
+                  <span class="badge-optional">Opcional al guardar</span>
+                </label>
+                <input
+                  type="date"
+                  class="form-control"
+                  id="deadline"
+                  formControlName="deadline"
+                  [min]="minDate"
+                />
+                <small class="text-secondary mt-1 d-block">Requerida para publicar la oferta.</small>
+              </div>
+
+              <!-- Rango Salarial -->
+              <div class="col-12">
+                <label class="form-label fw-semibold">
+                  Rango salarial (USD/mes)
+                  <span class="badge-optional">Opcional</span>
+                </label>
+                <div class="salary-range-row">
+                  <div class="flex-fill">
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="salaryMin"
+                      formControlName="salaryMin"
+                      min="0"
+                      step="50"
+                      placeholder="Mínimo"
+                    />
+                  </div>
+                  <span class="salary-separator text-secondary">—</span>
+                  <div class="flex-fill">
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="salaryMax"
+                      formControlName="salaryMax"
+                      min="0"
+                      step="50"
+                      placeholder="Máximo"
+                    />
                   </div>
                 </div>
-              }
-
-              <!-- Botones -->
-              <div class="row mt-4">
-                <div class="col-12 d-flex gap-2 justify-content-end">
-                  <button
-                    type="button"
-                    class="btn btn-outline-secondary"
-                    (click)="onCancel()"
-                  >
-                    Cancelar
-                  </button>
-                  @if (isEditMode && jobStatus === 'borrador') {
-                    <button
-                      type="button"
-                      class="btn btn-success"
-                      (click)="publishOffer()"
-                      [disabled]="isLoading"
-                    >
-                      @if (isLoading) {
-                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                        Publicando...
-                      } @else {
-                        <i class="mdi mdi-send me-2"></i> Publicar Oferta
-                      }
-                    </button>
-                  }
-                  <button
-                    type="submit"
-                    class="btn btn-primary"
-                    [disabled]="isLoading || jobForm.invalid"
-                  >
-                    @if (isLoading) {
-                      <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                      Guardando...
-                    } @else {
-                      {{ isEditMode ? 'Actualizar' : 'Crear' }} Oferta
-                    }
-                  </button>
-                </div>
+                <small class="text-secondary mt-1 d-block">Publicar el salario incrementa hasta un 40% las postulaciones.</small>
               </div>
-            </form>
+
+              <!-- Habilidades -->
+              <div class="col-12">
+                <label for="skills" class="form-label fw-semibold">
+                  Habilidades requeridas
+                  <span class="badge-optional">Opcional</span>
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="skills"
+                  formControlName="skills"
+                  placeholder="Ej: JavaScript, Angular, SQL, Git, Trabajo en equipo"
+                />
+                <small class="text-secondary mt-1 d-block">Separa cada habilidad con una coma.</small>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Estado (solo edit mode) ── -->
+        @if (isEditMode && jobStatus) {
+          <div class="status-banner mb-4 d-flex align-items-center gap-3"
+               [class.status-draft]="jobStatus === 'borrador'"
+               [class.status-published]="jobStatus === 'publicado'">
+            <i class="mdi" [class.mdi-pencil-outline]="jobStatus === 'borrador'" [class.mdi-check-circle-outline]="jobStatus === 'publicado'" style="font-size:1.4rem"></i>
+            <div>
+              <strong class="d-block">
+                {{ jobStatus === 'borrador' ? 'Borrador' : 'Publicada' }}
+              </strong>
+              <small>
+                {{ jobStatus === 'borrador'
+                    ? 'Esta oferta no es visible para graduados. Guarda y usa "Publicar" para activarla.'
+                    : 'Esta oferta está activa y recibiendo postulaciones.' }}
+              </small>
+            </div>
+          </div>
+        }
+
+        <!-- ── Barra de acciones ── -->
+        <div class="actions-bar d-flex flex-wrap gap-2 justify-content-end">
+          <button type="button" class="btn btn-outline-secondary" (click)="onCancel()">
+            <i class="mdi mdi-close me-1"></i>Cancelar
+          </button>
+
+          @if (!isEditMode) {
+            <!-- Modo CREAR: dos opciones -->
+            <button
+              type="submit"
+              class="btn btn-outline-primary"
+              [disabled]="isLoading"
+              title="Guarda la oferta sin publicar; podrás publicarla después"
+            >
+              @if (isLoading && !isPublishingNow) {
+                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Guardando...
+              } @else {
+                <i class="mdi mdi-content-save me-1"></i>Guardar como borrador
+              }
+            </button>
+            <button
+              type="button"
+              class="btn btn-success btn-save"
+              [disabled]="isLoading"
+              (click)="onSaveAndPublish()"
+              title="Crea la oferta y la publica de inmediato (requiere fecha límite)"
+            >
+              @if (isLoading && isPublishingNow) {
+                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Publicando...
+              } @else {
+                <i class="mdi mdi-send me-1"></i>Crear y publicar
+              }
+            </button>
+          } @else {
+            <!-- Modo EDITAR: según estado -->
+            @if (jobStatus === 'borrador') {
+              <button
+                type="button"
+                class="btn btn-outline-success"
+                (click)="publishOffer()"
+                [disabled]="isLoading"
+                title="Publica la oferta para que sea visible a los graduados"
+              >
+                @if (isLoading) {
+                  <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Publicando...
+                } @else {
+                  <i class="mdi mdi-send me-1"></i>Publicar oferta
+                }
+              </button>
+            }
+            @if (jobStatus === 'publicado' || jobStatus === 'published') {
+              <button
+                type="button"
+                class="btn btn-outline-warning"
+                (click)="revertToDraft()"
+                [disabled]="isLoading"
+                title="Vuelve la oferta a borrador; ya no será visible para graduados"
+              >
+                <i class="mdi mdi-archive-arrow-down me-1"></i>Volver a borrador
+              </button>
+            }
+            <button
+              type="submit"
+              class="btn btn-primary btn-save"
+              [disabled]="isLoading"
+            >
+              @if (isLoading) {
+                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Guardando...
+              } @else {
+                <i class="mdi mdi-content-save me-1"></i>Guardar cambios
+              }
+            </button>
           }
         </div>
-      </div>
-    </div>
+
+      </form>
+    }
   </div>
 </div>

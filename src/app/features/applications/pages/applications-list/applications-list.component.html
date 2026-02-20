@@ -25,146 +25,27 @@
   </div>
 </div>
 
-<div *ngIf="isRecruiterOrAdmin" class="card mb-3">
-  <div class="card-header">
-    <h5 class="card-title mb-0">Crear postulación</h5>
+<div *ngIf="isRecruiterOrAdmin && isScopedToJob" class="alert alert-primary d-flex align-items-center justify-content-between mb-3">
+  <div>
+    <strong>Viendo postulantes por oferta:</strong>
+    <span class="ms-1">{{ scopedJobTitle }}</span>
   </div>
-  <div class="card-body">
-    <form class="row g-3" [formGroup]="form" (ngSubmit)="onSubmit()">
-      <div class="col-12 col-md-6">
-        <label class="form-label">Oferta</label>
-        <select
-          class="form-select"
-          formControlName="jobId"
-          (focus)="loadJobs()"
-        >
-          <option value="">Selecciona una oferta</option>
-          <option *ngFor="let job of jobOptions" [value]="job.value">
-            {{ job.label }}
-          </option>
-        </select>
-      </div>
-
-      <div class="col-12 col-md-6">
-        <label class="form-label">Candidato</label>
-        <input
-          #candidateSearch
-          type="search"
-          class="form-control mb-2"
-          placeholder="Buscar graduado..."
-          (input)="onCandidateSearch(candidateSearch.value)"
-          [disabled]="loadingCandidates"
-        />
-        <select
-          class="form-select"
-          formControlName="userId"
-          [disabled]="loadingCandidates || candidateOptions.length === 0"
-        >
-          <option value="">Selecciona un candidato</option>
-          <option
-            *ngFor="let candidate of candidateOptions"
-            [value]="candidate.value"
-          >
-            {{ candidate.label }}
-          </option>
-        </select>
-      </div>
-
-      <div class="col-12 col-md-6" *ngIf="selectedCandidate">
-        <label class="form-label">Email del candidato</label>
-        <input
-          class="form-control"
-          [value]="selectedCandidate?.email || '-'"
-          readonly
-        />
-      </div>
-
-      <div class="col-12 col-md-6" *ngIf="selectedCandidate">
-        <label class="form-label">Teléfono</label>
-        <input
-          class="form-control"
-          [value]="selectedCandidate?.phone || '-'"
-          readonly
-        />
-      </div>
-
-      <div class="col-12 col-md-6" *ngIf="selectedCandidate">
-        <label class="form-label">Facultad</label>
-        <input
-          class="form-control"
-          [value]="selectedCandidate?.facultyName || '-'"
-          readonly
-        />
-      </div>
-
-      <div class="col-12 col-md-6" *ngIf="selectedCandidate">
-        <label class="form-label">Carrera</label>
-        <input
-          class="form-control"
-          [value]="selectedCandidate?.careerName || '-'"
-          readonly
-        />
-      </div>
-
-      <div class="col-12 col-md-6" *ngIf="selectedJob">
-        <label class="form-label">Ubicación de la oferta</label>
-        <input
-          class="form-control"
-          [value]="selectedJob?.location || '-'"
-          readonly
-        />
-      </div>
-
-      <div class="col-12 col-md-6" *ngIf="selectedJob">
-        <label class="form-label">Modalidad</label>
-        <input
-          class="form-control"
-          [value]="selectedJob?.workMode || '-'"
-          readonly
-        />
-      </div>
-
-      <div class="col-12">
-        <label class="form-label">Carta de presentación (opcional)</label>
-        <textarea
-          rows="3"
-          maxlength="2000"
-          class="form-control"
-          formControlName="coverLetter"
-          placeholder="Contexto para el candidato..."
-        ></textarea>
-      </div>
-
-      <div class="col-12 d-flex gap-2 justify-content-end">
-        <button
-          type="submit"
-          class="btn btn-primary"
-          [disabled]="form.invalid || isSubmitting"
-        >
-          <i class="ti ti-plus me-1"></i>
-          {{ isSubmitting ? "Creando..." : "Crear postulación" }}
-        </button>
-        <button
-          type="button"
-          class="btn btn-secondary"
-          (click)="resetForm()"
-          [disabled]="isSubmitting"
-        >
-          Limpiar
-        </button>
-      </div>
-    </form>
-  </div>
+  <button type="button" class="btn btn-sm btn-outline-primary" (click)="clearScopedJob()">
+    Ver todas las ofertas
+  </button>
 </div>
 
 <div class="card overflow-hidden">
   <div class="card-header">
-    <h5 class="card-title mb-0">Listado de Postulaciones</h5>
+    <h5 class="card-title mb-0">
+      {{ isScopedToJob ? 'Postulantes de la oferta' : 'Listado de Postulaciones' }}
+    </h5>
   </div>
   <div class="card-body">
     <app-filter-panel
       [filters]="filterOptions"
       (filterChange)="onFilterChange($event)"
+      (resetFilters)="onResetFilters()"
     ></app-filter-panel>
 
     <!-- Vista de tabla para pantallas grandes -->

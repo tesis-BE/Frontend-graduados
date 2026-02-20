@@ -23,13 +23,6 @@ export const routes: Routes = [
           ),
       },
       {
-        path: 'job-board',
-        loadComponent: () =>
-          import(
-            './features/job-board-dashboard/job-board-dashboard.component'
-          ).then((m) => m.JobBoardDashboardComponent),
-      },
-      {
         path: 'companies',
         loadChildren: () =>
           import('./features/companies/companies.routes').then(
@@ -46,7 +39,7 @@ export const routes: Routes = [
       {
         path: 'job-offers',
         loadChildren: () =>
-          import('./features/job-offers/job-offers.routes').then(
+          import('./features/job-offers/routes/job-offers.routes').then(
             (m) => m.JOB_OFFERS_ROUTES,
           ),
       },

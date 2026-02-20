@@ -3,12 +3,16 @@ import {
   OnInit,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
+  inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { UserService, Graduate } from '@core/services/api/user.service';
 import { SweetAlertService } from '@shared/services/sweet-alert.service';
 import { ConversationService } from '@core/services/api/conversation.service';
+import { Store } from '@ngrx/store';
+import { selectAuthUser } from '@core/store/authentication/authentication.selector';
+import { take } from 'rxjs/operators';
 import {
   GraduateFiltersComponent,
   GraduateFilters,
@@ -31,6 +35,9 @@ export class GraduatesPageComponent implements OnInit {
   total = 0;
   totalPages = 0;
   activeFilters: GraduateFilters = {};
+  private currentUserId: number | null = null;
+
+  private readonly store = inject(Store);
 
   constructor(
     private userService: UserService,
@@ -41,6 +48,9 @@ export class GraduatesPageComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.store.select(selectAuthUser).pipe(take(1)).subscribe(user => {
+      this.currentUserId = user?.id ? Number(user.id) : null;
+    });
     this.loadGraduates();
   }
 
@@ -55,6 +65,11 @@ export class GraduatesPageComponent implements OnInit {
   }
 
   onOpenChat(graduateId: number): void {
+    if (this.currentUserId && this.currentUserId === graduateId) {
+      this.sweetAlert.warning('Acción inválida', 'No puedes iniciar un chat contigo mismo');
+      return;
+    }
+
     this.conversationService.findOrCreateDirect(graduateId).subscribe({
       next: (response: any) => {
         const conversation = response?.data;
@@ -63,10 +78,15 @@ export class GraduatesPageComponent implements OnInit {
             queryParams: { conversationId: conversation.id },
           });
         } else {
+          console.error('Respuesta inesperada del servidor:', response);
           this.sweetAlert.error('Error', 'No se pudo abrir la conversación');
         }
       },
-      error: () => this.sweetAlert.error('Error', 'No se pudo iniciar el chat'),
+      error: (err: any) => {
+        console.error('Error al iniciar chat:', err);
+        const msg = err?.error?.message || 'No se pudo iniciar el chat';
+        this.sweetAlert.error('Error', msg);
+      },
     });
   }
 
@@ -108,7 +128,6 @@ export class GraduatesPageComponent implements OnInit {
         availableForWork,
         facultyId: this.activeFilters.facultyId || undefined,
         careerId: this.activeFilters.careerId || undefined,
-        graduationYear: this.activeFilters.graduationYear || undefined,
       })
       .subscribe({
         next: (response) => {

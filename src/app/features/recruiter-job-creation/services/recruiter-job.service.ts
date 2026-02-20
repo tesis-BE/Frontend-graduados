@@ -55,6 +55,12 @@ export class RecruiterJobService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = `${environment.apiUrl}/jobs`;
 
+  private ensureValidJobId(jobId: number): void {
+    if (!Number.isFinite(jobId) || jobId <= 0) {
+      throw new Error('ID de oferta inválido');
+    }
+  }
+
   /**
    * Get all jobs created by the recruiter's company
    */
@@ -87,6 +93,7 @@ export class RecruiterJobService {
    * Get a single job by ID
    */
   getJobById(jobId: number): Observable<JobResponse> {
+    this.ensureValidJobId(jobId);
     return this.http.get<JobResponse>(`${this.apiUrl}/${jobId}`);
   }
 
@@ -94,6 +101,7 @@ export class RecruiterJobService {
    * Update a job offer
    */
   updateJob(jobId: number, jobData: Partial<JobCreateRequest>): Observable<JobResponse> {
+    this.ensureValidJobId(jobId);
     return this.http.put<JobResponse>(`${this.apiUrl}/${jobId}`, jobData);
   }
 
@@ -101,6 +109,7 @@ export class RecruiterJobService {
    * Delete a job offer
    */
   deleteJob(jobId: number): Observable<{ message: string }> {
+    this.ensureValidJobId(jobId);
     return this.http.delete<{ message: string }>(`${this.apiUrl}/${jobId}`);
   }
 
@@ -108,13 +117,23 @@ export class RecruiterJobService {
    * Publish a job offer
    */
   publishJob(jobId: number): Observable<JobResponse> {
+    this.ensureValidJobId(jobId);
     return this.http.patch<JobResponse>(`${this.apiUrl}/${jobId}/publish`, {});
+  }
+
+  /**
+   * Revert a published/closed job offer back to draft
+   */
+  revertToDraft(jobId: number): Observable<JobResponse> {
+    this.ensureValidJobId(jobId);
+    return this.http.patch<JobResponse>(`${this.apiUrl}/${jobId}/draft`, {});
   }
 
   /**
    * Close a job offer
    */
   closeJob(jobId: number): Observable<JobResponse> {
+    this.ensureValidJobId(jobId);
     return this.http.patch<JobResponse>(`${this.apiUrl}/${jobId}/close`, {});
   }
 
@@ -122,6 +141,7 @@ export class RecruiterJobService {
    * Get applications for a specific job
    */
   getJobApplications(jobId: number, page: number = 1, limit: number = 10): Observable<any> {
+    this.ensureValidJobId(jobId);
     const params = new HttpParams()
       .set('page', page.toString())
       .set('limit', limit.toString());

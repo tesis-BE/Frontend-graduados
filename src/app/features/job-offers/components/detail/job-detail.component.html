@@ -1,0 +1,283 @@
+<div class="detail-wrapper">
+  <!-- ── Loading ── -->
+  @if (loading) {
+    <div class="detail-loading">
+      <div class="spinner-border" style="color:#006b3f" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+      <p class="mt-3">Cargando oferta...</p>
+    </div>
+  }
+
+  <!-- ── Error ── -->
+  @if (error && !loading) {
+    <div class="container py-5">
+      <div class="detail-error text-center">
+        <i class="ti ti-alert-circle mb-3" style="font-size:3rem"></i>
+        <h4>{{ error }}</h4>
+        <button class="btn btn-primary mt-3" (click)="onBack()">
+          <i class="ti ti-arrow-left me-2"></i>Volver a ofertas
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- ── Contenido principal ── -->
+  @if (jobOffer && !loading && !error) {
+    <!-- Breadcrumb / Back -->
+    <div class="detail-topbar">
+      <div class="container-xl">
+        <button class="btn-back" (click)="onBack()">
+          <i class="ti ti-arrow-left"></i>
+          <span>Volver a ofertas</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Hero Header -->
+    <div class="detail-hero">
+      <div class="container-xl">
+        <div class="hero-inner">
+          <!-- Company + Title info -->
+          <div class="hero-info">
+            <div class="company-row">
+              <div class="company-logo-wrap">
+                @if (jobOffer.company?.logoUrl) {
+                  <img
+                    [src]="jobOffer.company.logoUrl"
+                    [alt]="jobOffer.company.name"
+                    class="company-logo"
+                  />
+                } @else {
+                  <div class="company-logo-placeholder">
+                    <i class="ti ti-building"></i>
+                  </div>
+                }
+              </div>
+              <div>
+                <p class="company-name">{{ jobOffer.company?.name || 'Empresa' }}</p>
+                <p class="company-industry">{{ jobOffer.company?.industry || 'Industria no especificada' }}</p>
+              </div>
+            </div>
+
+            <h1 class="job-title">{{ jobOffer.title }}</h1>
+
+            <div class="job-meta-pills">
+              <span class="badge {{ getStatusClass(jobOffer.status) }}">
+                {{ getStatusText(jobOffer.status) }}
+              </span>
+              @if (jobOffer.jobType) {
+                <span class="meta-pill">
+                  <i class="ti ti-briefcase me-1"></i>{{ getJobTypeLabel(jobOffer.jobType) }}
+                </span>
+              }
+              @if (jobOffer.workMode) {
+                <span class="meta-pill">
+                  <i class="ti ti-device-laptop me-1"></i>{{ getWorkModeLabel(jobOffer.workMode) }}
+                </span>
+              }
+              @if (jobOffer.location) {
+                <span class="meta-pill">
+                  <i class="ti ti-map-pin me-1"></i>{{ jobOffer.location }}
+                </span>
+              }
+            </div>
+          </div>
+
+          <!-- Hero actions -->
+          <div class="hero-actions">
+            <button
+              class="btn-save-hero"
+              [class.saved]="isSaved()"
+              (click)="toggleSave()"
+              [title]="isSaved() ? 'Quitar de favoritos' : 'Guardar en favoritos'"
+            >
+              <i [class]="isSaved() ? 'ti ti-heart-filled' : 'ti ti-heart'"></i>
+              {{ isSaved() ? 'Guardado' : 'Guardar' }}
+            </button>
+
+            @if (canApply()) {
+              <button
+                class="btn btn-apply-hero"
+                [disabled]="applying"
+                (click)="onApply()"
+              >
+                @if (applying) {
+                  <span class="spinner-border spinner-border-sm me-2" role="status"></span>Enviando...
+                } @else {
+                  <i class="ti ti-send me-2"></i>Postularme ahora
+                }
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main content -->
+    <div class="container-xl detail-body">
+      <div class="detail-grid">
+
+        <!-- Left: main content -->
+        <div class="detail-main">
+
+          <!-- Description -->
+          <div class="detail-section">
+            <h3 class="section-title">
+              <span class="section-icon"><i class="ti ti-file-text"></i></span>
+              Descripción del puesto
+            </h3>
+            <div class="section-content" [innerHTML]="jobOffer.description"></div>
+          </div>
+
+          <!-- Requirements -->
+          @if (jobOffer.requirements) {
+            <div class="detail-section">
+              <h3 class="section-title">
+                <span class="section-icon"><i class="ti ti-list-check"></i></span>
+                Requisitos
+              </h3>
+              <div class="section-content" [innerHTML]="jobOffer.requirements"></div>
+            </div>
+          }
+
+          <!-- Skills -->
+          @if (jobOffer.skills && jobOffer.skills.length > 0) {
+            <div class="detail-section">
+              <h3 class="section-title">
+                <span class="section-icon"><i class="ti ti-tags"></i></span>
+                Habilidades requeridas
+              </h3>
+              <div class="skills-grid">
+                @for (skill of jobOffer.skills; track skill) {
+                  <span class="skill-chip">{{ skill }}</span>
+                }
+              </div>
+            </div>
+          }
+
+        </div>
+
+        <!-- Right: sidebar -->
+        <aside class="detail-sidebar">
+          <div class="sidebar-card sticky-sidebar">
+            <h4 class="sidebar-title">Resumen</h4>
+
+            <ul class="sidebar-info-list">
+              @if (jobOffer.location) {
+                <li>
+                  <span class="info-icon"><i class="ti ti-map-pin"></i></span>
+                  <div>
+                    <strong>Ubicación</strong>
+                    <p>{{ jobOffer.location }}</p>
+                  </div>
+                </li>
+              }
+              @if (jobOffer.jobType) {
+                <li>
+                  <span class="info-icon"><i class="ti ti-briefcase"></i></span>
+                  <div>
+                    <strong>Tipo de empleo</strong>
+                    <p>{{ getJobTypeLabel(jobOffer.jobType) }}</p>
+                  </div>
+                </li>
+              }
+              @if (jobOffer.workMode) {
+                <li>
+                  <span class="info-icon"><i class="ti ti-device-laptop"></i></span>
+                  <div>
+                    <strong>Modalidad</strong>
+                    <p>{{ getWorkModeLabel(jobOffer.workMode) }}</p>
+                  </div>
+                </li>
+              }
+              @if (jobOffer.salaryMin || jobOffer.salaryMax) {
+                <li>
+                  <span class="info-icon"><i class="ti ti-currency-dollar"></i></span>
+                  <div>
+                    <strong>Salario</strong>
+                    <p>
+                      @if (jobOffer.salaryMin && jobOffer.salaryMax) {
+                        ${{ jobOffer.salaryMin | number }} – ${{ jobOffer.salaryMax | number }}
+                      } @else if (jobOffer.salaryMin) {
+                        Desde ${{ jobOffer.salaryMin | number }}
+                      } @else {
+                        Hasta ${{ jobOffer.salaryMax | number }}
+                      }
+                    </p>
+                  </div>
+                </li>
+              }
+              @if (jobOffer.deadline) {
+                <li>
+                  <span class="info-icon"><i class="ti ti-hourglass"></i></span>
+                  <div>
+                    <strong>Fecha límite</strong>
+                    <p>{{ jobOffer.deadline | date:'dd/MM/yyyy' }}</p>
+                  </div>
+                </li>
+              }
+              @if (jobOffer.createdAt) {
+                <li>
+                  <span class="info-icon"><i class="ti ti-calendar"></i></span>
+                  <div>
+                    <strong>Publicado</strong>
+                    <p>{{ jobOffer.createdAt | date:'dd/MM/yyyy' }}</p>
+                  </div>
+                </li>
+              }
+            </ul>
+
+            @if (canApply()) {
+              <div class="sidebar-apply">
+                <button
+                  class="btn btn-apply-sidebar w-100"
+                  [disabled]="applying"
+                  (click)="onApply()"
+                >
+                  @if (applying) {
+                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>Enviando...
+                  } @else {
+                    <i class="ti ti-send me-2"></i>¡Postularme ahora!
+                  }
+                </button>
+                <small class="sidebar-apply-note">
+                  <i class="ti ti-shield-check me-1"></i>Tu información está protegida
+                </small>
+              </div>
+            } @else {
+              <div class="sidebar-unavailable">
+                <i class="ti ti-lock me-2"></i>
+                <span>Postulaciones no disponibles</span>
+              </div>
+            }
+          </div>
+        </aside>
+
+      </div>
+    </div>
+
+    <!-- Bottom CTA (solo si puede postular, mobile-friendly) -->
+    @if (canApply()) {
+      <div class="detail-cta-bottom">
+        <div class="container-xl cta-inner">
+          <div>
+            <p class="cta-title">¿Listo para dar el siguiente paso?</p>
+            <p class="cta-sub">{{ jobOffer.company?.name || 'Esta empresa' }} está buscando talento como el tuyo.</p>
+          </div>
+          <button
+            class="btn btn-cta-main"
+            [disabled]="applying"
+            (click)="onApply()"
+          >
+            @if (applying) {
+              <span class="spinner-border spinner-border-sm me-2" role="status"></span>Enviando...
+            } @else {
+              <i class="ti ti-rocket me-2"></i>Postularme ahora
+            }
+          </button>
+        </div>
+      </div>
+    }
+  }
+</div>

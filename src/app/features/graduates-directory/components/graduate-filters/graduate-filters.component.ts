@@ -16,7 +16,6 @@ export interface GraduateFilters {
   availableForWork?: string;
   facultyId?: number;
   careerId?: number;
-  graduationYear?: number;
 }
 
 @Component({
@@ -34,18 +33,11 @@ export class GraduateFiltersComponent implements OnInit {
   availableForWork = '';
   facultyId: number | '' = '';
   careerId: number | '' = '';
-  graduationYear: number | '' = '';
 
   faculties: Faculty[] = [];
   careers: Career[] = [];
   loadingFaculties = false;
   loadingCareers = false;
-
-  readonly currentYear = new Date().getFullYear();
-  readonly graduationYears: number[] = Array.from(
-    { length: this.currentYear - 1990 + 1 },
-    (_, i) => this.currentYear - i,
-  );
 
   private searchTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -111,10 +103,6 @@ export class GraduateFiltersComponent implements OnInit {
     this.emit();
   }
 
-  onGraduationYearChange(): void {
-    this.emit();
-  }
-
   clearSearch(): void {
     this.search = '';
     this.emit();
@@ -125,13 +113,12 @@ export class GraduateFiltersComponent implements OnInit {
     this.availableForWork = '';
     this.facultyId = '';
     this.careerId = '';
-    this.graduationYear = '';
     this.careers = [];
     this.emit();
   }
 
   get hasActiveFilters(): boolean {
-    return !!(this.search || this.availableForWork || this.facultyId || this.careerId || this.graduationYear);
+    return !!(this.search || this.availableForWork || this.facultyId || this.careerId);
   }
 
   private emit(): void {
@@ -140,7 +127,6 @@ export class GraduateFiltersComponent implements OnInit {
       availableForWork: this.availableForWork || undefined,
       facultyId: this.facultyId ? Number(this.facultyId) : undefined,
       careerId: this.careerId ? Number(this.careerId) : undefined,
-      graduationYear: this.graduationYear ? Number(this.graduationYear) : undefined,
     });
   }
 }

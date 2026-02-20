@@ -4,6 +4,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 
   &-title {
     width: 100%;
@@ -14,4 +15,71 @@
     font-weight: 600;
     font-size: 14px;
   }
+}
+
+// ── Tabla de postulaciones ─────────────────────────────────────────
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table {
+  min-width: 900px;
+  border-collapse: separate;
+  border-spacing: 0;
+
+  thead tr th {
+    padding: 0.85rem 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--bs-secondary-color);
+    background: var(--bs-secondary-bg);
+    white-space: nowrap;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--bs-border-color);
+    border-top: none;
+  }
+
+  tbody tr {
+    transition: background-color 0.15s ease;
+
+    &:hover td {
+      background-color: var(--bs-tertiary-bg);
+    }
+
+    td {
+      padding: 0.85rem 1rem;
+      vertical-align: middle;
+      border-bottom: 1px solid var(--bs-border-color-translucent);
+      font-size: 0.875rem;
+    }
+  }
+}
+
+// Columna candidato: no partir en varias líneas
+td .d-flex.align-items-center.gap-2 span {
+  white-space: nowrap;
+}
+
+// Ancho mínimo para columnas clave
+th:nth-child(1), td:nth-child(1) { min-width: 160px; } // Candidato
+th:nth-child(2), td:nth-child(2) { min-width: 180px; } // Puesto
+th:nth-child(3), td:nth-child(3) { min-width: 140px; } // Empresa
+
+// Truncar texto largo (carta, motivo rechazo) pero con tooltip nativo
+.text-truncate {
+  max-width: 180px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+// Estados badge como píldoras compactas
+.badge {
+  font-size: 0.725rem;
+  padding: 0.35em 0.7em;
+  border-radius: 999px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
 }

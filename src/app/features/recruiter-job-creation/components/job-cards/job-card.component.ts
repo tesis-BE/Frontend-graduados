@@ -17,6 +17,7 @@ export class JobCardComponent {
   @Output() publish = new EventEmitter<number>();
   @Output() close = new EventEmitter<number>();
   @Output() viewApplications = new EventEmitter<number>();
+  @Output() revertDraft = new EventEmitter<number>();
 
   getStatusBadgeClass(status: string): string {
     const statusClasses: { [key: string]: string } = {
@@ -79,7 +80,10 @@ export class JobCardComponent {
   }
 
   onClose(): void {
-    // Emitir evento sin confirmar aquí, se manejará en el componente padre
     this.close.emit(this.job.id);
+  }
+
+  onRevertDraft(): void {
+    this.revertDraft.emit(this.job.id);
   }
 }

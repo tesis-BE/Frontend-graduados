@@ -9,7 +9,7 @@ export interface JobOffer {
   location: string;
   salaryMin?: number;
   salaryMax?: number;
-  status: 'active' | 'closed' | 'paused' | 'draft' | 'borrador' | 'published' | 'expired';
+  status: 'active' | 'closed' | 'cerrado' | 'paused' | 'draft' | 'borrador' | 'published' | 'publicado' | 'expired';
   companyId: number;
   companyName?: string;
   company?: { id: number; name: string; industry?: string; location?: string; logoUrl?: string };

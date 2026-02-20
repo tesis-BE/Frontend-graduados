@@ -6,13 +6,7 @@ import {
   inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import {
-  ReactiveFormsModule,
-  FormBuilder,
-  FormGroup,
-  Validators,
-} from '@angular/forms';
+import { Router, ActivatedRoute } from '@angular/router';
 import {
   FilterPanelComponent,
   FilterOption,
@@ -21,7 +15,6 @@ import { BreadcrumbComponent } from '@shared/components/breadcrumb/breadcrumb.co
 import { SweetAlertService } from '@shared/services/sweet-alert.service';
 import { ApplicationService } from '@core/services/api/application.service';
 import { JobOfferService } from '@core/services/api/job-offer.service';
-import { UserService, UserListItem, Graduate } from '@core/services/api/user.service';
 import { ConversationService } from '@core/services/api/conversation.service';
 import { Store } from '@ngrx/store';
 import { selectAuthUser } from '@core/store/authentication/authentication.selector';
@@ -36,7 +29,6 @@ import { environment } from '@/environments/environment';
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule,
     FilterPanelComponent,
     BreadcrumbComponent,
   ],
@@ -50,72 +42,38 @@ export class ApplicationsListComponent implements OnInit {
   currentPage = 1;
   pageSize = 10;
   total = 0;
-  isSubmitting = false;
   isRecruiterOrAdmin = false;
   loadingJobs = false;
-  loadingCandidates = false;
   jobOptions: Array<{ value: number; label: string }> = [];
-  candidateOptions: Array<{ value: number; label: string }> = [];
-  candidateMap = new Map<number, Graduate>();
   jobsMap = new Map<number, any>();
-  selectedCandidate: Graduate | null = null;
-  selectedJob: any | null = null;
-  form!: FormGroup;
+  selectedScopedJob: any | null = null;
+  scopedJobId: number | null = null;
+  activeFilters: { status?: string; jobId?: number } = {};
 
   private readonly store = inject(Store);
   private readonly cdr = inject(ChangeDetectorRef);
   currentUser: User | null = null;
   assetsUrl = environment.assetsUrl;
 
-  filterOptions: FilterOption[] = [
-    {
-      key: 'status',
-      label: 'Estado',
-      type: 'select',
-      options: [
-        { value: 'pendiente', label: 'Pendiente' },
-        { value: 'revisado', label: 'Revisado' },
-        { value: 'entrevistado', label: 'Entrevistado' },
-        { value: 'aceptado', label: 'Aceptado' },
-        { value: 'rechazado', label: 'Rechazado' },
-      ],
-    },
-    {
-      key: 'jobId',
-      label: 'ID Oferta',
-      type: 'text',
-      placeholder: 'Ej: 42',
-    },
-  ];
+  filterOptions: FilterOption[] = [];
 
   constructor(
     private applicationService: ApplicationService,
     private jobOfferService: JobOfferService,
-    private userService: UserService,
     private sweetAlert: SweetAlertService,
-    private fb: FormBuilder,
     private conversationService: ConversationService,
     private router: Router,
+    private route: ActivatedRoute,
   ) {}
 
   ngOnInit(): void {
-    this.form = this.fb.group({
-      jobId: ['', Validators.required],
-      userId: ['', Validators.required],
-      coverLetter: [''],
-    });
+    const jobIdFromRoute = Number(this.route.snapshot.queryParamMap.get('jobId'));
+    if (!Number.isNaN(jobIdFromRoute) && jobIdFromRoute > 0) {
+      this.scopedJobId = jobIdFromRoute;
+      this.activeFilters.jobId = jobIdFromRoute;
+    }
 
-    this.form.get('userId')?.valueChanges.subscribe((value) => {
-      const id = Number(value);
-      this.selectedCandidate = this.candidateMap.get(id) ?? null;
-      this.cdr.markForCheck();
-    });
-
-    this.form.get('jobId')?.valueChanges.subscribe((value) => {
-      const id = Number(value);
-      this.selectedJob = this.jobsMap.get(id) ?? null;
-      this.cdr.markForCheck();
-    });
+    this.buildFilterOptions();
 
     this.store
       .select(selectAuthUser)
@@ -127,12 +85,49 @@ export class ApplicationsListComponent implements OnInit {
 
         if (this.isRecruiterOrAdmin) {
           this.loadJobs();
-          this.searchCandidates('');
         }
 
         this.loadApplications();
         this.cdr.markForCheck();
       });
+  }
+
+  get isScopedToJob(): boolean {
+    return !!this.scopedJobId;
+  }
+
+  get scopedJobTitle(): string {
+    return this.selectedScopedJob?.title || `Oferta #${this.scopedJobId}`;
+  }
+
+  private buildFilterOptions(): void {
+    const statusFilter: FilterOption = {
+      key: 'status',
+      label: 'Estado',
+      type: 'select',
+      value: this.activeFilters.status || '',
+      options: [
+        { value: 'pendiente', label: 'Pendiente' },
+        { value: 'revisado', label: 'Revisado' },
+        { value: 'entrevistado', label: 'Entrevistado' },
+        { value: 'aceptado', label: 'Aceptado' },
+        { value: 'rechazado', label: 'Rechazado' },
+      ],
+    };
+
+    const options: FilterOption[] = [statusFilter];
+
+    if (this.isRecruiterOrAdmin && !this.isScopedToJob) {
+      options.push({
+        key: 'jobId',
+        label: 'Oferta',
+        type: 'select',
+        value: this.activeFilters.jobId || '',
+        options: this.jobOptions,
+      });
+    }
+
+    this.filterOptions = options;
   }
 
   loadApplications(filters?: any): void {
@@ -151,8 +146,17 @@ export class ApplicationsListComponent implements OnInit {
     this.isLoading = true;
     this.cdr.markForCheck();
 
-    const jobId = filters?.jobId ? Number(filters.jobId) : undefined;
-    const status = filters?.status;
+    const mergedFilters = filters
+      ? {
+          status: filters.status || undefined,
+          jobId: filters.jobId ? Number(filters.jobId) : this.scopedJobId || undefined,
+        }
+      : this.activeFilters;
+
+    this.activeFilters = mergedFilters;
+
+    const jobId = mergedFilters.jobId;
+    const status = mergedFilters.status;
     const page = this.currentPage;
     const pageSize = this.pageSize;
 
@@ -261,40 +265,31 @@ export class ApplicationsListComponent implements OnInit {
     this.loadApplications(filters);
   }
 
+  onResetFilters(): void {
+    this.currentPage = 1;
+    this.activeFilters = this.isScopedToJob
+      ? { jobId: this.scopedJobId || undefined }
+      : {};
+    this.buildFilterOptions();
+    this.loadApplications();
+  }
+
   refresh(): void {
     this.loadApplications();
   }
 
-  onSubmit(): void {
-    if (this.form.invalid || !this.isRecruiterOrAdmin) return;
-
-    const { jobId, userId, coverLetter } = this.form.value;
-    this.isSubmitting = true;
-    this.cdr.markForCheck();
-
-    this.applicationService
-      .applyForCandidate(Number(jobId), Number(userId), coverLetter)
-      .subscribe({
-        next: () => {
-          this.sweetAlert.success('Éxito', 'Postulación creada correctamente');
-          this.isSubmitting = false;
-          this.resetForm();
-          this.loadApplications();
-        },
-        error: (error) => {
-          console.error('Error creating application:', error);
-          this.sweetAlert.error(
-            'Error',
-            error.error?.message || 'No se pudo crear la postulación',
-          );
-          this.isSubmitting = false;
-          this.cdr.markForCheck();
-        },
-      });
-  }
-
-  resetForm(): void {
-    this.form.reset({ coverLetter: '' });
+  clearScopedJob(): void {
+    this.scopedJobId = null;
+    this.selectedScopedJob = null;
+    this.activeFilters = {};
+    this.currentPage = 1;
+    this.buildFilterOptions();
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { jobId: null },
+      queryParamsHandling: 'merge',
+    });
+    this.loadApplications();
   }
 
   loadJobs(): void {
@@ -309,8 +304,14 @@ export class ApplicationsListComponent implements OnInit {
         this.jobsMap = new Map(list.map((job: any) => [job.id, job]));
         this.jobOptions = list.map((job: any) => ({
           value: job.id,
-          label: `${job.title} · ${job.status ?? ''}`.trim(),
+          label: job.title,
         }));
+
+        if (this.scopedJobId) {
+          this.selectedScopedJob = this.jobsMap.get(this.scopedJobId) ?? null;
+        }
+
+        this.buildFilterOptions();
         this.loadingJobs = false;
         this.cdr.markForCheck();
       },
@@ -320,36 +321,6 @@ export class ApplicationsListComponent implements OnInit {
         this.cdr.markForCheck();
       },
     });
-  }
-
-  onCandidateSearch(term: string): void {
-    this.searchCandidates(term);
-  }
-
-  searchCandidates(term: string): void {
-    if (!this.isRecruiterOrAdmin) return;
-    this.loadingCandidates = true;
-    this.cdr.markForCheck();
-
-    this.userService
-      .getGraduates({ search: term, page: 1, pageSize: 20 })
-      .subscribe({
-        next: (resp) => {
-          const list = resp?.data ?? resp ?? [];
-          this.candidateMap = new Map(list.map((u: Graduate) => [u.id, u]));
-          this.candidateOptions = list.map((u: Graduate) => ({
-            value: u.id,
-            label: `${u.firstName} ${u.lastName} · ${u.email}`,
-          }));
-          this.loadingCandidates = false;
-          this.cdr.markForCheck();
-        },
-        error: (error) => {
-          console.error('Error searching candidates:', error);
-          this.loadingCandidates = false;
-          this.cdr.markForCheck();
-        },
-      });
   }
 
   updateStatus(application: Application): void {

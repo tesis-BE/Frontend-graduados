@@ -1,27 +1,188 @@
-.form-control,
-.form-select {
-  &:focus {
-    border-color: #3762ea;
-    box-shadow: 0 0 0 0.2rem rgba(55, 98, 234, 0.25);
+// ═══════════════════════════════════════════════════
+// Create/Edit Job Form — compatible con dark mode
+// Usa solo CSS variables de Bootstrap (--bs-*)
+// ═══════════════════════════════════════════════════
+
+// ── Wrapper ──────────────────────────────────────
+.job-form-wrapper {
+  background-color: var(--bs-body-bg);
+  min-height: 100%;
+}
+
+// ── Cabecera ──────────────────────────────────────
+.page-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--bs-body-color);
+}
+
+.page-subtitle {
+  font-size: 0.875rem;
+  color: var(--bs-secondary-color, var(--bs-gray-600));
+}
+
+.btn-back {
+  color: var(--bs-secondary-color, var(--bs-gray-600));
+  text-decoration: none;
+
+  &:hover {
+    color: var(--bs-primary);
   }
 }
 
-.is-invalid {
-  border-color: #dc3545;
+// ── Secciones ────────────────────────────────────
+.form-section {
+  border-radius: 0.875rem !important;
+  background-color: var(--bs-card-bg) !important;
+  border: 1px solid var(--bs-border-color) !important;
+
+  .card-header.section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    background-color: var(--bs-card-bg) !important;
+    border-bottom: 1px solid var(--bs-border-color) !important;
+    border-radius: 0.875rem 0.875rem 0 0 !important;
+  }
+
+  .card-body {
+    background-color: var(--bs-card-bg);
+    border-radius: 0 0 0.875rem 0.875rem;
+  }
 }
 
-.invalid-feedback {
-  display: block;
-  color: #dc3545;
-  font-size: 0.875em;
-  margin-top: 0.25rem;
+.section-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.5rem;
+  background-color: rgba(var(--bs-primary-rgb), 0.12);
+  color: var(--bs-primary);
+  font-size: 1.1rem;
+  flex-shrink: 0;
 }
 
-textarea {
+.section-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--bs-body-color);
+}
+
+// ── Campos ────────────────────────────────────────
+.form-control,
+.form-select {
+  background-color: var(--bs-body-bg) !important;
+  color: var(--bs-body-color) !important;
+  border-color: var(--bs-border-color) !important;
+  border-radius: 0.575rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+  &:focus {
+    border-color: var(--bs-primary) !important;
+    box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.2) !important;
+    background-color: var(--bs-body-bg) !important;
+    color: var(--bs-body-color) !important;
+  }
+
+  &::placeholder {
+    color: var(--bs-secondary-color, var(--bs-gray-500));
+    opacity: 0.8;
+  }
+
+  &.is-invalid {
+    border-color: var(--bs-danger) !important;
+  }
+}
+
+textarea.form-control {
   resize: vertical;
-  min-height: 80px;
+  min-height: 90px;
 }
 
+// ── Etiquetas opcionales ─────────────────────────
+.required-label::after {
+  content: ' *';
+  color: var(--bs-danger);
+}
+
+.badge-optional {
+  display: inline-block;
+  margin-left: 0.35rem;
+  padding: 0.1em 0.5em;
+  font-size: 0.7rem;
+  font-weight: 500;
+  border-radius: 2rem;
+  color: var(--bs-secondary-color, var(--bs-gray-600));
+  background-color: var(--bs-secondary-bg, rgba(108, 117, 125, 0.12));
+  vertical-align: middle;
+}
+
+// ── Contador de caracteres ────────────────────────
+.char-count {
+  font-size: 0.75rem;
+  color: var(--bs-secondary-color, var(--bs-gray-500));
+}
+
+// ── Error de campo ────────────────────────────────
+.field-error {
+  font-size: 0.8rem;
+  color: var(--bs-danger);
+}
+
+// ── Rango salarial ────────────────────────────────
+.salary-range-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  .salary-separator {
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    padding: 0 0.15rem;
+    color: var(--bs-secondary-color, var(--bs-gray-500));
+  }
+}
+
+// ── Banner de estado ─────────────────────────────
+.status-banner {
+  padding: 1rem 1.25rem;
+  border-radius: 0.7rem;
+  border: 1px solid transparent;
+
+  &.status-draft {
+    background-color: rgba(var(--bs-warning-rgb), 0.1);
+    border-color: rgba(var(--bs-warning-rgb), 0.35);
+    color: var(--bs-body-color);
+
+    i {
+      color: var(--bs-warning);
+    }
+  }
+
+  &.status-published {
+    background-color: rgba(var(--bs-success-rgb), 0.1);
+    border-color: rgba(var(--bs-success-rgb), 0.35);
+    color: var(--bs-body-color);
+
+    i {
+      color: var(--bs-success);
+    }
+  }
+}
+
+// ── Barra de acciones ─────────────────────────────
+.actions-bar {
+  padding-bottom: 1rem;
+
+  .btn-save {
+    min-width: 9rem;
+  }
+}
+
+// ── Spinner ───────────────────────────────────────
 .spinner-border-sm {
   width: 1rem;
   height: 1rem;

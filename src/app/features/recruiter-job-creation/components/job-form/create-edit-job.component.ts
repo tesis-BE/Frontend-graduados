@@ -26,6 +26,8 @@ export class CreateEditJobComponent implements OnInit {
   jobId: number | null = null;
   submitted = false;
   jobStatus: string = 'borrador';
+  minDate = new Date().toISOString().split('T')[0];
+  isPublishingNow = false;
 
   get f() {
     return this.jobForm.controls;
@@ -58,7 +60,7 @@ export class CreateEditJobComponent implements OnInit {
     this.jobForm = this.fb.group({
       title: ['', [Validators.required, Validators.minLength(3)]],
       description: ['', [Validators.required, Validators.minLength(10)]],
-      deadline: ['', Validators.required],
+      deadline: [''],   // Opcional al guardar borrador; requerido al publicar
       requirements: [''],
       jobType: ['FULL_TIME'],
       workMode: ['HYBRID'],
@@ -72,11 +74,25 @@ export class CreateEditJobComponent implements OnInit {
   private checkIfEditMode(): void {
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
-      if (id) {
-        this.isEditMode = true;
-        this.jobId = parseInt(id, 10);
-        this.loadJob();
+      if (!id) {
+        this.isEditMode = false;
+        this.jobId = null;
+        return;
       }
+
+      const parsedId = Number(id);
+      const isValidId = Number.isInteger(parsedId) && parsedId > 0;
+
+      if (!isValidId) {
+        this.isEditMode = false;
+        this.jobId = null;
+        this.notification.warning('No se pudo identificar la oferta para editar. Se abrirá en modo creación.');
+        return;
+      }
+
+      this.isEditMode = true;
+      this.jobId = parsedId;
+      this.loadJob();
     });
   }
 
@@ -150,50 +166,111 @@ export class CreateEditJobComponent implements OnInit {
   }
 
   onSubmit(): void {
+    this.isPublishingNow = false;
+    this._executeSubmit();
+  }
+
+  onSaveAndPublish(): void {
+    if (!this.jobForm.value.deadline) {
+      this.notification.warning('Define una fecha límite de aplicación antes de publicar.');
+      return;
+    }
+    this.isPublishingNow = true;
+    this._executeSubmit();
+  }
+
+  private _executeSubmit(): void {
     this.submitted = true;
 
     if (this.jobForm.invalid) {
+      this.notification.warning('Completa el título y la descripción para continuar.');
+      return;
+    }
+
+    const formValue = this.jobForm.value;
+
+    const salaryMin = formValue.salaryMin ? Number(formValue.salaryMin) : undefined;
+    const salaryMax = formValue.salaryMax ? Number(formValue.salaryMax) : undefined;
+
+    if (
+      salaryMin !== undefined &&
+      salaryMax !== undefined &&
+      Number.isFinite(salaryMin) &&
+      Number.isFinite(salaryMax) &&
+      salaryMin > salaryMax
+    ) {
+      this.notification.warning('El salario mínimo no puede ser mayor que el salario máximo.');
       return;
     }
 
     this.isLoading = true;
 
-    const formValue = this.jobForm.value;
     const skills = formValue.skills
-      ? formValue.skills.split(',').map((s: string) => s.trim())
+      ? formValue.skills
+          .split(',')
+          .map((s: string) => s.trim())
+          .filter((s: string) => !!s)
       : [];
 
     const jobData = {
       ...formValue,
       skills,
-      salaryMin: formValue.salaryMin ? parseInt(formValue.salaryMin, 10) : undefined,
-      salaryMax: formValue.salaryMax ? parseInt(formValue.salaryMax, 10) : undefined,
+      salaryMin: salaryMin,
+      salaryMax: salaryMax,
       deadline: formValue.deadline ? new Date(formValue.deadline).toISOString() : undefined,
     };
+
+    if (this.isEditMode && (!this.jobId || !Number.isFinite(this.jobId))) {
+      this.isLoading = false;
+      this.notification.error('No se pudo actualizar la oferta porque el identificador es inválido.');
+      return;
+    }
 
     const request$ = this.isEditMode && this.jobId
       ? this.jobService.updateJob(this.jobId, jobData)
       : this.jobService.createJob(jobData);
 
     request$.subscribe({
-      next: (response) => {
+      next: (response: any) => {
         this.isLoading = false;
-        const message = this.isEditMode
-          ? 'Oferta actualizada exitosamente'
-          : 'Oferta creada exitosamente';
-        this.notification.success(message);
-        this.router.navigate(['/recruiter-job-creation']);
+        if (!this.isEditMode && this.isPublishingNow) {
+          const newJobId = response?.data?.id ?? response?.id;
+          if (newJobId) {
+            this.jobService.publishJob(newJobId).subscribe({
+              next: () => {
+                this.notification.success('¡Oferta creada y publicada exitosamente!');
+                this.router.navigate(['/recruiter-job-creation']);
+              },
+              error: () => {
+                this.notification.warning('Oferta creada como borrador. No se pudo publicar automáticamente.');
+                this.router.navigate(['/recruiter-job-creation']);
+              }
+            });
+          } else {
+            this.notification.success('Oferta creada. Ve a la lista para publicarla.');
+            this.router.navigate(['/recruiter-job-creation']);
+          }
+        } else {
+          const message = this.isEditMode ? 'Oferta actualizada exitosamente' : 'Oferta guardada como borrador';
+          this.notification.success(message);
+          this.router.navigate(['/recruiter-job-creation']);
+        }
       },
-      error: () => {
+      error: (error) => {
         this.isLoading = false;
-        this.notification.error('Error al guardar la oferta');
+        this.notification.error(error?.error?.message || 'Error al guardar la oferta');
       },
     });
   }
 
   publishOffer(): void {
     if (!this.jobId || !this.isEditMode) {
-      this.notification.warning('Solo se pueden publicar ofertas existentes');
+      this.notification.warning('Solo se pueden publicar ofertas existentes.');
+      return;
+    }
+
+    if (!this.jobForm.value.deadline) {
+      this.notification.warning('Define una fecha límite de aplicación antes de publicar.');
       return;
     }
 
@@ -231,5 +308,35 @@ export class CreateEditJobComponent implements OnInit {
 
   onCancel(): void {
     this.router.navigate(['/recruiter-job-creation']);
+  }
+
+  revertToDraft(): void {
+    if (!this.jobId || !this.isEditMode) return;
+
+    Swal.fire({
+      title: 'Volver a borrador',
+      text: '\u00bfMover esta oferta a borrador? Dejar\u00e1 de ser visible para los graduados.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'S\u00ed, volver a borrador',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#ffc107',
+      cancelButtonColor: '#6c757d',
+    }).then((result: any) => {
+      if (result.isConfirmed) {
+        this.isLoading = true;
+        this.jobService.revertToDraft(this.jobId!).subscribe({
+          next: () => {
+            this.isLoading = false;
+            this.jobStatus = 'borrador';
+            this.notification.success('Oferta revertida a borrador correctamente');
+          },
+          error: () => {
+            this.isLoading = false;
+            this.notification.error('No se pudo revertir la oferta a borrador');
+          },
+        });
+      }
+    });
   }
 }

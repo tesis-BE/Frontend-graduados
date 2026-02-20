@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, take } from 'rxjs/operators';
 import Swal from 'sweetalert2';
 
 import {
@@ -13,6 +13,7 @@ import {
 import { User } from '@core/store/authentication/auth.model';
 import { JobOfferService } from '@core/services/api/job-offer.service';
 import { SavedJobService } from '@core/services/api/saved-job.service';
+import { ApplicationService } from '@core/services/api/application.service';
 import { selectAuthUser } from '@core/store/authentication/authentication.selector';
 import { NotificationService } from '@shared/services/notification.service';
 
@@ -36,6 +37,7 @@ export class JobOffersPageComponent implements OnInit {
   private readonly store = inject(Store);
   private readonly jobOfferService: JobOfferService = inject(JobOfferService);
   private readonly savedJobService: SavedJobService = inject(SavedJobService);
+  private readonly applicationService: ApplicationService = inject(ApplicationService);
   private readonly router = inject(Router);
   private readonly notification = inject(NotificationService);
 
@@ -44,9 +46,12 @@ export class JobOffersPageComponent implements OnInit {
   filteredJobOffers: JobOffer[] = [];
   isLoading = false;
   viewMode: 'cards' | 'table' = 'cards';
+  private readonly VIEW_MODE_KEY = 'jobOffersViewMode';
   
   // Mapa de trabajos guardados (jobId -> savedJobId)
   savedJobsMap = signal<Map<number, number>>(new Map());
+  // Set de trabajos a los que ya se postuló
+  appliedJobsSet = signal<Set<number>>(new Set());
 
   // Permisos basados en rol
   canCreate$: Observable<boolean> = this.currentUser$.pipe(
@@ -66,8 +71,18 @@ export class JobOffersPageComponent implements OnInit {
   );
 
   ngOnInit(): void {
+    const saved = localStorage.getItem(this.VIEW_MODE_KEY);
+    if (saved === 'table' || saved === 'cards') {
+      this.viewMode = saved;
+    }
     this.loadJobOffers();
     this.loadSavedJobs();
+    // Cargar las postulaciones ya realizadas (solo para graduados)
+    this.currentUser$.pipe(take(1)).subscribe(user => {
+      if (user?.userType === 'graduate') {
+        this.loadAppliedJobs();
+      }
+    });
   }
 
   loadSavedJobs(): void {
@@ -87,6 +102,21 @@ export class JobOffersPageComponent implements OnInit {
 
   isJobSaved(jobId: number): boolean {
     return this.savedJobsMap().has(jobId);
+  }
+
+  isJobApplied(jobId: number): boolean {
+    return this.appliedJobsSet().has(jobId);
+  }
+
+  loadAppliedJobs(): void {
+    this.applicationService.getMyApplications({ page: 1, pageSize: 200 }).subscribe({
+      next: (response: any) => {
+        const list: any[] = response?.data ?? response ?? [];
+        const ids = new Set<number>(list.map((a: any) => a.jobId ?? a.job?.id).filter(Boolean));
+        this.appliedJobsSet.set(ids);
+      },
+      error: () => {},
+    });
   }
 
   toggleSaveJob(jobId: number): void {
@@ -197,6 +227,7 @@ export class JobOffersPageComponent implements OnInit {
 
   toggleViewMode(): void {
     this.viewMode = this.viewMode === 'cards' ? 'table' : 'cards';
+    localStorage.setItem(this.VIEW_MODE_KEY, this.viewMode);
   }
 
   onCreateNew(): void {
@@ -250,7 +281,43 @@ export class JobOffersPageComponent implements OnInit {
   }
 
   onApply(jobOffer: JobOffer): void {
-    this.router.navigate(['/job-offers', jobOffer.id, 'apply']);
+    if (this.appliedJobsSet().has(jobOffer.id)) return;
+
+    Swal.fire({
+      title: '¿Postularte a este trabajo?',
+      html: `
+        <div class="text-start">
+          <p><strong>Puesto:</strong> ${jobOffer.title}</p>
+          <p><strong>Empresa:</strong> ${(jobOffer as any).company?.name || (jobOffer as any).companyName || 'No especificada'}</p>
+          <div class="alert alert-info mt-2" style="font-size:0.9rem">
+            Se enviará tu perfil y CV a la empresa.
+          </div>
+        </div>
+      `,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#006b3f',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Sí, postularme',
+      cancelButtonText: 'Cancelar',
+    }).then((result: any) => {
+      if (!result.isConfirmed) return;
+      this.applicationService.applyForJob(jobOffer.id).subscribe({
+        next: () => {
+          const s = new Set(this.appliedJobsSet());
+          s.add(jobOffer.id);
+          this.appliedJobsSet.set(s);
+          this.notification.success('¡Postulación enviada exitosamente!');
+        },
+        error: (error: any) => {
+          const msg =
+            error.error?.code === 'CV_REQUIRED'
+              ? 'Debes subir tu CV antes de postularte'
+              : error.error?.message || 'Error al enviar la postulación';
+          this.notification.error(msg);
+        },
+      });
+    });
   }
 
   onPublish(jobOffer: JobOffer): void {

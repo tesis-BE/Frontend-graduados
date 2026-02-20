@@ -1,98 +1,70 @@
-<div class="job-card" [class.draft]="jobOffer.status === 'draft'">
-  <div class="job-card-header">
-    <div class="company-logo">
-      <i class="bi bi-building"></i>
+<div class="job-card"
+     [class.is-draft]="jobOffer.status === 'draft' || jobOffer.status === 'borrador'"
+     [class.is-closed]="jobOffer.status === 'closed' || jobOffer.status === 'cerrado'">
+  <!-- Header -->
+  <div class="jc-header">
+    <div class="jc-logo">
+      <img *ngIf="jobOffer.company?.logoUrl" [src]="jobOffer.company!.logoUrl" [alt]="jobOffer.companyName" class="logo-img">
+      <span *ngIf="!jobOffer.company?.logoUrl" class="logo-placeholder"><i class="ti ti-building"></i></span>
     </div>
-    <div class="job-header-info">
-      <h3 class="job-title" (click)="onViewDetails()">{{ jobOffer.title }}</h3>
-      <p class="company-name">{{ jobOffer.companyName || "Sin empresa" }}</p>
+    <div class="jc-title-wrap">
+      <h3 class="jc-title" (click)="onViewDetails()">{{ jobOffer.title }}</h3>
+      <p class="jc-company">{{ jobOffer.companyName || 'Sin empresa' }}</p>
     </div>
-    <div class="header-right">
-      <button 
-        class="btn-favorite"
+    <div class="jc-badge-group">
+      <button
+        class="btn-fav"
         [class.saved]="isSaved"
         (click)="onToggleSave($event)"
-        [title]="isSaved ? 'Quitar de favoritos' : 'Añadir a favoritos'"
+        [title]="isSaved ? 'Quitar de favoritos' : 'Guardar oferta'"
       >
-        <i [class]="isSaved ? 'bi bi-heart-fill' : 'bi bi-heart'"></i>
+        <i [class]="isSaved ? 'ti ti-heart-filled' : 'ti ti-heart'"></i>
       </button>
-      <span class="job-status" [ngClass]="getStatusClass()">
-        {{ getStatusLabel() }}
-      </span>
+      <span class="jc-status" [ngClass]="getStatusClass()">{{ getStatusLabel() }}</span>
     </div>
   </div>
 
-  <div class="job-card-body">
-    <div class="job-info-row">
-      <div class="info-item">
-        <i class="bi bi-briefcase"></i>
-        <span>{{ getJobTypeLabel() }}</span>
-      </div>
-      <div class="info-item">
-        <i class="bi bi-geo-alt"></i>
-        <span>{{ jobOffer.location || "Sin especificar" }}</span>
-      </div>
-      <div class="info-item">
-        <i class="bi bi-laptop"></i>
-        <span>{{ getWorkModeLabel() }}</span>
-      </div>
-    </div>
-
-    <p class="job-description" *ngIf="jobOffer.description">
-      {{ jobOffer.description }}
-    </p>
-
-    <div class="job-salary" *ngIf="jobOffer.salaryMin || jobOffer.salaryMax">
-      <i class="bi bi-cash-stack"></i>
-      <span *ngIf="jobOffer.salaryMin && jobOffer.salaryMax">
-        ${{ jobOffer.salaryMin }} - ${{ jobOffer.salaryMax }}
-      </span>
-      <span *ngIf="jobOffer.salaryMin && !jobOffer.salaryMax">
-        Desde ${{ jobOffer.salaryMin }}
-      </span>
-      <span *ngIf="!jobOffer.salaryMin && jobOffer.salaryMax">
-        Hasta ${{ jobOffer.salaryMax }}
-      </span>
-    </div>
+  <!-- Pills -->
+  <div class="jc-pills">
+    <span class="jc-pill"><i class="ti ti-briefcase"></i> {{ getJobTypeLabel() }}</span>
+    <span class="jc-pill"><i class="ti ti-device-laptop"></i> {{ getWorkModeLabel() }}</span>
+    <span class="jc-pill" *ngIf="jobOffer.location"><i class="ti ti-map-pin"></i> {{ jobOffer.location }}</span>
   </div>
 
-  <div class="job-card-footer" *ngIf="showActions">
-    <button
-      *ngIf="canApply && (jobOffer.status === 'active' || jobOffer.status === 'published')"
-      class="btn btn-primary"
-      (click)="onApply()"
-    >
-      <i class="bi bi-send"></i>
-      Postular
-    </button>
-    <button *ngIf="canEdit" class="btn btn-secondary" (click)="onEdit()">
-      <i class="bi bi-pencil"></i>
-      Editar
-    </button>
-    
-    <!-- Botones de gestión de estado para reclutadores -->
-    <button 
-      *ngIf="canEdit && (jobOffer.status === 'borrador' || jobOffer.status === 'draft')" 
-      class="btn btn-success"
-      (click)="onPublish()"
-      title="Publicar oferta"
-    >
-      <i class="bi bi-check-circle"></i>
-      Publicar
-    </button>
-    <button 
-      *ngIf="canEdit && (jobOffer.status === 'published' || jobOffer.status === 'active')" 
-      class="btn btn-warning"
-      (click)="onClose()"
-      title="Cerrar oferta"
-    >
-      <i class="bi bi-x-circle"></i>
-      Cerrar
-    </button>
-    
-    <button class="btn btn-outline" (click)="onViewDetails()">
-      <i class="bi bi-eye"></i>
-      Ver detalles
-    </button>
+  <!-- Salary -->
+  <div class="jc-salary" *ngIf="jobOffer.salaryMin || jobOffer.salaryMax">
+    <i class="ti ti-cash"></i>
+    <span *ngIf="jobOffer.salaryMin && jobOffer.salaryMax">${{ jobOffer.salaryMin | number }} – ${{ jobOffer.salaryMax | number }}</span>
+    <span *ngIf="jobOffer.salaryMin && !jobOffer.salaryMax">Desde ${{ jobOffer.salaryMin | number }}</span>
+    <span *ngIf="!jobOffer.salaryMin && jobOffer.salaryMax">Hasta ${{ jobOffer.salaryMax | number }}</span>
+  </div>
+
+  <!-- Description -->
+  <p class="jc-desc" *ngIf="jobOffer.description">{{ jobOffer.description }}</p>
+
+  <!-- Footer -->
+  <div class="jc-footer" *ngIf="showActions">
+    <div class="jc-footer-left">
+      <span class="jc-deadline" *ngIf="jobOffer.deadline">
+        <i class="ti ti-clock"></i>
+        Cierra {{ jobOffer.deadline | date:'d MMM' }}
+      </span>
+    </div>
+    <div class="jc-footer-actions">
+      <ng-container *ngIf="canApply">
+        <span *ngIf="isApplied" class="jc-applied-badge">
+          <i class="ti ti-circle-check-filled"></i> Ya postulado
+        </span>
+        <button
+          *ngIf="!isApplied && (jobOffer.status === 'active' || jobOffer.status === 'published' || jobOffer.status === 'publicado')"
+          class="jc-btn jc-btn-apply"
+          (click)="onApply()"
+        ><i class="ti ti-send"></i> Postular</button>
+      </ng-container>
+
+      <button class="jc-btn jc-btn-outline" (click)="onViewDetails()">
+        <i class="ti ti-eye"></i> Ver detalles
+      </button>
+    </div>
   </div>
 </div>

@@ -19,32 +19,14 @@ import { JobOffer } from '@core/interfaces/api/job-offer.interface';
 export class JobOffersTableComponent {
   @Input() jobOffers: JobOffer[] = [];
   @Input() isLoading = false;
-  @Input() canEdit = false;
-  @Input() canDelete = false;
   @Input() savedJobsMap: Map<number, number> = new Map();
+  @Input() appliedJobsSet: Set<number> = new Set();
 
   @Output() viewDetails = new EventEmitter<JobOffer>();
-  @Output() edit = new EventEmitter<JobOffer>();
-  @Output() delete = new EventEmitter<JobOffer>();
-  @Output() toggleStatus = new EventEmitter<JobOffer>();
   @Output() toggleSave = new EventEmitter<number>();
 
   onViewDetails(jobOffer: JobOffer): void {
     this.viewDetails.emit(jobOffer);
-  }
-
-  onEdit(jobOffer: JobOffer): void {
-    this.edit.emit(jobOffer);
-  }
-
-  onDelete(jobOffer: JobOffer): void {
-    if (confirm('¿Estás seguro de que deseas eliminar esta oferta?')) {
-      this.delete.emit(jobOffer);
-    }
-  }
-
-  onToggleStatus(jobOffer: JobOffer): void {
-    this.toggleStatus.emit(jobOffer);
   }
 
   getStatusClass(status: string): string {
@@ -95,12 +77,12 @@ export class JobOffersTableComponent {
     return 'No especificado';
   }
 
-  isActive(status: string): boolean {
-    return status === 'active';
-  }
-
   isJobSaved(jobId: number): boolean {
     return this.savedJobsMap.has(jobId);
+  }
+
+  isJobApplied(jobId: number): boolean {
+    return this.appliedJobsSet.has(jobId);
   }
 
   onToggleSave(jobId: number, event: Event): void {

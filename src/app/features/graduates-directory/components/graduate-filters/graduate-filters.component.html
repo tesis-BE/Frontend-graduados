@@ -77,25 +77,6 @@
     </select>
   </div>
 
-  <!-- Año de graduación -->
-  <div class="filter-group">
-    <label class="filter-group__label" for="year-select">
-      <i class="mdi mdi-calendar-check-outline"></i>
-      Año de graduación
-    </label>
-    <select
-      id="year-select"
-      class="filter-group__select"
-      [(ngModel)]="graduationYear"
-      (change)="onGraduationYearChange()"
-    >
-      <option value="">Todos</option>
-      @for (yr of graduationYears; track yr) {
-        <option [value]="yr">{{ yr }}</option>
-      }
-    </select>
-  </div>
-
   <!-- Limpiar filtros -->
   @if (hasActiveFilters) {
     <button class="filter-clear-btn" (click)="clearAll()" title="Limpiar todos los filtros">

@@ -6,7 +6,7 @@
       class="btn btn-primary"
       (click)="openCreateModal()"
     >
-      <i class="bi bi-plus-lg"></i>
+      <i class="ti ti-plus"></i>
       Nueva Oferta
     </button>
   </div>
@@ -58,7 +58,7 @@
                   [ngbTooltip]="isJobSaved(job.id) ? 'Quitar de favoritos' : 'Añadir a favoritos'"
                   placement="top"
                 >
-                  <i [class]="isJobSaved(job.id) ? 'bi bi-heart-fill' : 'bi bi-heart'"></i>
+                  <i [class]="isJobSaved(job.id) ? 'ti ti-heart-filled' : 'ti ti-heart'"></i>
                 </button>
               </td>
               <td class="actions text-center">
@@ -68,7 +68,7 @@
                   (click)="editOffer(job)"
                   title="Editar"
                 >
-                  <i class="bi bi-pencil"></i>
+                  <i class="ti ti-pencil"></i>
                 </button>
                 <button
                   *ngIf="(user$ | async)?.userType !== 'graduate'"
@@ -76,7 +76,7 @@
                   (click)="deleteOffer(job)"
                   title="Eliminar"
                 >
-                  <i class="bi bi-trash"></i>
+                  <i class="ti ti-trash"></i>
                 </button>
               </td>
             </tr>
@@ -90,7 +90,7 @@
             (click)="currentPage > 1 && onPageChange({ page: currentPage - 1 })"
             [disabled]="currentPage === 1"
           >
-            <i class="bi bi-chevron-left"></i>
+            <i class="ti ti-chevron-left"></i>
           </button>
 
           <span class="page-info">Página {{ currentPage }} de {{ Math.ceil(total / pageSize) }}</span>
@@ -100,7 +100,7 @@
             (click)="currentPage < Math.ceil(total / pageSize) && onPageChange({ page: currentPage + 1 })"
             [disabled]="currentPage >= Math.ceil(total / pageSize)"
           >
-            <i class="bi bi-chevron-right"></i>
+            <i class="ti ti-chevron-right"></i>
           </button>
         </div>
 

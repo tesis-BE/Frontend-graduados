@@ -38,13 +38,6 @@ export const MENU_ITEMS: MenuItemType[] = [
     isTitle: true,
   },
   {
-    key: 'job-board',
-    label: 'Tablero de Empleos',
-    icon: 'grid',
-    url: '/job-board',
-    requiredPermissions: ['view_analytics'],
-  },
-  {
     key: 'job-offers',
     label: 'Ofertas de Empleo',
     icon: 'briefcase',

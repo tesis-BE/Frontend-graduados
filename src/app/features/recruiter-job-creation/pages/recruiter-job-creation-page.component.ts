@@ -162,4 +162,29 @@ export class RecruiterJobCreationPageComponent implements OnInit {
   onCreateNewJob(): void {
     this.router.navigate(['create'], { relativeTo: this.route });
   }
+
+  onRevertToDraft(jobId: number): void {
+    Swal.fire({
+      title: 'Volver a borrador',
+      text: '¿Mover esta oferta a borrador? Dejará de ser visible para los graduados.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ffc107',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Sí, volver a borrador',
+      cancelButtonText: 'Cancelar'
+    }).then((result: any) => {
+      if (result.isConfirmed) {
+        this.jobService.revertToDraft(jobId).subscribe({
+          next: () => {
+            this.notification.success('Oferta movida a borrador exitosamente');
+            this.loadJobs();
+          },
+          error: () => {
+            this.notification.error('Error al revertir la oferta a borrador');
+          }
+        });
+      }
+    });
+  }
 }
