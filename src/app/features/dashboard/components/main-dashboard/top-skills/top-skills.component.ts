@@ -18,6 +18,7 @@ export class TopSkillsComponent implements OnInit {
 
   skills: SkillDemand[] = [];
   isLoading = true;
+  hasError = false;
   chartOptions: any = {};
 
   ngOnInit(): void {
@@ -25,14 +26,18 @@ export class TopSkillsComponent implements OnInit {
   }
 
   loadStats(): void {
+    this.isLoading = true;
+    this.hasError = false;
     this.analyticsService.getTopSkills(20).subscribe({
       next: (response) => {
         this.skills = response.data;
         this.isLoading = false;
         this.initChart();
       },
-      error: () => {
+      error: (err) => {
+        console.error('Error cargando top habilidades:', err);
         this.isLoading = false;
+        this.hasError = true;
       },
     });
   }

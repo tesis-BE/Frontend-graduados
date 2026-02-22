@@ -17,19 +17,24 @@ export class TimeToHireComponent implements OnInit {
 
   stats: TimeToHireStats | null = null;
   isLoading = true;
+  hasError = false;
 
   ngOnInit(): void {
     this.loadStats();
   }
 
   loadStats(): void {
+    this.isLoading = true;
+    this.hasError = false;
     this.analyticsService.getTimeToHire().subscribe({
       next: (response) => {
         this.stats = response.data;
         this.isLoading = false;
       },
-      error: () => {
+      error: (err) => {
+        console.error('Error cargando tiempo de contratación:', err);
         this.isLoading = false;
+        this.hasError = true;
       },
     });
   }

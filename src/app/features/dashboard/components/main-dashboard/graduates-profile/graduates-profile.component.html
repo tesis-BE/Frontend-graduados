@@ -1,6 +1,8 @@
 <div class="card">
-  <div class="card-header">
-    <h4 class="card-title">Perfiles de Graduados: Completitud</h4>
+  <div class="card-header d-flex align-items-center">
+    <h4 class="card-title mb-0">Perfiles de Graduados: Completitud</h4>
+    <i class="mdi mdi-information-outline ms-2 text-muted" style="cursor: help; font-size: 18px;"
+       title="Nivel de completitud de los perfiles de graduados. Muestra cuántos tienen CV cargado, foto de perfil y perfil completo (CV + Foto + Bio). También el promedio de habilidades registradas por graduado."></i>
   </div>
   <div class="card-body">
     @if (isLoading) {
@@ -8,6 +10,14 @@
         <div class="spinner-border text-primary" role="status">
           <span class="visually-hidden">Cargando...</span>
         </div>
+      </div>
+    } @else if (hasError) {
+      <div class="text-center py-4">
+        <i class="mdi mdi-alert-circle-outline text-danger fs-1"></i>
+        <p class="text-muted mt-2 mb-1">No se pudieron cargar las estadísticas de perfiles.</p>
+        <button class="btn btn-sm btn-outline-primary" (click)="loadStats()">
+          <i class="mdi mdi-refresh me-1"></i>Reintentar
+        </button>
       </div>
     } @else if (stats) {
       <div class="row g-3 mb-4">

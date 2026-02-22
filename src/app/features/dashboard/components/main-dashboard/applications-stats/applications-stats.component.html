@@ -1,6 +1,8 @@
 <div class="card">
-  <div class="card-header">
-    <h4 class="card-title">Estado Global de Postulaciones</h4>
+  <div class="card-header d-flex align-items-center">
+    <h4 class="card-title mb-0">Estado Global de Postulaciones</h4>
+    <i class="mdi mdi-information-outline ms-2 text-muted" style="cursor: help; font-size: 18px;"
+       title="Resumen global de todas las postulaciones del sistema. Muestra el total, postulaciones activas (pendiente/revisado/entrevistado), las del mes actual, la tasa de crecimiento y la distribución por estado (Pendiente, Revisado, Entrevistado, Aceptado, Rechazado)."></i>
   </div>
   <div class="card-body">
     @if (isLoading) {
@@ -8,6 +10,14 @@
         <div class="spinner-border text-primary" role="status">
           <span class="visually-hidden">Cargando...</span>
         </div>
+      </div>
+    } @else if (hasError) {
+      <div class="text-center py-4">
+        <i class="mdi mdi-alert-circle-outline text-danger fs-1"></i>
+        <p class="text-muted mt-2 mb-1">No se pudieron cargar las estadísticas de postulaciones.</p>
+        <button class="btn btn-sm btn-outline-primary" (click)="loadStats()">
+          <i class="mdi mdi-refresh me-1"></i>Reintentar
+        </button>
       </div>
     } @else if (stats) {
       <div class="row g-3 mb-3">

@@ -18,6 +18,7 @@ export class CompaniesStatsComponent implements OnInit {
 
   stats: CompaniesStats | null = null;
   isLoading = true;
+  hasError = false;
   chartOptions: any = {};
 
   ngOnInit(): void {
@@ -25,14 +26,18 @@ export class CompaniesStatsComponent implements OnInit {
   }
 
   loadStats(): void {
+    this.isLoading = true;
+    this.hasError = false;
     this.analyticsService.getCompaniesStats().subscribe({
       next: (response) => {
         this.stats = response.data;
         this.isLoading = false;
         this.initChart();
       },
-      error: () => {
+      error: (err) => {
+        console.error('Error cargando estadísticas de empresas:', err);
         this.isLoading = false;
+        this.hasError = true;
       },
     });
   }

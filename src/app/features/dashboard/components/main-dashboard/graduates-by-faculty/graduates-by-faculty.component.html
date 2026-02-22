@@ -1,6 +1,8 @@
 <div class="card">
-  <div class="card-header">
-    <h4 class="card-title">Graduados por Facultad/Universidad</h4>
+  <div class="card-header d-flex align-items-center">
+    <h4 class="card-title mb-0">Graduados por Facultad/Universidad</h4>
+    <i class="mdi mdi-information-outline ms-2 text-muted" style="cursor: help; font-size: 18px;"
+       title="Distribución de graduados registrados agrupados por facultad y universidad. Muestra las 10 facultades con mayor cantidad de graduados en un gráfico de barras horizontales y una tabla detallada."></i>
   </div>
   <div class="card-body">
     @if (isLoading) {
@@ -8,6 +10,14 @@
         <div class="spinner-border text-primary" role="status">
           <span class="visually-hidden">Cargando...</span>
         </div>
+      </div>
+    } @else if (hasError) {
+      <div class="text-center py-4">
+        <i class="mdi mdi-alert-circle-outline text-danger fs-1"></i>
+        <p class="text-muted mt-2 mb-1">No se pudieron cargar los graduados por facultad.</p>
+        <button class="btn btn-sm btn-outline-primary" (click)="loadStats()">
+          <i class="mdi mdi-refresh me-1"></i>Reintentar
+        </button>
       </div>
     } @else {
       @if (faculties.length === 0) {

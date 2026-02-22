@@ -18,6 +18,7 @@ export class ApplicationsStatsComponent implements OnInit {
 
   stats: ApplicationsStats | null = null;
   isLoading = true;
+  hasError = false;
   chartOptions: any = {};
 
   ngOnInit(): void {
@@ -25,14 +26,18 @@ export class ApplicationsStatsComponent implements OnInit {
   }
 
   loadStats(): void {
+    this.isLoading = true;
+    this.hasError = false;
     this.analyticsService.getApplicationsStats().subscribe({
       next: (response) => {
         this.stats = response.data;
         this.isLoading = false;
         this.initChart();
       },
-      error: () => {
+      error: (err) => {
+        console.error('Error cargando estadísticas de postulaciones:', err);
         this.isLoading = false;
+        this.hasError = true;
       },
     });
   }

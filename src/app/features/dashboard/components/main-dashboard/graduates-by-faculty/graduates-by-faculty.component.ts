@@ -18,6 +18,7 @@ export class GraduatesByFacultyComponent implements OnInit {
 
   faculties: FacultyStats[] = [];
   isLoading = true;
+  hasError = false;
   chartOptions: any = {};
 
   ngOnInit(): void {
@@ -25,14 +26,18 @@ export class GraduatesByFacultyComponent implements OnInit {
   }
 
   loadStats(): void {
+    this.isLoading = true;
+    this.hasError = false;
     this.analyticsService.getGraduatesByFaculty().subscribe({
       next: (response) => {
         this.faculties = response.data.slice(0, 10);
         this.isLoading = false;
         this.initChart();
       },
-      error: () => {
+      error: (err) => {
+        console.error('Error cargando graduados por facultad:', err);
         this.isLoading = false;
+        this.hasError = true;
       },
     });
   }

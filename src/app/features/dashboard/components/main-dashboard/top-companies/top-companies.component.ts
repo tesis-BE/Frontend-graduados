@@ -17,19 +17,24 @@ export class TopCompaniesComponent implements OnInit {
 
   companies: TopCompany[] = [];
   isLoading = true;
+  hasError = false;
 
   ngOnInit(): void {
     this.loadCompanies();
   }
 
   loadCompanies(): void {
+    this.isLoading = true;
+    this.hasError = false;
     this.analyticsService.getTopCompanies(10).subscribe({
       next: (response) => {
         this.companies = response.data;
         this.isLoading = false;
       },
-      error: () => {
+      error: (err) => {
+        console.error('Error cargando top empresas:', err);
         this.isLoading = false;
+        this.hasError = true;
       },
     });
   }
