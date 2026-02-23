@@ -54,4 +54,20 @@ export const AUTH_ROUTES: Routes = [
       ).then((m) => m.EmailVerifivationComponent),
     data: { title: 'Email Verification' },
   },
+  {
+    path: 'solicitud-reclutador',
+    loadComponent: () =>
+      import(
+        './components/recruiter-request/recruiter-request.component'
+      ).then((m) => m.RecruiterRequestComponent),
+    data: { title: 'Solicitud de Reclutador' },
+  },
+  {
+    path: 'activar-cuenta',
+    loadComponent: () =>
+      import(
+        './components/activate-account/activate-account.component'
+      ).then((m) => m.ActivateAccountComponent),
+    data: { title: 'Activar Cuenta' },
+  },
 ];

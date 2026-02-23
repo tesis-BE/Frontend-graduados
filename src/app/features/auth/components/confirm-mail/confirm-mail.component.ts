@@ -1,5 +1,5 @@
-import { Component } from '@angular/core'
-import { RouterLink } from '@angular/router'
+import { Component, inject, OnInit } from '@angular/core'
+import { RouterLink, ActivatedRoute } from '@angular/router'
 
 @Component({
     selector: 'app-confirm-mail',
@@ -7,4 +7,11 @@ import { RouterLink } from '@angular/router'
     templateUrl: './confirm-mail.component.html',
     styles: ``
 })
-export class ConfirmMailComponent {}
+export class ConfirmMailComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  isRecruiterRequest = false;
+
+  ngOnInit(): void {
+    this.isRecruiterRequest = this.route.snapshot.queryParamMap.get('type') === 'recruiter-request';
+  }
+}

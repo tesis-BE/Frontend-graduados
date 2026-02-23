@@ -14,22 +14,38 @@
             </a>
           </div>
 
-          <div class="auth-title-section mb-3 text-center mt-2">
-            <h3 class="text-dark fs-20 fw-medium mb-2">Email Confirmation</h3>
-            <p class="text-muted fs-15">
-              Please check your email for confirmation mail. <br />Click link in
-              email to verification your account
-            </p>
-          </div>
+          @if (isRecruiterRequest) {
+            <div class="auth-title-section mb-3 text-center mt-2">
+              <h3 class="text-dark fs-20 fw-medium mb-2">¡Solicitud recibida!</h3>
+              <p class="text-muted fs-15">
+                Hemos recibido tu solicitud de acceso como reclutador. <br />
+                Nuestro equipo la revisará y te notificaremos por correo electrónico
+                con el resultado.
+              </p>
+            </div>
 
-          <div class="text-center">
-            <a
-              href="javascript:void(0);"
-              class="btn btn-primary mt-3 me-1"
-              type="submit"
-              >Resend Confirmation</a
-            >
-          </div>
+            <div class="text-center">
+              <a
+                routerLink="/auth/login"
+                class="btn btn-primary mt-3 me-1"
+              >Volver al inicio de sesión</a>
+            </div>
+          } @else {
+            <div class="auth-title-section mb-3 text-center mt-2">
+              <h3 class="text-dark fs-20 fw-medium mb-2">Confirmación de correo</h3>
+              <p class="text-muted fs-15">
+                Por favor revisa tu correo electrónico. <br />
+                Haz clic en el enlace para verificar tu cuenta.
+              </p>
+            </div>
+
+            <div class="text-center">
+              <a
+                routerLink="/auth/login"
+                class="btn btn-primary mt-3 me-1"
+              >Ir al inicio de sesión</a>
+            </div>
+          }
 
           <div class="text-center pt-4">
             <div class="maintenance-img">

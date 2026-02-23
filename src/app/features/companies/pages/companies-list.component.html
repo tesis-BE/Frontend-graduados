@@ -1,25 +1,110 @@
-<div class="container">
-  <app-card [title]="'Gestión de Empresas'" [showHeader]="true">
-    <ng-template #header>
-      <button class="btn btn-primary" (click)="openCreateModal()">
-        <i class="bi bi-plus-lg"></i>
-        Nueva Empresa
-      </button>
-    </ng-template>
+<div class="companies-container">
+  <!-- ── Encabezado ──────────────────────────────────────────── -->
+  <div class="companies-header">
+    <div class="title-block">
+      <h2 class="title">Gestión de Empresas</h2>
+      <span class="count-badge">{{ total }} empresas</span>
+    </div>
+    <button class="btn btn-primary" (click)="openCreateModal()">
+      <i class="mdi mdi-plus"></i>
+      Nueva Empresa
+    </button>
+  </div>
 
-    <ng-template #body>
-      <app-data-table
-        [columns]="columns"
-        [data]="companies"
-        [loading]="isLoading"
-        [total]="total"
-        [pageSize]="pageSize"
-        [currentPage]="currentPage"
-        (pageChange)="onPageChange($event)"
-        (actionClick)="onActionClick($event)"
-      ></app-data-table>
-    </ng-template>
-  </app-card>
+  <!-- ── Tabla ─────────────────────────────────────────────── -->
+  <div class="companies-card">
+    @if (isLoading) {
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <span>Cargando empresas...</span>
+      </div>
+    } @else if (companies.length === 0) {
+      <div class="empty-state">
+        <i class="mdi mdi-domain-off"></i>
+        <p>No hay empresas registradas</p>
+        <button class="btn btn-primary" (click)="openCreateModal()">
+          <i class="mdi mdi-plus"></i>
+          Crear primera empresa
+        </button>
+      </div>
+    } @else {
+      <div class="table-wrap">
+        <table class="companies-table">
+          <thead>
+            <tr>
+              <th style="width: 30%">Empresa</th>
+              <th style="width: 20%">Industria</th>
+              <th style="width: 15%">Tamaño</th>
+              <th style="width: 20%">Ubicación</th>
+              <th class="col-actions">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (company of companies; track company.id) {
+              <tr class="table-row">
+                <td class="td-company">
+                  @if (company.logoUrl) {
+                    <img [src]="getLogoUrl(company.logoUrl)" [alt]="company.name" class="company-logo" />
+                  } @else {
+                    <div class="company-logo-placeholder">
+                      <i class="mdi mdi-domain"></i>
+                    </div>
+                  }
+                  <div class="company-info">
+                    <span class="company-name">{{ company.name }}</span>
+                    @if (company.website) {
+                      <a [href]="company.website" target="_blank" class="company-website" (click)="$event.stopPropagation()">
+                        <i class="mdi mdi-open-in-new"></i>
+                        {{ company.website }}
+                      </a>
+                    }
+                  </div>
+                </td>
+                <td>
+                  <span class="industry-badge">{{ company.industry }}</span>
+                </td>
+                <td>{{ formatSize(company.size) }}</td>
+                <td>
+                  <div class="location">
+                    <i class="mdi mdi-map-marker-outline"></i>
+                    {{ company.location }}
+                  </div>
+                </td>
+                <td class="col-actions">
+                  <button class="btn-action btn-edit" title="Editar" (click)="editCompany(company)">
+                    <i class="mdi mdi-pencil-outline"></i>
+                  </button>
+                  <button class="btn-action btn-delete" title="Eliminar" (click)="deleteCompany(company)">
+                    <i class="mdi mdi-trash-can-outline"></i>
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Paginación -->
+      @if (totalPages > 1) {
+        <div class="pagination">
+          <button class="btn-page" (click)="onPageChange(currentPage - 1)" [disabled]="currentPage === 1">
+            <i class="mdi mdi-chevron-left"></i>
+          </button>
+          @for (p of pageNumbers; track p) {
+            <button class="btn-page" [class.active]="p === currentPage" (click)="onPageChange(p)">
+              {{ p }}
+            </button>
+          }
+          <button class="btn-page" (click)="onPageChange(currentPage + 1)" [disabled]="currentPage === totalPages">
+            <i class="mdi mdi-chevron-right"></i>
+          </button>
+          <span class="page-info">
+            {{ (currentPage - 1) * pageSize + 1 }}–{{ currentPage * pageSize > total ? total : currentPage * pageSize }} de {{ total }}
+          </span>
+        </div>
+      }
+    }
+  </div>
 
   <app-modal-form
     *ngIf="showModal"
@@ -44,10 +129,7 @@
           />
           <small
             class="form-error"
-            *ngIf="
-              form.get('name')?.hasError('required') &&
-              form.get('name')?.touched
-            "
+            *ngIf="form.get('name')?.hasError('required') && form.get('name')?.touched"
           >
             El nombre es requerido
           </small>
@@ -57,18 +139,19 @@
           <label for="industry" class="form-label">Industria *</label>
           <select id="industry" class="form-control" formControlName="industry">
             <option value="">Seleccionar industria</option>
-            <option value="technology">Tecnología</option>
-            <option value="finance">Finanzas</option>
-            <option value="healthcare">Salud</option>
-            <option value="education">Educación</option>
-            <option value="other">Otra</option>
+            <option value="Tecnología">Tecnología</option>
+            <option value="Finanzas">Finanzas</option>
+            <option value="Salud">Salud</option>
+            <option value="Educación">Educación</option>
+            <option value="Manufactura">Manufactura</option>
+            <option value="Retail">Retail</option>
+            <option value="Construcción">Construcción</option>
+            <option value="Turismo">Turismo</option>
+            <option value="Otra">Otra</option>
           </select>
           <small
             class="form-error"
-            *ngIf="
-              form.get('industry')?.hasError('required') &&
-              form.get('industry')?.touched
-            "
+            *ngIf="form.get('industry')?.hasError('required') && form.get('industry')?.touched"
           >
             La industria es requerida
           </small>
@@ -85,10 +168,7 @@
           </select>
           <small
             class="form-error"
-            *ngIf="
-              form.get('size')?.hasError('required') &&
-              form.get('size')?.touched
-            "
+            *ngIf="form.get('size')?.hasError('required') && form.get('size')?.touched"
           >
             El tamaño es requerido
           </small>
@@ -105,10 +185,7 @@
           />
           <small
             class="form-error"
-            *ngIf="
-              form.get('location')?.hasError('required') &&
-              form.get('location')?.touched
-            "
+            *ngIf="form.get('location')?.hasError('required') && form.get('location')?.touched"
           >
             La ubicación es requerida
           </small>
@@ -136,13 +213,38 @@
           ></textarea>
           <small
             class="form-error"
-            *ngIf="
-              form.get('description')?.hasError('required') &&
-              form.get('description')?.touched
-            "
+            *ngIf="form.get('description')?.hasError('required') && form.get('description')?.touched"
           >
             La descripción es requerida
           </small>
+        </div>
+
+        <div class="form-group">
+          <label for="logo" class="form-label">Logo de la Empresa</label>
+          @if (!logoPreview) {
+            <div class="file-input-wrapper">
+              <input
+                id="logo"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                (change)="onLogoSelected($event)"
+                class="file-input"
+                #fileInput
+              />
+              <label for="logo" class="file-input-label">
+                <i class="mdi mdi-cloud-upload"></i>
+                <span>Seleccionar imagen (JPG, PNG, WEBP)</span>
+              </label>
+              <small class="form-helper">Máximo 5 MB</small>
+            </div>
+          } @else {
+            <div class="logo-preview-wrapper">
+              <img [src]="logoPreview" alt="Logo preview" class="logo-preview" />
+              <button type="button" class="btn-remove-logo" (click)="removeLogo()">
+                <i class="mdi mdi-trash-can-outline"></i> Remover
+              </button>
+            </div>
+          }
         </div>
       </div>
     </ng-template>

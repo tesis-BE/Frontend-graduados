@@ -21,6 +21,7 @@ import { selectAuthUser } from '@core/store/authentication/authentication.select
 import { User } from '@core/store/authentication/auth.model';
 import { SavedJobService } from '@core/services/api/saved-job.service';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
+import { environment } from '@/environments/environment';
 
 @Component({
   selector: 'app-job-offers-list',
@@ -146,7 +147,7 @@ export class JobOffersListComponent implements OnInit {
     this.jobOfferService.getJobOffers(params).subscribe({
       next: (response) => {
         this.jobOffers = response.data;
-        this.total = response.total;
+        this.total = response.pagination?.total ?? response.total ?? 0;
         this.isLoading = false;
         this.cdr.markForCheck();
       },
@@ -234,6 +235,11 @@ export class JobOffersListComponent implements OnInit {
   closeModal(): void {
     this.showModal = false;
     this.form.reset();
+  }
+
+  getLogoUrl(url: string | null | undefined): string | null {
+    if (!url) return null;
+    return url.startsWith('http') ? url : `${environment.assetsUrl}${url}`;
   }
 
   // Métodos para favoritos

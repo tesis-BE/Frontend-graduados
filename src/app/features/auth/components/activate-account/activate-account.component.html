@@ -1,0 +1,159 @@
+<div class="auth-page">
+  <!-- Panel izquierdo: marca -->
+  <div class="brand-panel">
+    <div class="brand-inner">
+      <a routerLink="/" class="brand-logo">
+        <img src="assets/images/logos/uleam-logo-ligth.png" alt="ULEAM" height="48" />
+      </a>
+
+      <div class="brand-copy">
+        <h1 class="brand-title">Activa tu<br/>cuenta y<br/><span>comienza ahora.</span></h1>
+        <p class="brand-desc">
+          Tu solicitud fue aprobada. Establece tu contraseña
+          para comenzar a publicar ofertas de empleo.
+        </p>
+      </div>
+
+      <ul class="brand-steps">
+        <li>
+          <span class="step-num done">
+            <i class="mdi mdi-check"></i>
+          </span>
+          <div>
+            <strong>Solicitud enviada</strong>
+            <span>datos registrados</span>
+          </div>
+        </li>
+        <li>
+          <span class="step-num done">
+            <i class="mdi mdi-check"></i>
+          </span>
+          <div>
+            <strong>Solicitud aprobada</strong>
+            <span>revisión completada</span>
+          </div>
+        </li>
+        <li>
+          <span class="step-num active">3</span>
+          <div>
+            <strong>Activa tu cuenta</strong>
+            <span>establece tu contraseña</span>
+          </div>
+        </li>
+      </ul>
+
+      <p class="brand-footer-text">¿Ya tienes cuenta? <a routerLink="/auth/login">Inicia sesión</a></p>
+    </div>
+
+    <div class="deco deco-1"></div>
+    <div class="deco deco-2"></div>
+    <div class="deco deco-3"></div>
+  </div>
+
+  <!-- Panel derecho -->
+  <div class="form-panel">
+    <div class="form-inner">
+
+      <!-- Estado: Activación exitosa -->
+      @if (activated) {
+        <div class="success-card">
+          <div class="success-icon">
+            <i class="mdi mdi-check-circle-outline"></i>
+          </div>
+          <h2 class="success-title">¡Cuenta activada!</h2>
+          <p class="success-desc">
+            Tu cuenta ha sido activada correctamente. Ya puedes iniciar sesión
+            y comenzar a publicar ofertas de empleo.
+          </p>
+          <a routerLink="/auth/login" class="btn-submit">
+            <i class="mdi mdi-login"></i>
+            Iniciar sesión
+          </a>
+        </div>
+      } @else {
+        <!-- Formulario de activación -->
+        <div class="form-header">
+          <h2 class="form-title">Activar cuenta</h2>
+          <p class="form-subtitle">Establece la contraseña para tu cuenta de reclutador</p>
+        </div>
+
+        @if (errorMessage) {
+          <div class="auth-alert auth-alert-error">
+            <i class="mdi mdi-alert-circle-outline"></i>
+            <span>{{ errorMessage }}</span>
+            <button type="button" class="alert-close" (click)="errorMessage = ''">
+              <i class="mdi mdi-close"></i>
+            </button>
+          </div>
+        }
+
+        @if (!token) {
+          <div class="auth-alert auth-alert-error">
+            <i class="mdi mdi-link-off"></i>
+            <span>
+              El enlace de activación no es válido. Verifica que hayas copiado
+              la URL completa del correo electrónico.
+            </span>
+          </div>
+        } @else {
+          <form [formGroup]="activateForm" (ngSubmit)="onSubmit()">
+            <div class="field-group">
+              <label for="password" class="field-label">Nueva contraseña</label>
+              <div class="field-wrap" [class.has-error]="submitted && f['password'].errors">
+                <i class="mdi mdi-lock-outline field-icon"></i>
+                <input [type]="showPassword ? 'text' : 'password'" id="password"
+                  class="field-input" formControlName="password"
+                  placeholder="Mínimo 6 caracteres" autocomplete="new-password" />
+                <button type="button" class="toggle-pass" (click)="showPassword = !showPassword">
+                  <i class="mdi" [class.mdi-eye-outline]="!showPassword"
+                    [class.mdi-eye-off-outline]="showPassword"></i>
+                </button>
+              </div>
+              @if (submitted && f['password'].errors) {
+                <span class="field-error">
+                  @if (f['password'].errors['required']) { La contraseña es requerida }
+                  @if (f['password'].errors['minlength']) { Mínimo 6 caracteres }
+                </span>
+              }
+            </div>
+
+            <div class="field-group">
+              <label for="confirmPassword" class="field-label">Confirmar contraseña</label>
+              <div class="field-wrap" [class.has-error]="submitted && f['confirmPassword'].errors">
+                <i class="mdi mdi-lock-check-outline field-icon"></i>
+                <input [type]="showConfirmPassword ? 'text' : 'password'" id="confirmPassword"
+                  class="field-input" formControlName="confirmPassword"
+                  placeholder="Repite la contraseña" autocomplete="new-password" />
+                <button type="button" class="toggle-pass" (click)="showConfirmPassword = !showConfirmPassword">
+                  <i class="mdi" [class.mdi-eye-outline]="!showConfirmPassword"
+                    [class.mdi-eye-off-outline]="showConfirmPassword"></i>
+                </button>
+              </div>
+              @if (submitted && f['confirmPassword'].errors) {
+                <span class="field-error">
+                  @if (f['confirmPassword'].errors['required']) { Debes confirmar la contraseña }
+                  @if (f['confirmPassword'].errors['mismatch']) { Las contraseñas no coinciden }
+                </span>
+              }
+            </div>
+
+            <button type="submit" class="btn-submit" [disabled]="loading || !token">
+              @if (loading) {
+                <span class="spinner"></span>
+                Activando cuenta...
+              } @else {
+                <i class="mdi mdi-shield-check-outline"></i>
+                Activar cuenta
+              }
+            </button>
+          </form>
+        }
+
+        <p class="form-footer">
+          ¿Ya tienes cuenta?
+          <a routerLink="/auth/login">Inicia sesión</a>
+        </p>
+      }
+    </div>
+  </div>
+</div>

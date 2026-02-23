@@ -113,6 +113,13 @@ export const routes: Routes = [
             (m) => m.CAREERS_ROUTES,
           ),
       },
+      {
+        path: 'recruiter-requests',
+        loadChildren: () =>
+          import('./features/recruiter-requests/recruiter-requests.routes').then(
+            (m) => m.RECRUITER_REQUESTS_ROUTES,
+          ),
+      },
     ],
   },
   {

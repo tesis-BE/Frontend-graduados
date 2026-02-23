@@ -139,4 +139,12 @@ export const MENU_ITEMS: MenuItemType[] = [
       },
     ],
   },
+  {
+    key: 'recruiter-requests',
+    label: 'Solicitudes de Reclutadores',
+    icon: 'user-check',
+    url: '/recruiter-requests',
+    allowedUserTypes: ['admin'],
+    requiredPermissions: ['manage_users'],
+  },
 ];

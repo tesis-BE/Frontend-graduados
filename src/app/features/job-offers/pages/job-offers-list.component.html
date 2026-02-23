@@ -42,7 +42,16 @@
             </tr>
             <tr *ngFor="let job of jobOffers" class="data-row">
               <td>{{ job.title }}</td>
-              <td>{{ job.companyName || 'N/A' }}</td>
+              <td>
+                <div class="company-cell">
+                  @if (job.company?.logoUrl) {
+                    <img [src]="getLogoUrl(job.company!.logoUrl)" [alt]="job.companyName" class="company-logo-thumb" />
+                  } @else {
+                    <div class="company-logo-placeholder"><i class="ti ti-building"></i></div>
+                  }
+                  <span>{{ job.companyName || job.company?.name || 'N/A' }}</span>
+                </div>
+              </td>
               <td>{{ job.jobType }}</td>
               <td>{{ job.location }}</td>
               <td>

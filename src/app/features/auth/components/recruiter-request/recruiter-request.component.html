@@ -1,0 +1,338 @@
+<div class="auth-page">
+  <!-- Panel izquierdo: marca -->
+  <div class="brand-panel">
+    <div class="brand-inner">
+      <a routerLink="/" class="brand-logo">
+        <img src="assets/images/logos/uleam-logo-ligth.png" alt="ULEAM" height="48" />
+      </a>
+
+      <div class="brand-copy">
+        <h1 class="brand-title">Registra tu<br/>empresa y<br/><span>encuentra talento.</span></h1>
+        <p class="brand-desc">
+          Publica ofertas de empleo y conecta con graduados calificados
+          de la ULEAM para tu empresa.
+        </p>
+      </div>
+
+      <ul class="brand-steps">
+        <li>
+          <span class="step-num">1</span>
+          <div>
+            <strong>Envía tu solicitud</strong>
+            <span>con los datos de tu empresa</span>
+          </div>
+        </li>
+        <li>
+          <span class="step-num">2</span>
+          <div>
+            <strong>Revisión del equipo</strong>
+            <span>validamos tu información</span>
+          </div>
+        </li>
+        <li>
+          <span class="step-num">3</span>
+          <div>
+            <strong>Activa tu cuenta</strong>
+            <span>con el link que te enviamos</span>
+          </div>
+        </li>
+      </ul>
+
+      <p class="brand-footer-text">¿Ya tienes cuenta? <a routerLink="/auth/login">Inicia sesión</a></p>
+    </div>
+
+    <div class="deco deco-1"></div>
+    <div class="deco deco-2"></div>
+    <div class="deco deco-3"></div>
+  </div>
+
+  <!-- Panel derecho: formulario -->
+  <div class="form-panel">
+    <div class="form-inner">
+      <div class="form-header">
+        <h2 class="form-title">Solicitud de acceso</h2>
+        <p class="form-subtitle">Completa tus datos y los de tu empresa</p>
+      </div>
+
+      @if (errorMessage) {
+        <div class="auth-alert auth-alert-error">
+          <i class="mdi mdi-alert-circle-outline"></i>
+          <span>{{ errorMessage }}</span>
+          <button type="button" class="alert-close" (click)="errorMessage = ''">
+            <i class="mdi mdi-close"></i>
+          </button>
+        </div>
+      }
+
+      <form [formGroup]="requestForm" (ngSubmit)="onSubmit()">
+
+        <!-- ── Sección: Datos personales ── -->
+        <div class="section-label">
+          <i class="mdi mdi-account-outline"></i>
+          <span>Datos personales</span>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            <label for="firstName" class="field-label">Nombre</label>
+            <div class="field-wrap" [class.has-error]="submitted && f['firstName'].errors">
+              <i class="mdi mdi-account-outline field-icon"></i>
+              <input type="text" id="firstName" class="field-input"
+                formControlName="firstName" placeholder="Tu nombre" autocomplete="given-name" />
+            </div>
+            @if (submitted && f['firstName'].errors) {
+              <span class="field-error">Requerido (mín. 2 caracteres)</span>
+            }
+          </div>
+          <div class="field-group">
+            <label for="lastName" class="field-label">Apellido</label>
+            <div class="field-wrap" [class.has-error]="submitted && f['lastName'].errors">
+              <i class="mdi mdi-account-outline field-icon"></i>
+              <input type="text" id="lastName" class="field-input"
+                formControlName="lastName" placeholder="Tu apellido" autocomplete="family-name" />
+            </div>
+            @if (submitted && f['lastName'].errors) {
+              <span class="field-error">Requerido (mín. 2 caracteres)</span>
+            }
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label for="email" class="field-label">Correo electrónico</label>
+          <div class="field-wrap" [class.has-error]="submitted && f['email'].errors">
+            <i class="mdi mdi-email-outline field-icon"></i>
+            <input type="email" id="email" class="field-input"
+              formControlName="email" placeholder="correo@empresa.com" autocomplete="email" />
+          </div>
+          @if (submitted && f['email'].errors) {
+            <span class="field-error">
+              @if (f['email'].errors['required']) { El correo es requerido }
+              @if (f['email'].errors['email']) { Ingresa un correo válido }
+            </span>
+          }
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            <label for="phone" class="field-label">Teléfono</label>
+            <div class="field-wrap" [class.has-error]="submitted && f['phone'].errors">
+              <i class="mdi mdi-phone-outline field-icon"></i>
+              <input type="tel" id="phone" class="field-input"
+                formControlName="phone" placeholder="Ej: 0991234567" autocomplete="tel" />
+            </div>
+            @if (submitted && f['phone'].errors) {
+              <span class="field-error">
+                @if (f['phone'].errors['required']) { El teléfono es requerido }
+                @if (f['phone'].errors['pattern']) { Solo números (7–15 dígitos) }
+              </span>
+            }
+          </div>
+          <div class="field-group">
+            <label for="position" class="field-label">Cargo en la empresa</label>
+            <div class="field-wrap" [class.has-error]="submitted && f['position'].errors">
+              <i class="mdi mdi-briefcase-outline field-icon"></i>
+              <input type="text" id="position" class="field-input"
+                formControlName="position" placeholder="Ej: Gerente de RRHH" />
+            </div>
+            @if (submitted && f['position'].errors) {
+              <span class="field-error">El cargo es requerido</span>
+            }
+          </div>
+        </div>
+
+        <!-- ── Sección: Empresa ── -->
+        <div class="section-label">
+          <i class="mdi mdi-domain"></i>
+          <span>Empresa</span>
+        </div>
+
+        <!-- Búsqueda de empresa -->
+        @if (!selectedCompany && !isNewCompany) {
+          <div class="field-group">
+            <label class="field-label">Buscar empresa existente</label>
+            <div class="field-wrap">
+              <i class="mdi mdi-magnify field-icon"></i>
+              <input type="text" class="field-input"
+                [value]="companySearch"
+                (input)="onCompanySearchChange($event)"
+                placeholder="Escribe el nombre de tu empresa..." />
+              @if (searchLoading) {
+                <span class="field-spinner"></span>
+              }
+            </div>
+
+            @if (companyResults.length > 0) {
+              <div class="search-results">
+                @for (company of companyResults; track company.id) {
+                  <div class="search-result-item" (click)="selectCompany(company)">
+                    <div class="result-name">{{ company.name }}</div>
+                    <div class="result-meta">{{ company.industry }} · {{ company.location }}</div>
+                  </div>
+                }
+              </div>
+            }
+
+            <button type="button" class="btn-link" (click)="enableNewCompany()">
+              <i class="mdi mdi-plus-circle-outline"></i>
+              Mi empresa no está en la lista, registrar nueva
+            </button>
+          </div>
+        }
+
+        <!-- Empresa seleccionada -->
+        @if (selectedCompany) {
+          <div class="selected-company">
+            <div class="company-info">
+              <i class="mdi mdi-domain"></i>
+              <div>
+                <strong>{{ selectedCompany.name }}</strong>
+                <span>{{ selectedCompany.industry }} · {{ selectedCompany.location }}</span>
+              </div>
+            </div>
+            <button type="button" class="btn-clear" (click)="clearSelection()">
+              <i class="mdi mdi-close"></i>
+            </button>
+          </div>
+        }
+
+        <!-- Formulario de empresa nueva -->
+        @if (isNewCompany) {
+          <div class="new-company-section">
+            <div class="new-company-header">
+              <span>Datos de la nueva empresa</span>
+              <button type="button" class="btn-back" (click)="clearSelection()">
+                <i class="mdi mdi-arrow-left"></i> Buscar existente
+              </button>
+            </div>
+
+            <div class="field-group">
+              <label for="companyName" class="field-label">Nombre de la empresa *</label>
+              <div class="field-wrap" [class.has-error]="submitted && f['companyName'].errors">
+                <i class="mdi mdi-domain field-icon"></i>
+                <input type="text" id="companyName" class="field-input"
+                  formControlName="companyName" placeholder="Ej: Tech Solutions" />
+              </div>
+              @if (submitted && f['companyName'].errors) {
+                <span class="field-error">El nombre de empresa es requerido</span>
+              }
+            </div>
+
+            <div class="field-row">
+              <div class="field-group">
+                <label for="companyIndustry" class="field-label">Industria *</label>
+                <div class="field-wrap select-wrap" [class.has-error]="submitted && f['companyIndustry'].errors">
+                  <i class="mdi mdi-factory field-icon"></i>
+                  <select id="companyIndustry" class="field-input field-select" formControlName="companyIndustry">
+                    <option value="">Seleccionar</option>
+                    <option value="technology">Tecnología</option>
+                    <option value="finance">Finanzas</option>
+                    <option value="healthcare">Salud</option>
+                    <option value="education">Educación</option>
+                    <option value="construction">Construcción</option>
+                    <option value="commerce">Comercio</option>
+                    <option value="services">Servicios</option>
+                    <option value="other">Otra</option>
+                  </select>
+                  <i class="mdi mdi-chevron-down select-arrow"></i>
+                </div>
+                @if (submitted && f['companyIndustry'].errors) {
+                  <span class="field-error">La industria es requerida</span>
+                }
+              </div>
+              <div class="field-group">
+                <label for="companySize" class="field-label">Tamaño *</label>
+                <div class="field-wrap select-wrap" [class.has-error]="submitted && f['companySize'].errors">
+                  <i class="mdi mdi-account-group-outline field-icon"></i>
+                  <select id="companySize" class="field-input field-select" formControlName="companySize">
+                    <option value="">Seleccionar</option>
+                    <option value="startup">Startup (1-10)</option>
+                    <option value="small">Pequeña (11-50)</option>
+                    <option value="medium">Mediana (51-250)</option>
+                    <option value="large">Grande (250+)</option>
+                  </select>
+                  <i class="mdi mdi-chevron-down select-arrow"></i>
+                </div>
+                @if (submitted && f['companySize'].errors) {
+                  <span class="field-error">El tamaño es requerido</span>
+                }
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label for="companyLocation" class="field-label">Ubicación *</label>
+              <div class="field-wrap" [class.has-error]="submitted && f['companyLocation'].errors">
+                <i class="mdi mdi-map-marker-outline field-icon"></i>
+                <input type="text" id="companyLocation" class="field-input"
+                  formControlName="companyLocation" placeholder="Ej: Manta, Ecuador" />
+              </div>
+              @if (submitted && f['companyLocation'].errors) {
+                <span class="field-error">La ubicación es requerida</span>
+              }
+            </div>
+
+            <div class="field-group">
+              <label for="companyWebsite" class="field-label">Sitio web (opcional)</label>
+              <div class="field-wrap">
+                <i class="mdi mdi-web field-icon"></i>
+                <input type="url" id="companyWebsite" class="field-input"
+                  formControlName="companyWebsite" placeholder="https://ejemplo.com" />
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label for="companyDescription" class="field-label">Descripción *</label>
+              <div class="field-wrap" [class.has-error]="submitted && f['companyDescription'].errors">
+                <i class="mdi mdi-text-box-outline field-icon"></i>
+                <textarea id="companyDescription" class="field-input field-textarea"
+                  formControlName="companyDescription" placeholder="Breve descripción de la empresa..."
+                  rows="3"></textarea>
+              </div>
+              @if (submitted && f['companyDescription'].errors) {
+                <span class="field-error">La descripción es requerida</span>
+              }
+            </div>
+
+            <!-- Logo -->
+            <div class="field-group">
+              <label class="field-label">Logo de la empresa (opcional)</label>
+              @if (!logoPreview) {
+                <div class="logo-upload" (click)="logoInput.click()">
+                  <i class="mdi mdi-cloud-upload-outline"></i>
+                  <span>Haz clic para subir el logo</span>
+                  <small>JPG, PNG o WEBP · Máx. 2 MB</small>
+                  <input #logoInput type="file" accept="image/jpeg,image/png,image/webp"
+                    (change)="onLogoSelected($event)" hidden />
+                </div>
+              } @else {
+                <div class="logo-preview">
+                  <img [src]="logoPreview" alt="Logo preview" />
+                  <button type="button" class="btn-remove-logo" (click)="removeLogo()">
+                    <i class="mdi mdi-close"></i>
+                  </button>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <button type="submit" class="btn-submit" [disabled]="loading">
+          @if (loading) {
+            <span class="spinner"></span>
+            Enviando solicitud...
+          } @else {
+            Enviar solicitud
+          }
+        </button>
+
+        <p class="form-footer">
+          ¿Eres graduado?
+          <a routerLink="/auth/register">Regístrate aquí</a>
+          ·
+          ¿Ya tienes cuenta?
+          <a routerLink="/auth/login">Inicia sesión</a>
+        </p>
+
+      </form>
+    </div>
+  </div>
+</div>

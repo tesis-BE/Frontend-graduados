@@ -1,0 +1,250 @@
+<div class="rr-container">
+
+  <!-- ── Encabezado ──────────────────────────────────────────── -->
+  <div class="rr-header">
+    <div class="rr-title-block">
+      <h2 class="rr-title">Solicitudes de Reclutadores</h2>
+      <span class="rr-count-badge">{{ total }} solicitudes</span>
+    </div>
+  </div>
+
+  <!-- ── Filtros por estado ─────────────────────────────────── -->
+  <div class="rr-filters">
+    <button class="filter-tab" [class.active]="statusFilter === 'all'"
+      (click)="changeFilter('all')">Todas</button>
+    <button class="filter-tab filter-tab--pending" [class.active]="statusFilter === 'pendiente'"
+      (click)="changeFilter('pendiente')">Pendientes</button>
+    <button class="filter-tab filter-tab--approved" [class.active]="statusFilter === 'aprobado'"
+      (click)="changeFilter('aprobado')">Aprobadas</button>
+    <button class="filter-tab filter-tab--rejected" [class.active]="statusFilter === 'rechazado'"
+      (click)="changeFilter('rechazado')">Rechazadas</button>
+  </div>
+
+  <!-- ── Tabla ─────────────────────────────────────────────── -->
+  <div class="rr-card">
+    @if (isLoading) {
+      <div class="rr-loading">
+        <div class="spinner"></div>
+        <span>Cargando solicitudes...</span>
+      </div>
+    } @else if (requests.length === 0) {
+      <div class="rr-empty">
+        <i class="mdi mdi-inbox-outline"></i>
+        <p>No hay solicitudes{{ statusFilter !== 'all' ? ' con este estado' : '' }}</p>
+      </div>
+    } @else {
+      <div class="rr-table-wrap">
+        <table class="rr-table">
+          <thead>
+            <tr>
+              <th>Solicitante</th>
+              <th>Correo</th>
+              <th>Empresa</th>
+              <th>Cargo</th>
+              <th>Estado</th>
+              <th>Fecha</th>
+              <th class="col-actions">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (req of requests; track req.id) {
+              <tr class="rr-row" (click)="openDetailModal(req)">
+                <td class="td-name">
+                  <span class="name-initials">{{ req.firstName[0] }}{{ req.lastName[0] }}</span>
+                  <span>{{ req.firstName }} {{ req.lastName }}</span>
+                </td>
+                <td class="td-email">{{ req.email }}</td>
+                <td>{{ getCompanyName(req) }}</td>
+                <td>{{ req.position }}</td>
+                <td>
+                  <span [class]="getStatusClass(req.status)">
+                    {{ getStatusLabel(req.status) }}
+                  </span>
+                </td>
+                <td class="td-date">{{ req.createdAt | date:'dd/MM/yyyy' }}</td>
+                <td class="col-actions" (click)="$event.stopPropagation()">
+                  @if (req.status === 'pendiente') {
+                    <button class="btn-action btn-approve" title="Aprobar"
+                      (click)="approveRequest(req)">
+                      <i class="mdi mdi-check-circle-outline"></i>
+                    </button>
+                    <button class="btn-action btn-reject" title="Rechazar"
+                      (click)="openRejectModal(req)">
+                      <i class="mdi mdi-close-circle-outline"></i>
+                    </button>
+                  }
+                  <button class="btn-action btn-detail" title="Ver detalle"
+                    (click)="openDetailModal(req)">
+                    <i class="mdi mdi-eye-outline"></i>
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Paginación -->
+      @if (totalPages > 1) {
+        <div class="rr-pagination">
+          <button class="btn-page" (click)="onPageChange(currentPage - 1)"
+            [disabled]="currentPage === 1">
+            <i class="mdi mdi-chevron-left"></i>
+          </button>
+          @for (p of pageNumbers; track p) {
+            <button class="btn-page" [class.active]="p === currentPage"
+              (click)="onPageChange(p)">{{ p }}</button>
+          }
+          <button class="btn-page" (click)="onPageChange(currentPage + 1)"
+            [disabled]="currentPage === totalPages">
+            <i class="mdi mdi-chevron-right"></i>
+          </button>
+          <span class="page-info">
+            {{ (currentPage - 1) * pageSize + 1 }}–{{ currentPage * pageSize > total ? total : currentPage * pageSize }}
+            de {{ total }}
+          </span>
+        </div>
+      }
+    }
+  </div>
+
+
+  <!-- Modal de detalle -->
+  @if (showDetailModal && selectedRequest) {
+    <div class="modal-backdrop" (click)="closeDetailModal()">
+      <div class="modal-panel" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Detalle de solicitud</h3>
+          <button class="btn-close-modal" (click)="closeDetailModal()">
+            <i class="mdi mdi-close"></i>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Estado -->
+          <div class="detail-status">
+            <span class="badge" [class]="getStatusClass(selectedRequest.status)">
+              {{ getStatusLabel(selectedRequest.status) }}
+            </span>
+            <span class="detail-date">
+              {{ selectedRequest.createdAt | date:'dd/MM/yyyy HH:mm' }}
+            </span>
+          </div>
+
+          <!-- Datos personales -->
+          <div class="detail-section">
+            <h4><i class="mdi mdi-account-outline"></i> Datos personales</h4>
+            <div class="detail-grid">
+              <div class="detail-item">
+                <label>Nombre completo</label>
+                <span>{{ selectedRequest.firstName }} {{ selectedRequest.lastName }}</span>
+              </div>
+              <div class="detail-item">
+                <label>Correo</label>
+                <span>{{ selectedRequest.email }}</span>
+              </div>
+              <div class="detail-item">
+                <label>Teléfono</label>
+                <span>{{ selectedRequest.phone }}</span>
+              </div>
+              <div class="detail-item">
+                <label>Cargo</label>
+                <span>{{ selectedRequest.position }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Datos de empresa -->
+          <div class="detail-section">
+            <h4><i class="mdi mdi-domain"></i> Empresa</h4>
+            @if (selectedRequest.existingCompany) {
+              <div class="detail-existing-company">
+                <i class="mdi mdi-link-variant"></i>
+                Empresa existente: <strong>{{ selectedRequest.existingCompany.name }}</strong>
+              </div>
+            } @else {
+              <div class="detail-grid">
+                <div class="detail-item">
+                  <label>Nombre</label>
+                  <span>{{ selectedRequest.companyName }}</span>
+                </div>
+                <div class="detail-item">
+                  <label>Industria</label>
+                  <span>{{ selectedRequest.companyIndustry }}</span>
+                </div>
+                <div class="detail-item">
+                  <label>Tamaño</label>
+                  <span>{{ selectedRequest.companySize }}</span>
+                </div>
+                <div class="detail-item">
+                  <label>Ubicación</label>
+                  <span>{{ selectedRequest.companyLocation }}</span>
+                </div>
+                @if (selectedRequest.companyWebsite) {
+                  <div class="detail-item">
+                    <label>Sitio web</label>
+                    <a [href]="selectedRequest.companyWebsite" target="_blank">
+                      {{ selectedRequest.companyWebsite }}
+                    </a>
+                  </div>
+                }
+                <div class="detail-item full-width">
+                  <label>Descripción</label>
+                  <span>{{ selectedRequest.companyDescription }}</span>
+                </div>
+              </div>
+              @if (selectedRequest.companyLogoPath) {
+                <div class="detail-logo">
+                  <label>Logo</label>
+                  <img [src]="'/api/v1/uploads/logos/' + selectedRequest.companyLogoPath"
+                    alt="Logo empresa" />
+                </div>
+              }
+            }
+          </div>
+
+          @if (selectedRequest.rejectionReason) {
+            <div class="detail-section">
+              <h4><i class="mdi mdi-alert-outline"></i> Motivo de rechazo</h4>
+              <p class="rejection-text">{{ selectedRequest.rejectionReason }}</p>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Modal de rechazo -->
+  @if (showRejectModal && selectedRequest) {
+    <div class="modal-backdrop" (click)="closeRejectModal()">
+      <div class="modal-panel modal-small" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Rechazar solicitud</h3>
+          <button class="btn-close-modal" (click)="closeRejectModal()">
+            <i class="mdi mdi-close"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p class="reject-info">
+            Se notificará a <strong>{{ selectedRequest.firstName }} {{ selectedRequest.lastName }}</strong>
+            sobre el rechazo de su solicitud.
+          </p>
+          <div class="form-group">
+            <label class="form-label">Motivo del rechazo (opcional)</label>
+            <textarea class="form-control" rows="3"
+              [(ngModel)]="rejectionReason"
+              placeholder="Ej: La empresa no cumple con los requisitos..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="closeRejectModal()">Cancelar</button>
+          <button class="btn btn-reject-lg" (click)="confirmReject()">
+            <i class="mdi mdi-close-circle-outline"></i>
+            Confirmar rechazo
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+<!-- /rr-container -->

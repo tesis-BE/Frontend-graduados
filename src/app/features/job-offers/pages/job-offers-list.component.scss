@@ -298,3 +298,36 @@
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.2); }
 }
+
+// ── Logo de empresa en tabla ──────────────────────────────────
+.company-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.company-logo-thumb {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  border-radius: 6px;
+  border: 1px solid var(--bs-border-color, #e2e8f0);
+  background: #fff;
+  padding: 3px;
+  flex-shrink: 0;
+}
+
+.company-logo-placeholder {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: var(--bs-tertiary-bg, #f1f5f9);
+  border: 1px solid var(--bs-border-color, #e2e8f0);
+  color: var(--bs-secondary-color, #94a3b8);
+  flex-shrink: 0;
+
+  i { font-size: 18px; }
+}
