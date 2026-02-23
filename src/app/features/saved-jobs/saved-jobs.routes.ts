@@ -1,10 +1,10 @@
 import { Routes } from '@angular/router';
-import { authGuard } from '@core/guards/auth.guard';
+import { permissionGuard } from '@core/guards/permission.guard';
 
 export const SAVED_JOBS_ROUTES: Routes = [
   {
     path: '',
-    canActivate: [authGuard],
+    canActivate: [permissionGuard('view_saved_jobs')],
     loadComponent: () =>
       import('./pages/saved-jobs-list/saved-jobs-list.component').then(
         (m) => m.SavedJobsListComponent

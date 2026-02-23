@@ -2,6 +2,14 @@ import { Routes } from '@angular/router';
 
 export const ERROR_ROUTES: Routes = [
   {
+    path: 'error-403',
+    loadComponent: () =>
+      import('./components/error403/error403.component').then(
+        (m) => m.Error403Component,
+      ),
+    data: { title: 'Acceso Denegado' },
+  },
+  {
     path: 'error-404',
     loadComponent: () =>
       import('./components/error404/error404.component').then(

@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { authGuard } from '@core/guards/auth.guard';
+import { permissionGuard } from '@core/guards/permission.guard';
 
 export const JOB_OFFERS_ROUTES: Routes = [
   {
@@ -8,7 +8,7 @@ export const JOB_OFFERS_ROUTES: Routes = [
       import('../pages/job-offers-page.component').then(
         (m) => m.JobOffersPageComponent,
       ),
-    canActivate: [authGuard],
+    canActivate: [permissionGuard('view_job_offers')],
   },
   {
     path: ':id',
@@ -16,6 +16,6 @@ export const JOB_OFFERS_ROUTES: Routes = [
       import('../components/detail/job-detail.component').then(
         (m) => m.JobDetailComponent,
       ),
-    canActivate: [authGuard],
+    canActivate: [permissionGuard('view_job_offers')],
   },
 ];
