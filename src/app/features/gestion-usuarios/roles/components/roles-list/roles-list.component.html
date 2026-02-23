@@ -2,11 +2,16 @@
   <!-- Header -->
   <div class="roles-header">
     <div class="header-content">
-      <h1>Gestión de Roles y Permisos</h1>
-      <p>Administra los roles y permisos del sistema</p>
+      <div class="header-icon">
+        <i class="bi bi-shield-lock"></i>
+      </div>
+      <div>
+        <h1>Roles y Permisos</h1>
+        <p>Controla qué módulos puede ver cada tipo de usuario en el sistema</p>
+      </div>
     </div>
     <button class="btn-crear" (click)="openCreateForm()">
-      <i class="bi bi-plus"></i>
+      <i class="bi bi-plus-lg"></i>
       Nuevo Rol
     </button>
   </div>
@@ -20,9 +25,11 @@
       </div>
     } @else if (roles.length === 0) {
       <div class="estado-vacio">
-        <i class="bi bi-shield"></i>
+        <div class="estado-vacio-icon">
+          <i class="bi bi-shield"></i>
+        </div>
         <h3>No hay roles definidos</h3>
-        <p>Crea tu primer rol para asignar permisos a los usuarios</p>
+        <p>Crea tu primer rol para controlar el acceso a los módulos del sistema</p>
         <button class="btn btn-primary mt-3" (click)="openCreateForm()">
           <i class="bi bi-plus me-1"></i> Crear Rol
         </button>
@@ -30,10 +37,11 @@
     } @else {
       <div class="roles-grid">
         @for (role of roles; track role.id) {
-          <div class="role-card">
+          <div class="role-card" [style.--role-color]="getRoleColor(role.name)">
+            <!-- Card Header -->
             <div class="role-card-header">
-              <div class="role-icon">
-                <i class="bi bi-shield-check"></i>
+              <div class="role-icon" [style.background]="getRoleColor(role.name)">
+                <i class="bi" [ngClass]="getRoleIcon(role.name)"></i>
               </div>
               <div class="role-info">
                 <h3>{{ role.name }}</h3>
@@ -57,20 +65,37 @@
               </div>
             </div>
 
-            @if (role.permissions && role.permissions.length > 0) {
-              <div class="role-permissions">
-                <span class="permisos-label">
-                  {{ role.permissions.length }} permisos
+            <!-- Barra de progreso de permisos -->
+            <div class="permissions-progress">
+              <div class="progress-info">
+                <span class="progress-label">Acceso a módulos</span>
+                <span class="progress-value">
+                  {{ role.permissions?.length || 0 }} / {{ totalPermissions }}
                 </span>
-                <div class="permisos-preview">
-                  @for (perm of role.permissions; track perm.id) {
-                    <span class="permiso-tag">{{ getPermissionLabel(perm.name) }}</span>
-                  }
-                </div>
+              </div>
+              <div class="progress-bar-container">
+                <div
+                  class="progress-bar-fill"
+                  [style.width.%]="((role.permissions?.length || 0) / totalPermissions) * 100"
+                  [style.background]="getRoleColor(role.name)"
+                ></div>
+              </div>
+            </div>
+
+            <!-- Permisos como chips con íconos -->
+            @if (role.permissions && role.permissions.length > 0) {
+              <div class="role-modules">
+                @for (perm of role.permissions; track perm.id) {
+                  <div class="module-chip">
+                    <i class="bi" [ngClass]="getPermissionIcon(perm.name)" [style.color]="getPermissionColor(perm.name)"></i>
+                    <span>{{ getPermissionLabel(perm.name) }}</span>
+                  </div>
+                }
               </div>
             } @else {
-              <div class="role-permissions">
-                <span class="permisos-label text-warning">Sin permisos asignados</span>
+              <div class="role-modules empty">
+                <i class="bi bi-lock"></i>
+                <span>Sin acceso a módulos</span>
               </div>
             }
           </div>

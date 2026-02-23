@@ -106,14 +106,86 @@ export class RolesListComponent implements OnInit, OnDestroy {
 
   getPermissionLabel(name: string): string {
     const labels: Record<string, string> = {
-      manage_users: 'Usuarios',
-      manage_companies: 'Empresas',
-      manage_jobs: 'Ofertas',
-      manage_applications: 'Postulaciones',
-      manage_roles: 'Roles',
-      view_analytics: 'Analíticas',
-      manage_settings: 'Configuración',
+      view_dashboard:            'Dashboard',
+      view_job_offers:           'Ofertas de Empleo',
+      view_saved_jobs:           'Mis Favoritos',
+      manage_jobs:               'Crear Ofertas',
+      manage_applications:       'Postulaciones',
+      manage_companies:          'Empresas',
+      manage_company_recruiters: 'Asignar Reclutadores',
+      view_graduates:            'Directorio de Graduados',
+      view_messages:             'Mensajes',
+      manage_faculties:          'Facultades',
+      manage_careers:            'Carreras',
+      manage_universities:       'Extensiones Universitarias',
+      manage_users:              'Usuarios',
+      manage_roles:              'Roles y Permisos',
+      manage_recruiter_requests: 'Solicitudes de Reclutadores',
     };
     return labels[name] || name;
+  }
+
+  getPermissionIcon(name: string): string {
+    const icons: Record<string, string> = {
+      view_dashboard:            'bi-speedometer2',
+      view_job_offers:           'bi-briefcase',
+      view_saved_jobs:           'bi-heart-fill',
+      manage_jobs:               'bi-briefcase-fill',
+      manage_applications:       'bi-file-earmark-text-fill',
+      manage_companies:          'bi-building',
+      manage_company_recruiters: 'bi-person-badge-fill',
+      view_graduates:            'bi-mortarboard-fill',
+      view_messages:             'bi-chat-dots-fill',
+      manage_faculties:          'bi-book-fill',
+      manage_careers:            'bi-journal-bookmark-fill',
+      manage_universities:       'bi-geo-alt-fill',
+      manage_users:              'bi-people-fill',
+      manage_roles:              'bi-shield-lock-fill',
+      manage_recruiter_requests: 'bi-person-check-fill',
+    };
+    return icons[name] || 'bi-key-fill';
+  }
+
+  getPermissionColor(name: string): string {
+    const colors: Record<string, string> = {
+      view_dashboard:            '#64748b',
+      view_job_offers:           '#0891b2',
+      view_saved_jobs:           '#e11d48',
+      manage_jobs:               '#10b981',
+      manage_applications:       '#3b82f6',
+      manage_companies:          '#f59e0b',
+      manage_company_recruiters: '#d97706',
+      view_graduates:            '#8b5cf6',
+      view_messages:             '#06b6d4',
+      manage_faculties:          '#0284c7',
+      manage_careers:            '#059669',
+      manage_universities:       '#7c3aed',
+      manage_users:              '#6366f1',
+      manage_roles:              '#a855f7',
+      manage_recruiter_requests: '#dc2626',
+    };
+    return colors[name] || '#6b7280';
+  }
+
+  getRoleColor(name: string): string {
+    const colors: Record<string, string> = {
+      admin: '#6366f1',
+      recruiter: '#f59e0b',
+      graduate: '#10b981',
+    };
+    return colors[name?.toLowerCase()] || '#3b82f6';
+  }
+
+  getRoleIcon(name: string): string {
+    const icons: Record<string, string> = {
+      admin: 'bi-shield-shaded',
+      recruiter: 'bi-person-badge',
+      graduate: 'bi-mortarboard-fill',
+    };
+    return icons[name?.toLowerCase()] || 'bi-person-circle';
+  }
+
+  get totalPermissions(): number {
+    return 15; // Un permiso por cada módulo del menú lateral
   }
 }

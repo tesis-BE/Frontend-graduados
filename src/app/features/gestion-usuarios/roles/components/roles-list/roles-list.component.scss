@@ -13,19 +13,38 @@
   gap: 2rem;
 
   .header-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
     flex: 1;
+
+    .header-icon {
+      width: 52px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--bs-primary), #6366f1);
+      border-radius: 14px;
+      flex-shrink: 0;
+
+      i {
+        font-size: 1.5rem;
+        color: white;
+      }
+    }
 
     h1 {
       font-size: 1.75rem;
       font-weight: 700;
       color: var(--bs-heading-color);
-      margin: 0 0 0.5rem 0;
+      margin: 0 0 0.25rem 0;
     }
 
     p {
       color: var(--bs-secondary-color);
       margin: 0;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
     }
   }
 
@@ -37,14 +56,16 @@
     background: var(--bs-primary);
     border: none;
     color: white;
-    border-radius: 0.5rem;
+    border-radius: 0.625rem;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
+    white-space: nowrap;
 
     &:hover:not(:disabled) {
       opacity: 0.9;
       transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(var(--bs-primary-rgb), 0.35);
     }
 
     &:disabled {
@@ -101,11 +122,21 @@
   padding: 4rem 2rem;
   text-align: center;
 
-  i {
-    font-size: 3.5rem;
-    color: var(--bs-secondary-color);
-    opacity: 0.3;
+  .estado-vacio-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--bs-primary-bg-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     margin-bottom: 1.5rem;
+
+    i {
+      font-size: 2.5rem;
+      color: var(--bs-primary);
+      opacity: 0.6;
+    }
   }
 
   h3 {
@@ -117,13 +148,14 @@
   p {
     color: var(--bs-secondary-color);
     margin: 0;
+    max-width: 360px;
   }
 }
 
 // Grid de roles
 .roles-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
   gap: 1.5rem;
 }
 
@@ -131,19 +163,33 @@
 .role-card {
   background: var(--bs-body-bg);
   border: 1px solid var(--bs-border-color);
-  border-radius: 0.75rem;
-  padding: 1.25rem;
-  transition: all 0.2s ease;
+  border-radius: 0.875rem;
+  padding: 1.5rem;
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--role-color, var(--bs-primary));
+    border-radius: 0.875rem 0.875rem 0 0;
+  }
 
   &:hover {
-    border-color: var(--bs-primary);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border-color: var(--role-color, var(--bs-primary));
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
   }
 
   .role-card-header {
     display: flex;
     gap: 1rem;
-    margin-bottom: 1rem;
+    margin-bottom: 1.25rem;
   }
 
   .role-icon {
@@ -152,12 +198,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, var(--bs-primary), #6366f1);
-    border-radius: 0.75rem;
+    border-radius: 12px;
     flex-shrink: 0;
 
     i {
-      font-size: 1.5rem;
+      font-size: 1.4rem;
       color: white;
     }
   }
@@ -168,9 +213,10 @@
 
     h3 {
       font-size: 1.1rem;
-      font-weight: 600;
+      font-weight: 700;
       color: var(--bs-heading-color);
       margin: 0 0 0.25rem 0;
+      text-transform: capitalize;
     }
 
     p {
@@ -197,8 +243,8 @@
   }
 
   .btn-action {
-    width: 32px;
-    height: 32px;
+    width: 34px;
+    height: 34px;
     border-radius: 8px;
     border: none;
     display: flex;
@@ -233,38 +279,90 @@
   }
 }
 
-// Permisos
-.role-permissions {
-  padding-top: 1rem;
-  border-top: 1px solid var(--bs-border-color);
+// Barra de progreso
+.permissions-progress {
+  margin-bottom: 1.25rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--bs-border-color);
 
-  .permisos-label {
-    display: inline-block;
+  .progress-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .progress-label {
     font-size: 0.8rem;
     font-weight: 500;
-    color: var(--bs-primary);
-    margin-bottom: 0.75rem;
+    color: var(--bs-secondary-color);
   }
 
-  .permisos-preview {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
+  .progress-value {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--bs-heading-color);
   }
 
-  .permiso-tag {
-    display: inline-flex;
-    padding: 0.25rem 0.625rem;
-    font-size: 0.75rem;
-    font-weight: 500;
-    background: rgba(var(--bs-primary-rgb), 0.1);
-    color: var(--bs-primary);
+  .progress-bar-container {
+    height: 6px;
+    background: var(--bs-border-color);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.5s ease;
+    min-width: 0;
+  }
+}
+
+// Módulos / Permisos
+.role-modules {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+
+  &.empty {
+    justify-content: center;
+    padding: 0.75rem;
+    background: var(--bs-warning-bg-subtle);
     border-radius: 0.5rem;
 
-    &.more {
-      background: var(--bs-border-color);
-      color: var(--bs-secondary-color);
+    i {
+      color: var(--bs-warning);
     }
+
+    span {
+      font-size: 0.8rem;
+      color: var(--bs-warning-text-emphasis);
+      font-weight: 500;
+    }
+  }
+}
+
+.module-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  background: var(--bs-tertiary-bg);
+  border: 1px solid var(--bs-border-color);
+  border-radius: 2rem;
+  color: var(--bs-body-color);
+  transition: all 0.15s;
+
+  i {
+    font-size: 0.85rem;
+  }
+
+  &:hover {
+    background: var(--bs-primary-bg-subtle);
+    border-color: rgba(var(--bs-primary-rgb), 0.2);
   }
 }
 
@@ -277,6 +375,21 @@
   .roles-header {
     flex-direction: column;
     align-items: stretch;
+
+    .header-content {
+      .header-icon {
+        width: 44px;
+        height: 44px;
+
+        i {
+          font-size: 1.25rem;
+        }
+      }
+
+      h1 {
+        font-size: 1.35rem;
+      }
+    }
 
     .btn-crear {
       width: 100%;

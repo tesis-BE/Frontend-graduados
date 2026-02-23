@@ -3,7 +3,7 @@
   <div class="page-header">
     <div class="header-left">
       <button class="btn-back" (click)="onCancel()">
-        <i class="mdi mdi-arrow-left"></i>
+        <i class="bi bi-arrow-left"></i>
       </button>
       <div>
         <h1>{{ pageTitle() }}</h1>
@@ -26,7 +26,7 @@
         <div class="card form-card">
           <div class="card-header">
             <div class="card-header-icon">
-              <i class="mdi mdi-shield-edit-outline"></i>
+              <i class="bi bi-shield-plus"></i>
             </div>
             <div>
               <h5 class="card-title mb-0">Información del Rol</h5>
@@ -35,7 +35,7 @@
           </div>
           <div class="card-body">
             <div class="row g-3">
-              <div class="col-12">
+              <div class="col-md-6">
                 <label for="name" class="form-label">
                   Nombre del rol <span class="text-danger">*</span>
                 </label>
@@ -51,18 +51,18 @@
                   <div class="invalid-feedback">{{ getFieldError('name') }}</div>
                 }
               </div>
-              <div class="col-12">
+              <div class="col-md-6">
                 <label for="description" class="form-label">
                   Descripción <span class="text-danger">*</span>
                 </label>
-                <textarea
+                <input
+                  type="text"
                   id="description"
                   class="form-control"
                   formControlName="description"
-                  rows="3"
                   placeholder="Describe qué puede hacer un usuario con este rol..."
                   [class.is-invalid]="isFieldInvalid('description')"
-                ></textarea>
+                />
                 @if (isFieldInvalid('description')) {
                   <div class="invalid-feedback">{{ getFieldError('description') }}</div>
                 }
@@ -71,67 +71,63 @@
           </div>
         </div>
 
-        <!-- Permisos -->
+        <!-- Permisos / Módulos -->
         <div class="card form-card">
           <div class="card-header">
-            <div class="card-header-icon">
-              <i class="mdi mdi-key-variant"></i>
+            <div class="card-header-icon bg-modules">
+              <i class="bi bi-grid-fill"></i>
             </div>
-            <div>
-              <h5 class="card-title mb-0">Permisos</h5>
+            <div class="flex-grow-1">
+              <h5 class="card-title mb-0">Acceso a Módulos</h5>
               <small class="text-muted">
-                {{ selectedPermissionIds().size }} permiso(s) seleccionado(s)
+                Activa los módulos a los que este rol tendrá acceso
               </small>
+            </div>
+            <div class="header-actions">
+              <span class="selected-count">{{ selectedPermissionIds().size }} seleccionados</span>
+              @if (!allPermissionsSelected) {
+                <button type="button" class="btn-select-all" (click)="selectAllPermissions()">
+                  Seleccionar todo
+                </button>
+              } @else {
+                <button type="button" class="btn-select-all" (click)="deselectAllPermissions()">
+                  Quitar todo
+                </button>
+              }
             </div>
           </div>
           <div class="card-body">
             @if (permissionGroups().length === 0) {
               <div class="text-center py-4">
-                <i class="mdi mdi-key-remove text-muted fs-1 opacity-50"></i>
+                <i class="bi bi-key text-muted fs-1 opacity-50"></i>
                 <p class="text-muted mt-2 mb-0">No hay permisos disponibles</p>
               </div>
             } @else {
-              <div class="permission-groups">
+              <div class="modules-grid">
                 @for (group of permissionGroups(); track group.module) {
-                  <div class="permission-group">
-                    <div class="group-header" (click)="toggleModulePermissions(group)">
-                      <div class="group-check">
+                  <div
+                    class="module-card"
+                    [class.active]="isModuleAllSelected(group)"
+                    (click)="toggleModulePermissions(group)"
+                  >
+                    <div class="module-card-icon" [style.background]="getModuleColor(group)">
+                      <i class="bi" [ngClass]="getModuleIcon(group)"></i>
+                    </div>
+                    <div class="module-card-content">
+                      <span class="module-name">{{ group.label }}</span>
+                      <small class="module-desc">{{ group.description }}</small>
+                    </div>
+                    <div class="module-toggle">
+                      <div class="form-check form-switch">
                         <input
-                          type="checkbox"
                           class="form-check-input"
+                          type="checkbox"
+                          role="switch"
                           [checked]="isModuleAllSelected(group)"
-                          [indeterminate]="isModulePartial(group)"
                           (click)="$event.stopPropagation()"
                           (change)="toggleModulePermissions(group)"
                         />
                       </div>
-                      <div class="group-info">
-                        <span class="group-label">{{ group.label }}</span>
-                        <span class="group-count">
-                          {{ group.permissions.length }} permiso(s)
-                        </span>
-                      </div>
-                    </div>
-                    <div class="group-permissions">
-                      @for (perm of group.permissions; track perm.id) {
-                        <label class="permission-item" [class.selected]="isPermissionSelected(perm.id)">
-                          <input
-                            type="checkbox"
-                            class="form-check-input"
-                            [checked]="isPermissionSelected(perm.id)"
-                            (change)="togglePermission(perm.id)"
-                          />
-                          <div class="permission-info">
-                            <i class="mdi {{ getPermissionIcon(perm.name) }}"></i>
-                            <div>
-                              <span class="permission-name">{{ getPermissionLabel(perm.name) }}</span>
-                              @if (perm.description) {
-                                <small class="permission-desc">{{ perm.description }}</small>
-                              }
-                            </div>
-                          </div>
-                        </label>
-                      }
                     </div>
                   </div>
                 }
@@ -144,7 +140,7 @@
       <!-- Actions -->
       <div class="form-actions">
         <button type="button" class="btn btn-light" (click)="onCancel()" [disabled]="isSubmitting()">
-          <i class="mdi mdi-close me-1"></i> Cancelar
+          <i class="bi bi-x-lg me-1"></i> Cancelar
         </button>
         <button
           type="submit"
@@ -155,7 +151,7 @@
             <span class="spinner-border spinner-border-sm"></span>
             Guardando...
           } @else {
-            <i class="mdi" [class]="isEditMode() ? 'mdi-content-save' : 'mdi-plus'"></i>
+            <i class="bi" [ngClass]="isEditMode() ? 'bi-check-lg' : 'bi-plus-lg'"></i>
             {{ isEditMode() ? 'Guardar Cambios' : 'Crear Rol' }}
           }
         </button>

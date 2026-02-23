@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { authGuard } from '@core/guards/auth.guard';
+import { permissionGuard } from '@core/guards/permission.guard';
 
 export const RECRUITER_JOB_CREATION_ROUTES: Routes = [
   {
@@ -8,7 +8,7 @@ export const RECRUITER_JOB_CREATION_ROUTES: Routes = [
       import('./pages/recruiter-job-creation-page.component').then(
         (m) => m.RecruiterJobCreationPageComponent
       ),
-    canActivate: [authGuard],
+    canActivate: [permissionGuard('manage_jobs')],
   },
   {
     path: 'create',
@@ -16,7 +16,7 @@ export const RECRUITER_JOB_CREATION_ROUTES: Routes = [
       import('./components/job-form/create-edit-job.component').then(
         (m) => m.CreateEditJobComponent
       ),
-    canActivate: [authGuard],
+    canActivate: [permissionGuard('manage_jobs')],
   },
   {
     path: 'edit/:id',
@@ -24,6 +24,6 @@ export const RECRUITER_JOB_CREATION_ROUTES: Routes = [
       import('./components/job-form/create-edit-job.component').then(
         (m) => m.CreateEditJobComponent
       ),
-    canActivate: [authGuard],
+    canActivate: [permissionGuard('manage_jobs')],
   },
 ];

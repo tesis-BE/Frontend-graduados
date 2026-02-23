@@ -124,5 +124,6 @@ export class UserRolesModalComponent implements OnInit, OnDestroy {
 
   onBackdropClick(event: MouseEvent): void {
     event.stopPropagation();
+    this.onClose();
   }
 }

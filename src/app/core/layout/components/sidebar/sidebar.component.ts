@@ -90,6 +90,14 @@ export class SidebarComponent implements OnInit, AfterViewInit {
         // Los títulos siempre pasan el filtro
         if (item.isTitle) return true;
 
+        // Verificar tipos de usuario permitidos
+        if (item.allowedUserTypes && item.allowedUserTypes.length > 0) {
+          const currentUser = this.authService.currentUser;
+          if (!currentUser?.userType || !item.allowedUserTypes.includes(currentUser.userType)) {
+            return false;
+          }
+        }
+
         // Verificar permisos
         if (item.requiredPermissions && item.requiredPermissions.length > 0) {
           const mode = item.permissionMode || 'any';
@@ -112,7 +120,26 @@ export class SidebarComponent implements OnInit, AfterViewInit {
         }
         return item;
       })
-      .filter((item): item is MenuItemType => item !== null);
+      .filter((item): item is MenuItemType => item !== null)
+      .filter((item, index, arr) => {
+        // Ocultar títulos de sección si no tienen items visibles después de ellos
+        if (item.isTitle) {
+          const nextItems = arr.slice(index + 1);
+          const hasVisibleChildren = nextItems.some((next) => {
+            if (next.isTitle) return false; // Llegamos a otro título, parar
+            return true; // Hay al menos un item visible
+          });
+          // Verificar hasta el siguiente título
+          let foundVisible = false;
+          for (const next of nextItems) {
+            if (next.isTitle) break;
+            foundVisible = true;
+            break;
+          }
+          return foundVisible;
+        }
+        return true;
+      });
   }
 
   getFeatherIcon(icon: string): string {

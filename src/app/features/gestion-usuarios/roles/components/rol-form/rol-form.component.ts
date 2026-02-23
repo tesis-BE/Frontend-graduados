@@ -27,6 +27,9 @@ import {
 interface PermissionGroup {
   module: string;
   label: string;
+  description: string;
+  icon: string;
+  color: string;
   permissions: Permission[];
 }
 
@@ -60,13 +63,75 @@ export class RolFormComponent implements OnInit, OnDestroy {
   );
 
   private moduleLabels: Record<string, string> = {
-    usuarios: 'Usuarios',
-    empresas: 'Empresas',
-    ofertas: 'Ofertas de Empleo',
-    postulaciones: 'Postulaciones',
-    roles: 'Roles y Permisos',
-    reportes: 'Reportes y Analíticas',
-    configuración: 'Configuración',
+    dashboard:    'Dashboard',
+    ofertas:      'Ofertas de Empleo',
+    favoritos:    'Mis Favoritos',
+    postulaciones:'Postulaciones',
+    empresas:     'Empresas',
+    reclutadores: 'Asignar Reclutadores',
+    graduados:    'Directorio de Graduados',
+    mensajes:     'Mensajes',
+    facultades:   'Facultades',
+    carreras:     'Carreras',
+    extensiones:  'Extensiones Universitarias',
+    usuarios:     'Usuarios',
+    roles:        'Roles y Permisos',
+    solicitudes:  'Solicitudes de Reclutadores',
+    reportes:     'Reportes y Analíticas',
+  };
+
+  private moduleDescriptions: Record<string, string> = {
+    dashboard:    'Acceder al panel principal del sistema',
+    ofertas:      'Ver y explorar ofertas de empleo disponibles',
+    favoritos:    'Guardar y gestionar ofertas favoritas',
+    postulaciones:'Revisar y gestionar postulaciones recibidas',
+    empresas:     'Administrar empresas registradas',
+    reclutadores: 'Asignar reclutadores a empresas',
+    graduados:    'Ver el directorio de graduados',
+    mensajes:     'Enviar y recibir mensajes en el sistema',
+    facultades:   'Gestionar facultades de la universidad',
+    carreras:     'Gestionar carreras universitarias',
+    extensiones:  'Gestionar extensiones y sedes universitarias',
+    usuarios:     'Crear, editar y gestionar cuentas de usuario',
+    roles:        'Configurar roles y asignar permisos',
+    solicitudes:  'Revisar solicitudes de registro como reclutador',
+    reportes:     'Acceder a estadísticas y reportes del sistema',
+  };
+
+  private moduleIcons: Record<string, string> = {
+    dashboard:    'bi-speedometer2',
+    ofertas:      'bi-briefcase',
+    favoritos:    'bi-heart-fill',
+    postulaciones:'bi-file-earmark-text-fill',
+    empresas:     'bi-building',
+    reclutadores: 'bi-person-badge-fill',
+    graduados:    'bi-mortarboard-fill',
+    mensajes:     'bi-chat-dots-fill',
+    facultades:   'bi-book-fill',
+    carreras:     'bi-journal-bookmark-fill',
+    extensiones:  'bi-geo-alt-fill',
+    usuarios:     'bi-people-fill',
+    roles:        'bi-shield-lock-fill',
+    solicitudes:  'bi-person-check-fill',
+    reportes:     'bi-bar-chart-fill',
+  };
+
+  private moduleColors: Record<string, string> = {
+    dashboard:    '#64748b',
+    ofertas:      '#0891b2',
+    favoritos:    '#e11d48',
+    postulaciones:'#3b82f6',
+    empresas:     '#f59e0b',
+    reclutadores: '#d97706',
+    graduados:    '#8b5cf6',
+    mensajes:     '#06b6d4',
+    facultades:   '#0284c7',
+    carreras:     '#059669',
+    extensiones:  '#7c3aed',
+    usuarios:     '#6366f1',
+    roles:        '#a855f7',
+    solicitudes:  '#dc2626',
+    reportes:     '#ec4899',
   };
 
   ngOnInit(): void {
@@ -152,6 +217,9 @@ export class RolFormComponent implements OnInit, OnDestroy {
       ([module, perms]) => ({
         module,
         label: this.moduleLabels[module] || module.charAt(0).toUpperCase() + module.slice(1),
+        description: this.moduleDescriptions[module] || '',
+        icon: this.moduleIcons[module] || 'bi-key-fill',
+        color: this.moduleColors[module] || '#6b7280',
         permissions: perms,
       })
     );
@@ -211,28 +279,71 @@ export class RolFormComponent implements OnInit, OnDestroy {
 
   getPermissionLabel(name: string): string {
     const labels: Record<string, string> = {
-      manage_users: 'Gestionar Usuarios',
-      manage_companies: 'Gestionar Empresas',
-      manage_jobs: 'Gestionar Ofertas',
-      manage_applications: 'Gestionar Postulaciones',
-      manage_roles: 'Gestionar Roles',
-      view_analytics: 'Ver Analíticas',
-      manage_settings: 'Gestionar Configuración',
+      view_dashboard:            'Dashboard',
+      view_job_offers:           'Ofertas de Empleo',
+      view_saved_jobs:           'Mis Favoritos',
+      manage_jobs:               'Crear Ofertas',
+      manage_applications:       'Postulaciones',
+      manage_companies:          'Empresas',
+      manage_company_recruiters: 'Asignar Reclutadores',
+      view_graduates:            'Directorio de Graduados',
+      view_messages:             'Mensajes',
+      manage_faculties:          'Facultades',
+      manage_careers:            'Carreras',
+      manage_universities:       'Extensiones Universitarias',
+      manage_users:              'Usuarios',
+      manage_roles:              'Roles y Permisos',
+      manage_recruiter_requests: 'Solicitudes de Reclutadores',
     };
     return labels[name] || name;
   }
 
   getPermissionIcon(name: string): string {
     const icons: Record<string, string> = {
-      manage_users: 'mdi-account-group',
-      manage_companies: 'mdi-domain',
-      manage_jobs: 'mdi-briefcase-outline',
-      manage_applications: 'mdi-file-document-outline',
-      manage_roles: 'mdi-shield-account',
-      view_analytics: 'mdi-chart-bar',
-      manage_settings: 'mdi-cog-outline',
+      view_dashboard:            'bi-speedometer2',
+      view_job_offers:           'bi-briefcase',
+      view_saved_jobs:           'bi-heart-fill',
+      manage_jobs:               'bi-briefcase-fill',
+      manage_applications:       'bi-file-earmark-text-fill',
+      manage_companies:          'bi-building',
+      manage_company_recruiters: 'bi-person-badge-fill',
+      view_graduates:            'bi-mortarboard-fill',
+      view_messages:             'bi-chat-dots-fill',
+      manage_faculties:          'bi-book-fill',
+      manage_careers:            'bi-journal-bookmark-fill',
+      manage_universities:       'bi-geo-alt-fill',
+      manage_users:              'bi-people-fill',
+      manage_roles:              'bi-shield-lock-fill',
+      manage_recruiter_requests: 'bi-person-check-fill',
     };
-    return icons[name] || 'mdi-key';
+    return icons[name] || 'bi-key-fill';
+  }
+
+  getModuleIcon(group: PermissionGroup): string {
+    return group.icon;
+  }
+
+  getModuleColor(group: PermissionGroup): string {
+    return group.color;
+  }
+
+  selectAllPermissions(): void {
+    const allIds = new Set<number>();
+    for (const group of this.permissionGroups()) {
+      for (const perm of group.permissions) {
+        allIds.add(perm.id);
+      }
+    }
+    this.selectedPermissionIds.set(allIds);
+  }
+
+  deselectAllPermissions(): void {
+    this.selectedPermissionIds.set(new Set());
+  }
+
+  get allPermissionsSelected(): boolean {
+    const total = this.permissionGroups().reduce((sum, g) => sum + g.permissions.length, 0);
+    return total > 0 && this.selectedPermissionIds().size === total;
   }
 
   onSubmit(): void {

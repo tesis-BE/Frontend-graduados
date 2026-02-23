@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { permissionGuard } from '@core/guards/permission.guard';
 
 export const RECRUITER_REQUESTS_ROUTES: Routes = [
   {
@@ -7,5 +8,6 @@ export const RECRUITER_REQUESTS_ROUTES: Routes = [
       import('./pages/recruiter-requests-list.component').then(
         (m) => m.RecruiterRequestsListComponent,
       ),
+    canActivate: [permissionGuard('manage_recruiter_requests')],
   },
 ];

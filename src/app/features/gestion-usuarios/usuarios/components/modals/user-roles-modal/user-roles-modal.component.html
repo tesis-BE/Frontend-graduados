@@ -5,7 +5,7 @@
     <div class="modal-header-custom">
       <div class="d-flex align-items-center gap-3">
         <div class="modal-icon bg-primary-subtle">
-          <i class="mdi mdi-shield-account text-primary"></i>
+          <i class="bi bi-shield-lock text-primary"></i>
         </div>
         <div>
           <h5 class="modal-title mb-0">Roles de Usuario</h5>
@@ -13,7 +13,7 @@
         </div>
       </div>
       <button type="button" class="btn-close-custom" (click)="onClose()">
-        <i class="mdi mdi-close"></i>
+        <i class="bi bi-x-lg"></i>
       </button>
     </div>
 
@@ -28,7 +28,7 @@
         </div>
       } @else if (roles().length === 0) {
         <div class="text-center py-4">
-          <i class="mdi mdi-shield-off-outline fs-1 text-muted opacity-50"></i>
+          <i class="bi bi-shield-x fs-1 text-muted opacity-50"></i>
           <p class="text-muted mt-2 mb-0">No hay roles disponibles</p>
           <small class="text-muted">Crea roles en la sección de Roles y Permisos</small>
         </div>
@@ -46,7 +46,7 @@
             >
               <div class="role-item-info">
                 <div class="role-item-icon" [class.active]="role.assigned">
-                  <i class="mdi" [class]="role.assigned ? 'mdi-shield-check' : 'mdi-shield-outline'"></i>
+                  <i class="bi" [class]="role.assigned ? 'bi-shield-fill-check' : 'bi-shield'"></i>
                 </div>
                 <div class="role-item-text">
                   <span class="role-name">{{ role.name }}</span>
