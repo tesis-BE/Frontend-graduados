@@ -1,6 +1,11 @@
 <div class="card border-0 shadow-sm h-100 recruiter-card">
   <div class="card-header border-bottom d-flex justify-content-between align-items-center">
-    <h5 class="card-title mb-0">{{ job.title }}</h5>
+    <div>
+      <h5 class="card-title mb-0">{{ job.title }}</h5>
+      @if (job.company?.name) {
+        <small class="text-muted"><i class="mdi mdi-domain me-1"></i>{{ job.company!.name }}</small>
+      }
+    </div>
     <span [class]="'badge ' + getStatusBadgeClass(job.status)">
       {{ getStatusLabel(job.status) }}
     </span>

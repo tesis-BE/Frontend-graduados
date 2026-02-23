@@ -6,22 +6,15 @@ import {
   inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, ActivatedRoute } from '@angular/router';
-import {
-  FilterPanelComponent,
-  FilterOption,
-} from '@shared/components/filter-panel/filter-panel.component';
+import { Router, RouterLink } from '@angular/router';
 import { BreadcrumbComponent } from '@shared/components/breadcrumb/breadcrumb.component';
 import { SweetAlertService } from '@shared/services/sweet-alert.service';
 import { ApplicationService } from '@core/services/api/application.service';
-import { JobOfferService } from '@core/services/api/job-offer.service';
 import { ConversationService } from '@core/services/api/conversation.service';
 import { Store } from '@ngrx/store';
 import { selectAuthUser } from '@core/store/authentication/authentication.selector';
 import { User } from '@core/store/authentication/auth.model';
-import { Application } from '@core/interfaces/api/application.interface';
 import { take } from 'rxjs/operators';
-import Swal from 'sweetalert2';
 import { environment } from '@/environments/environment';
 
 @Component({
@@ -29,248 +22,91 @@ import { environment } from '@/environments/environment';
   standalone: true,
   imports: [
     CommonModule,
-    FilterPanelComponent,
     BreadcrumbComponent,
+    RouterLink,
   ],
   templateUrl: './applications-list.component.html',
   styleUrls: ['./applications-list.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ApplicationsListComponent implements OnInit {
-  applications: Application[] = [];
+  applications: any[] = [];
   isLoading = false;
   currentPage = 1;
-  pageSize = 10;
+  pageSize = 12;
   total = 0;
-  isRecruiterOrAdmin = false;
-  loadingJobs = false;
-  jobOptions: Array<{ value: number; label: string }> = [];
-  jobsMap = new Map<number, any>();
-  selectedScopedJob: any | null = null;
-  scopedJobId: number | null = null;
-  activeFilters: { status?: string; jobId?: number } = {};
-
-  private readonly store = inject(Store);
-  private readonly cdr = inject(ChangeDetectorRef);
+  statusFilter = '';
   currentUser: User | null = null;
   assetsUrl = environment.assetsUrl;
 
-  filterOptions: FilterOption[] = [];
-
-  constructor(
-    private applicationService: ApplicationService,
-    private jobOfferService: JobOfferService,
-    private sweetAlert: SweetAlertService,
-    private conversationService: ConversationService,
-    private router: Router,
-    private route: ActivatedRoute,
-  ) {}
+  private readonly store = inject(Store);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly applicationService = inject(ApplicationService);
+  private readonly conversationService = inject(ConversationService);
+  private readonly sweetAlert = inject(SweetAlertService);
+  private readonly router = inject(Router);
 
   ngOnInit(): void {
-    const jobIdFromRoute = Number(this.route.snapshot.queryParamMap.get('jobId'));
-    if (!Number.isNaN(jobIdFromRoute) && jobIdFromRoute > 0) {
-      this.scopedJobId = jobIdFromRoute;
-      this.activeFilters.jobId = jobIdFromRoute;
-    }
-
-    this.buildFilterOptions();
-
     this.store
       .select(selectAuthUser)
       .pipe(take(1))
       .subscribe((user: User | null) => {
         this.currentUser = user;
-        this.isRecruiterOrAdmin =
-          user?.userType === 'recruiter' || user?.userType === 'admin';
-
-        if (this.isRecruiterOrAdmin) {
-          this.loadJobs();
-        }
-
         this.loadApplications();
         this.cdr.markForCheck();
       });
   }
 
-  get isScopedToJob(): boolean {
-    return !!this.scopedJobId;
-  }
-
-  get scopedJobTitle(): string {
-    return this.selectedScopedJob?.title || `Oferta #${this.scopedJobId}`;
-  }
-
-  private buildFilterOptions(): void {
-    const statusFilter: FilterOption = {
-      key: 'status',
-      label: 'Estado',
-      type: 'select',
-      value: this.activeFilters.status || '',
-      options: [
-        { value: 'pendiente', label: 'Pendiente' },
-        { value: 'revisado', label: 'Revisado' },
-        { value: 'entrevistado', label: 'Entrevistado' },
-        { value: 'aceptado', label: 'Aceptado' },
-        { value: 'rechazado', label: 'Rechazado' },
-      ],
-    };
-
-    const options: FilterOption[] = [statusFilter];
-
-    if (this.isRecruiterOrAdmin && !this.isScopedToJob) {
-      options.push({
-        key: 'jobId',
-        label: 'Oferta',
-        type: 'select',
-        value: this.activeFilters.jobId || '',
-        options: this.jobOptions,
-      });
-    }
-
-    this.filterOptions = options;
-  }
-
-  loadApplications(filters?: any): void {
-    if (!this.currentUser) {
-      console.log('No current user, setting empty applications');
-      this.applications = [];
-      this.total = 0;
-      return;
-    }
-
-    console.log('Loading applications for user:', this.currentUser);
-    console.log('User type:', this.currentUser.userType);
-    console.log('Is recruiter/admin:', this.isRecruiterOrAdmin);
-    console.log('Filters:', filters);
+  loadApplications(): void {
+    if (!this.currentUser) return;
 
     this.isLoading = true;
     this.cdr.markForCheck();
 
-    const mergedFilters = filters
-      ? {
-          status: filters.status || undefined,
-          jobId: filters.jobId ? Number(filters.jobId) : this.scopedJobId || undefined,
-        }
-      : this.activeFilters;
+    const params: any = { page: this.currentPage, pageSize: this.pageSize };
+    if (this.statusFilter) params.status = this.statusFilter;
 
-    this.activeFilters = mergedFilters;
+    this.applicationService.getMyApplications(params).subscribe({
+      next: (response: any) => {
+        let list: any[] = [];
+        if (Array.isArray(response?.data)) list = response.data;
+        else if (Array.isArray(response)) list = response;
 
-    const jobId = mergedFilters.jobId;
-    const status = mergedFilters.status;
-    const page = this.currentPage;
-    const pageSize = this.pageSize;
+        this.applications = list.map((app: any) => {
+          const job = app.job;
+          const company = job?.company;
+          const recruiterPhotoRaw = company?.logoUrl;
+          const logoUrl = recruiterPhotoRaw
+            ? (recruiterPhotoRaw.startsWith('http') ? recruiterPhotoRaw : `${this.assetsUrl}${recruiterPhotoRaw}`)
+            : null;
+          return {
+            ...app,
+            jobTitle: job?.title ?? app.jobTitle ?? 'Sin título',
+            companyName: company?.name ?? app.companyName ?? '',
+            jobLocation: job?.location ?? '',
+            jobType: job?.jobType ?? '',
+            workMode: job?.workMode ?? '',
+            logoUrl,
+            appliedAt: app.appliedAt ?? app.createdAt,
+            recruiterId: app.recruiterId ?? job?.createdBy ?? job?.recruiterId ?? job?.recruiter?.id,
+          };
+        });
 
-    const handleError = (error: any) => {
-      console.error('Error loading applications:', error);
-      console.error('Current user:', this.currentUser);
-      console.error('Is recruiter/admin:', this.isRecruiterOrAdmin);
-      
-      let errorMessage = 'No se pudieron cargar las postulaciones';
-      if (error?.error?.message) {
-        errorMessage = error.error.message;
-      } else if (error?.message) {
-        errorMessage = error.message;
-      }
-      
-      this.sweetAlert.error('Error', errorMessage);
-      this.isLoading = false;
-      this.applications = [];
-      this.total = 0;
-      this.cdr.markForCheck();
-    };
-
-    const handleSuccess = (response: any) => {
-      console.log('Applications response:', response); // Debug log
-      
-      // Manejar diferentes estructuras de respuesta del backend
-      let list: any[] = [];
-      if (response?.data && Array.isArray(response.data)) {
-        list = response.data;
-      } else if (Array.isArray(response)) {
-        list = response;
-      } else if (response?.applications && Array.isArray(response.applications)) {
-        list = response.applications;
-      }
-      
-      this.applications = list.map((app) => {
-        const appAny = app as any;
-        const appUserRaw = app.user ?? appAny.user;
-        const appUser = appUserRaw?.cvUrl && !String(appUserRaw.cvUrl).startsWith('http')
-          ? { ...appUserRaw, cvUrl: `${this.assetsUrl}${appUserRaw.cvUrl}` }
-          : appUserRaw;
-        const appJob = app.job ?? appAny.job;
-        return {
-          ...app,
-          user: appUser,
-          job: appJob,
-          candidateName:
-            app.candidateName ||
-            (appUser ? `${appUser.firstName} ${appUser.lastName}` : 'Sin nombre'),
-          jobTitle: appJob?.title ?? app.jobTitle ?? 'Sin título',
-          companyName: appJob?.company?.name ?? app.companyName ?? 'Sin empresa',
-          appliedAt: app.appliedAt || appAny.createdAt,
-          status: app.status || 'pendiente',
-        };
-      });
-
-      this.total =
-        response?.pagination?.total ??
-        response?.total ??
-        this.applications.length;
-      
-      console.log('Processed applications:', this.applications); // Debug log
-      this.isLoading = false;
-      this.cdr.markForCheck();
-    };
-
-    if (this.isRecruiterOrAdmin) {
-      console.log('Loading applications for recruiter/admin');
-      if (jobId) {
-        console.log('Loading applications by job ID:', jobId);
-        this.applicationService
-          .getApplicationsByJob(jobId, { page, pageSize })
-          .subscribe({ next: handleSuccess, error: handleError });
-      } else {
-        console.log('Loading received applications');
-        this.applicationService
-          .getReceivedApplications({ status, page, pageSize })
-          .subscribe({ next: handleSuccess, error: handleError });
-      }
-      return;
-    }
-
-    if (this.currentUser.userType === 'graduate') {
-      console.log('Loading applications for graduate');
-      this.applicationService
-        .getMyApplications({ page, pageSize })
-        .subscribe({ next: handleSuccess, error: handleError });
-      return;
-    }
-
-    console.log('User type not supported:', this.currentUser.userType);
-    this.applications = [];
-    this.total = 0;
-    this.isLoading = false;
-    this.cdr.markForCheck();
+        this.total = response?.pagination?.total ?? response?.total ?? this.applications.length;
+        this.isLoading = false;
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.sweetAlert.error('Error', 'No se pudieron cargar tus postulaciones');
+        this.isLoading = false;
+        this.cdr.markForCheck();
+      },
+    });
   }
 
-  onPageChange(event: any): void {
-    this.currentPage = event.page;
-    if (event.pageSize) this.pageSize = event.pageSize;
-    this.loadApplications();
-  }
-
-  onFilterChange(filters: any): void {
+  onStatusFilterChange(status: string): void {
+    this.statusFilter = status;
     this.currentPage = 1;
-    this.loadApplications(filters);
-  }
-
-  onResetFilters(): void {
-    this.currentPage = 1;
-    this.activeFilters = this.isScopedToJob
-      ? { jobId: this.scopedJobId || undefined }
-      : {};
-    this.buildFilterOptions();
     this.loadApplications();
   }
 
@@ -278,117 +114,54 @@ export class ApplicationsListComponent implements OnInit {
     this.loadApplications();
   }
 
-  clearScopedJob(): void {
-    this.scopedJobId = null;
-    this.selectedScopedJob = null;
-    this.activeFilters = {};
-    this.currentPage = 1;
-    this.buildFilterOptions();
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: { jobId: null },
-      queryParamsHandling: 'merge',
-    });
-    this.loadApplications();
-  }
-
-  loadJobs(): void {
-    if (!this.isRecruiterOrAdmin || this.loadingJobs || this.jobOptions.length)
-      return;
-    this.loadingJobs = true;
-    this.cdr.markForCheck();
-
-    this.jobOfferService.getMyJobOffers().subscribe({
-      next: (resp) => {
-        const list = resp?.data ?? resp ?? [];
-        this.jobsMap = new Map(list.map((job: any) => [job.id, job]));
-        this.jobOptions = list.map((job: any) => ({
-          value: job.id,
-          label: job.title,
-        }));
-
-        if (this.scopedJobId) {
-          this.selectedScopedJob = this.jobsMap.get(this.scopedJobId) ?? null;
-        }
-
-        this.buildFilterOptions();
-        this.loadingJobs = false;
-        this.cdr.markForCheck();
-      },
-      error: (error) => {
-        console.error('Error loading jobs:', error);
-        this.loadingJobs = false;
-        this.cdr.markForCheck();
-      },
-    });
-  }
-
-  updateStatus(application: Application): void {
-    const statusOptions: Record<string, string> = {
-      pendiente: 'Pendiente',
-      revisado: 'Revisado',
-      entrevistado: 'Entrevistado',
-      aceptado: 'Aceptado',
-      rechazado: 'Rechazado',
+  getStatusBgClass(status: string): string {
+    const map: Record<string, string> = {
+      pendiente: 'bg-warning-subtle text-warning',
+      revisado: 'bg-info-subtle text-info',
+      entrevistado: 'bg-primary-subtle text-primary',
+      aceptado: 'bg-success-subtle text-success',
+      rechazado: 'bg-danger-subtle text-danger',
     };
-
-    Swal.fire({
-      title: 'Cambiar estado',
-      input: 'select',
-      inputOptions: statusOptions,
-      inputValue: application.status as any,
-      showCancelButton: true,
-      confirmButtonText: 'Actualizar',
-      cancelButtonText: 'Cancelar',
-      confirmButtonColor: '#007bff',
-    }).then((result) => {
-      if (result.isConfirmed && result.value) {
-        const newStatus = result.value as string;
-        this.isLoading = true;
-        this.cdr.markForCheck();
-
-        this.applicationService
-          .updateApplicationStatus(application.id, newStatus)
-          .subscribe({
-            next: () => {
-              this.sweetAlert.success(
-                'Éxito',
-                'Estado actualizado correctamente',
-              );
-              this.loadApplications();
-            },
-            error: (error) => {
-              console.error('Error updating status:', error);
-              this.sweetAlert.error('Error', 'No se pudo actualizar el estado');
-              this.isLoading = false;
-              this.cdr.markForCheck();
-            },
-          });
-      }
-    });
-  }
-
-  // Helpers para la tabla
-  getStatusClass(status: string): string {
-    const classes: Record<string, string> = {
-      pendiente: 'bg-warning-subtle',
-      revisado: 'bg-info-subtle',
-      entrevistado: 'bg-primary-subtle',
-      aceptado: 'bg-success-subtle',
-      rechazado: 'bg-danger-subtle',
-    };
-    return classes[status] || 'bg-secondary-subtle';
+    return map[status] || 'bg-secondary-subtle text-secondary';
   }
 
   getStatusLabel(status: string): string {
-    const labels: Record<string, string> = {
+    const map: Record<string, string> = {
       pendiente: 'Pendiente',
       revisado: 'Revisado',
       entrevistado: 'Entrevistado',
       aceptado: 'Aceptado',
       rechazado: 'Rechazado',
     };
-    return labels[status] || status;
+    return map[status] || status;
+  }
+
+  getJobTypeLabel(type: string): string {
+    const map: Record<string, string> = {
+      'full-time': 'Tiempo completo',
+      'part-time': 'Medio tiempo',
+      internship: 'Pasantía',
+      contract: 'Contrato',
+      freelance: 'Freelance',
+    };
+    return map[type] || type || '';
+  }
+
+  getWorkModeLabel(mode: string): string {
+    const map: Record<string, string> = {
+      presencial: 'Presencial',
+      remoto: 'Remoto',
+      hibrido: 'Híbrido',
+    };
+    return map[mode] || mode || '';
+  }
+
+  getCompanyInitial(name: string | undefined): string {
+    return (name || '?').charAt(0).toUpperCase();
+  }
+
+  getShowEnd(): number {
+    return Math.min(this.currentPage * this.pageSize, this.total);
   }
 
   // Paginación
@@ -400,98 +173,54 @@ export class ApplicationsListComponent implements OnInit {
     const totalPages = this.getTotalPages();
     const pages: number[] = [];
     const maxVisible = 5;
-
     let start = Math.max(1, this.currentPage - Math.floor(maxVisible / 2));
     let end = Math.min(totalPages, start + maxVisible - 1);
-
-    if (end - start + 1 < maxVisible) {
-      start = Math.max(1, end - maxVisible + 1);
-    }
-
-    for (let i = start; i <= end; i++) {
-      pages.push(i);
-    }
+    if (end - start + 1 < maxVisible) start = Math.max(1, end - maxVisible + 1);
+    for (let i = start; i <= end; i++) pages.push(i);
     return pages;
   }
 
   goToPage(page: number): void {
-    if (page < 1 || page > this.getTotalPages() || page === this.currentPage)
-      return;
+    if (page < 1 || page > this.getTotalPages() || page === this.currentPage) return;
     this.currentPage = page;
     this.loadApplications();
   }
 
-  viewCV(url: string | null): void {
-    if (url) {
-      window.open(url, '_blank');
-    } else {
-      this.sweetAlert.warning('Sin CV', 'Este candidato no ha subido su CV');
-    }
-  }
-
-  openChat(app: Application): void {
-    if (!this.currentUser?.id) {
-      this.sweetAlert.error('Error', 'No se pudo identificar al usuario actual');
-      return;
-    }
-
+  openChat(app: any): void {
     if (app.id) {
       this.conversationService.getConversationByApplication(app.id).subscribe({
-        next: (response: any) => {
-          const conversation = response?.data;
-          if (conversation?.id) {
-            this.router.navigate(['/messages'], {
-              queryParams: { conversationId: conversation.id },
-            });
+        next: (res: any) => {
+          const conv = res?.data;
+          if (conv?.id) {
+            this.router.navigate(['/messages'], { queryParams: { conversationId: conv.id } });
           } else {
-            this.openDirectChat(app);
+            this.startDirectChat(app);
           }
         },
-        error: (error: any) => {
-          if (error?.status === 404) {
-            this.openDirectChat(app);
-            return;
-          }
-          console.error('Error obteniendo conversación:', error);
+        error: (err: any) => {
+          if (err?.status === 404) { this.startDirectChat(app); return; }
           this.sweetAlert.error('Error', 'No se pudo abrir la conversación');
         },
       });
-      return;
+    } else {
+      this.startDirectChat(app);
     }
-
-    this.openDirectChat(app);
   }
 
-  private openDirectChat(app: Application): void {
-    const otherUserId = this.isRecruiterOrAdmin
-      ? app.userId
-      : app.recruiterId || app.job?.createdBy || app.job?.recruiterId || app.job?.recruiter?.id;
-
+  private startDirectChat(app: any): void {
+    const otherUserId = app.recruiterId;
     if (!otherUserId) {
-      this.sweetAlert.warning('Sin contacto', 'No se encontró el usuario para iniciar el chat');
+      this.sweetAlert.warning('Sin contacto', 'No se encontró al reclutador para enviar mensaje');
       return;
     }
-
-    if (otherUserId === this.currentUser?.id) {
-      this.sweetAlert.warning('Acción inválida', 'No puedes iniciar un chat contigo mismo');
-      return;
-    }
-
     this.conversationService.findOrCreateDirect(otherUserId).subscribe({
-      next: (response: any) => {
-        const conversation = response?.data;
-        if (conversation?.id) {
-          this.router.navigate(['/messages'], {
-            queryParams: { conversationId: conversation.id },
-          });
-        } else {
-          this.sweetAlert.error('Error', 'No se pudo abrir la conversación');
+      next: (res: any) => {
+        const conv = res?.data;
+        if (conv?.id) {
+          this.router.navigate(['/messages'], { queryParams: { conversationId: conv.id } });
         }
       },
-      error: (error: any) => {
-        console.error('Error creando conversación:', error);
-        this.sweetAlert.error('Error', 'No se pudo iniciar el chat');
-      },
+      error: () => this.sweetAlert.error('Error', 'No se pudo iniciar el chat'),
     });
   }
 }

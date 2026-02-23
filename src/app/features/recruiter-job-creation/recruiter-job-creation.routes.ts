@@ -26,4 +26,12 @@ export const RECRUITER_JOB_CREATION_ROUTES: Routes = [
       ),
     canActivate: [permissionGuard('manage_jobs')],
   },
+  {
+    path: 'applicants/:jobId',
+    loadComponent: () =>
+      import('./pages/recruiter-applicants/recruiter-applicants.component').then(
+        (m) => m.RecruiterApplicantsComponent
+      ),
+    canActivate: [permissionGuard('manage_jobs')],
+  },
 ];

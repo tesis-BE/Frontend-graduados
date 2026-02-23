@@ -1,85 +1,88 @@
-.avatar {
-  width: 32px;
-  height: 32px;
+// ── Tarjeta de postulación ─────────────────────────────────────────
+.application-card {
+  border: 1px solid var(--bs-border-color-translucent);
+  transition: box-shadow 0.15s ease, transform 0.1s ease;
+  border-radius: 0.75rem;
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    transform: translateY(-1px);
+  }
+
+  .card-body {
+    padding: 1rem;
+  }
+}
+
+// ── Logo/inicial de empresa ─────────────────────────────────────────
+.company-logo {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: var(--bs-light);
+  border: 1px solid var(--bs-border-color-translucent);
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+  overflow: hidden;
 
-  &-title {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    font-size: 14px;
+  img {
+    border-radius: 8px;
   }
 }
 
-// ── Tabla de postulaciones ─────────────────────────────────────────
-.table-responsive {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+.company-initial {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--bs-primary);
 }
 
-.table {
-  min-width: 900px;
-  border-collapse: separate;
-  border-spacing: 0;
-
-  thead tr th {
-    padding: 0.85rem 1rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--bs-secondary-color);
-    background: var(--bs-secondary-bg);
-    white-space: nowrap;
-    vertical-align: middle;
-    border-bottom: 1px solid var(--bs-border-color);
-    border-top: none;
-  }
-
-  tbody tr {
-    transition: background-color 0.15s ease;
-
-    &:hover td {
-      background-color: var(--bs-tertiary-bg);
-    }
-
-    td {
-      padding: 0.85rem 1rem;
-      vertical-align: middle;
-      border-bottom: 1px solid var(--bs-border-color-translucent);
-      font-size: 0.875rem;
-    }
-  }
+// ── Título del puesto ───────────────────────────────────────────────
+.job-title {
+  font-size: 0.94rem;
+  line-height: 1.3;
 }
 
-// Columna candidato: no partir en varias líneas
-td .d-flex.align-items-center.gap-2 span {
-  white-space: nowrap;
-}
-
-// Ancho mínimo para columnas clave
-th:nth-child(1), td:nth-child(1) { min-width: 160px; } // Candidato
-th:nth-child(2), td:nth-child(2) { min-width: 180px; } // Puesto
-th:nth-child(3), td:nth-child(3) { min-width: 140px; } // Empresa
-
-// Truncar texto largo (carta, motivo rechazo) pero con tooltip nativo
-.text-truncate {
-  max-width: 180px;
-  display: inline-block;
-  vertical-align: middle;
-}
-
-// Estados badge como píldoras compactas
-.badge {
-  font-size: 0.725rem;
-  padding: 0.35em 0.7em;
+// ── Chips (ubicación, tipo, modalidad) ─────────────────────────────
+.chip {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.72rem;
+  padding: 0.2em 0.6em;
   border-radius: 999px;
   font-weight: 500;
-  letter-spacing: 0.01em;
+  white-space: nowrap;
+
+  &-location {
+    background: var(--bs-secondary-bg);
+    color: var(--bs-secondary-color);
+    border: 1px solid var(--bs-border-color-translucent);
+  }
+
+  &-type {
+    background: var(--bs-primary-bg-subtle);
+    color: var(--bs-primary-text-emphasis);
+  }
+
+  &-mode {
+    background: var(--bs-info-bg-subtle);
+    color: var(--bs-info-text-emphasis);
+  }
+}
+
+// ── Preview de carta ────────────────────────────────────────────────
+.cover-preview {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.4;
+}
+
+// ── Badge de estado ─────────────────────────────────────────────────
+.badge {
+  font-size: 0.72rem;
+  padding: 0.3em 0.65em;
+  border-radius: 999px;
+  font-weight: 600;
 }

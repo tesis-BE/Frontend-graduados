@@ -32,6 +32,7 @@ export interface JobResponse {
   expiresAt?: Date;
   status: string;
   companyId: number;
+  company?: { id: number; name: string; logoUrl?: string; location?: string };
   createdAt: Date;
   updatedAt: Date;
 }

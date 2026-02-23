@@ -1,303 +1,104 @@
-<breadcrumb [title]="'Postulaciones'" />
+﻿<breadcrumb [title]="'Mis Postulaciones'" />
 
+<!-- Header -->
 <div class="row mb-3">
-  <div
-    class="col-12 d-flex justify-content-between align-items-center flex-wrap gap-2"
-  >
+  <div class="col-12 d-flex justify-content-between align-items-center flex-wrap gap-2">
     <div>
-      <p class="text-muted mb-1 text-uppercase fs-12">Panel de postulaciones</p>
-      <p class="text-muted mb-0" *ngIf="isRecruiterOrAdmin">
-        Gestiona las postulaciones recibidas en tus ofertas de trabajo.
-      </p>
-      <p class="text-muted mb-0" *ngIf="!isRecruiterOrAdmin">
-        Revisa el estado de tus postulaciones a ofertas de trabajo.
-      </p>
+      <p class="text-muted mb-1 text-uppercase fs-12">Mis postulaciones</p>
+      <p class="text-muted mb-0">Revisa el estado de tus postulaciones a ofertas de trabajo.</p>
     </div>
-    <button
-      type="button"
-      class="btn btn-outline-primary"
-      (click)="refresh()"
-      [disabled]="isLoading"
-    >
-      <i class="ti ti-refresh me-1"></i>
-      Refrescar
-    </button>
+    <div class="d-flex gap-2 align-items-center flex-wrap">
+      <select class="form-select form-select-sm" style="width:auto;" [value]="statusFilter" (change)="onStatusFilterChange($any($event.target).value)">
+        <option value="">Todos los estados</option>
+        <option value="pendiente">Pendiente</option>
+        <option value="revisado">Revisado</option>
+        <option value="entrevistado">Entrevistado</option>
+        <option value="aceptado">Aceptado</option>
+        <option value="rechazado">Rechazado</option>
+      </select>
+      <button type="button" class="btn btn-outline-secondary btn-sm" (click)="refresh()" [disabled]="isLoading"><i class="ti ti-refresh"></i></button>
+    </div>
   </div>
 </div>
 
-<div *ngIf="isRecruiterOrAdmin && isScopedToJob" class="alert alert-primary d-flex align-items-center justify-content-between mb-3">
-  <div>
-    <strong>Viendo postulantes por oferta:</strong>
-    <span class="ms-1">{{ scopedJobTitle }}</span>
+@if (isLoading) {
+  <div class="text-center py-5">
+    <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div>
+    <p class="text-muted mt-2 mb-0">Cargando tus postulaciones...</p>
   </div>
-  <button type="button" class="btn btn-sm btn-outline-primary" (click)="clearScopedJob()">
-    Ver todas las ofertas
-  </button>
-</div>
+}
 
-<div class="card overflow-hidden">
-  <div class="card-header">
-    <h5 class="card-title mb-0">
-      {{ isScopedToJob ? 'Postulantes de la oferta' : 'Listado de Postulaciones' }}
-    </h5>
+@if (!isLoading && applications.length === 0) {
+  <div class="text-center py-5 px-3">
+    <i class="ti ti-file-off fs-1 text-muted opacity-50"></i>
+    <h6 class="text-muted mt-3 mb-1">Aún no te has postulado a ninguna oferta</h6>
+    <p class="text-muted fs-13 mb-3">Explora las ofertas disponibles y postúlate a las que te interesen.</p>
+    <a routerLink="/job-offers" class="btn btn-primary btn-sm"><i class="ti ti-briefcase me-1"></i> Ver ofertas de trabajo</a>
   </div>
-  <div class="card-body">
-    <app-filter-panel
-      [filters]="filterOptions"
-      (filterChange)="onFilterChange($event)"
-      (resetFilters)="onResetFilters()"
-    ></app-filter-panel>
+}
 
-    <!-- Vista de tabla para pantallas grandes -->
-    <div class="table-responsive d-none d-md-block">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Candidato</th>
-            <th>Puesto</th>
-            <th>Empresa</th>
-            <th *ngIf="!isRecruiterOrAdmin">Ubicación</th>
-            <th *ngIf="isRecruiterOrAdmin">Email</th>
-            <th *ngIf="isRecruiterOrAdmin">Teléfono</th>
-            <th>Estado</th>
-            <th>Fecha</th>
-            <th>Carta</th>
-            <th *ngIf="isRecruiterOrAdmin">Motivo rechazo</th>
-            <th *ngIf="isRecruiterOrAdmin">CV</th>
-            <th class="text-end">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngIf="isLoading">
-            <td [attr.colspan]="isRecruiterOrAdmin ? 11 : 8" class="text-center py-4">
-              <div
-                class="spinner-border spinner-border-sm text-primary"
-                role="status"
-              >
-                <span class="visually-hidden">Cargando...</span>
+@if (!isLoading && applications.length > 0) {
+  <p class="text-muted fs-13 mb-3">Mostrando {{ (currentPage - 1) * pageSize + 1 }}&ndash;{{ getShowEnd() }} de {{ total }} postulaciones</p>
+  <div class="row g-3">
+    @for (app of applications; track app.id) {
+      <div class="col-12 col-md-6 col-xl-4">
+        <div class="application-card card h-100">
+          <div class="card-body d-flex flex-column gap-2">
+            <div class="d-flex align-items-start gap-3">
+              <div class="company-logo flex-shrink-0">
+                @if (app.logoUrl) {
+                  <img [src]="app.logoUrl" [alt]="app.companyName" class="w-100 h-100 rounded object-fit-contain">
+                } @else {
+                  <span class="company-initial">{{ getCompanyInitial(app.companyName) }}</span>
+                }
               </div>
-              <span class="ms-2">Cargando postulaciones...</span>
-            </td>
-          </tr>
-          <tr *ngIf="!isLoading && applications.length === 0">
-            <td [attr.colspan]="isRecruiterOrAdmin ? 11 : 8" class="text-center py-4 text-muted">
-              <i class="ti ti-file-off fs-1 d-block mb-2"></i>
-              <div *ngIf="isRecruiterOrAdmin">
-                <strong>No hay postulaciones recibidas</strong>
-                <p class="mb-0">Aún no has recibido postulaciones en tus ofertas de trabajo.</p>
+              <div class="flex-grow-1 min-w-0">
+                <p class="text-muted fs-12 mb-0 text-truncate">{{ app.companyName || "Empresa" }}</p>
               </div>
-              <div *ngIf="!isRecruiterOrAdmin">
-                <strong>No tienes postulaciones</strong>
-                <p class="mb-0">Aún no te has postulado a ninguna oferta de trabajo.</p>
-              </div>
-            </td>
-          </tr>
-          <tr *ngFor="let app of applications">
-            <td>
-              <div class="d-flex align-items-center gap-2">
-                <div class="avatar avatar-sm">
-                  <span
-                    class="avatar-title rounded-circle bg-primary-subtle text-primary"
-                  >
-                    {{ app.candidateName?.charAt(0) || "U" }}
-                  </span>
-                </div>
-                <span>{{ app.candidateName || "Sin nombre" }}</span>
-              </div>
-            </td>
-            <td>{{ app.jobTitle || "-" }}</td>
-            <td>{{ app.companyName || "-" }}</td>
-            <td *ngIf="!isRecruiterOrAdmin">{{ app.job?.location || "-" }}</td>
-            <td *ngIf="isRecruiterOrAdmin">{{ app.user?.email || "-" }}</td>
-            <td *ngIf="isRecruiterOrAdmin">{{ app.user?.phone || "-" }}</td>
-            <td>
-              <span class="badge" [ngClass]="getStatusClass(app.status)">
-                {{ getStatusLabel(app.status) }}
-              </span>
-            </td>
-            <td>{{ app.appliedAt | date: "dd/MM/yyyy" }}</td>
-            <td>
-              <span class="text-truncate d-inline-block" style="max-width: 180px;">
-                {{ app.coverLetter || "-" }}
-              </span>
-            </td>
-            <td *ngIf="isRecruiterOrAdmin">
-              <span class="text-truncate d-inline-block" style="max-width: 180px;">
-                {{ app.rejectionReason || "-" }}
-              </span>
-            </td>
-            <td *ngIf="isRecruiterOrAdmin">
-              <button
-                *ngIf="app.user?.cvUrl"
-                type="button"
-                class="btn btn-sm btn-outline-secondary"
-                (click)="viewCV(app.user?.cvUrl || null)"
-                title="Ver CV"
-              >
-                <i class="ti ti-file"></i>
-              </button>
-              <span *ngIf="!app.user?.cvUrl">-</span>
-            </td>
-            <td class="text-end">
-                <button
-                  type="button"
-                  class="btn btn-sm btn-outline-secondary me-2"
-                  (click)="openChat(app)"
-                  title="Enviar mensaje"
-                >
-                  <i class="ti ti-message"></i>
-                </button>
-              <button
-                type="button"
-                class="btn btn-sm btn-outline-primary"
-                (click)="updateStatus(app)"
-                title="Cambiar estado"
-              >
-                <i class="ti ti-edit"></i>
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="d-flex flex-column gap-3 d-md-none">
-      <div *ngIf="isLoading" class="text-center py-4">
-        <div
-          class="spinner-border spinner-border-sm text-primary"
-          role="status"
-        >
-          <span class="visually-hidden">Cargando...</span>
-        </div>
-        <span class="ms-2">Cargando...</span>
-      </div>
-      <div
-        *ngIf="!isLoading && applications.length === 0"
-        class="text-center py-4 text-muted"
-      >
-        <i class="ti ti-file-off fs-1 d-block mb-2"></i>
-        <div *ngIf="isRecruiterOrAdmin">
-          <strong>No hay postulaciones recibidas</strong>
-          <p class="mb-0">Aún no has recibido postulaciones.</p>
-        </div>
-        <div *ngIf="!isRecruiterOrAdmin">
-          <strong>No tienes postulaciones</strong>
-          <p class="mb-0">Aún no te has postulado a ninguna oferta.</p>
-        </div>
-      </div>
-      <div class="card" *ngFor="let app of applications">
-        <div
-          class="card-header d-flex justify-content-between align-items-start py-2"
-        >
-          <div class="d-flex align-items-center gap-2">
-            <div class="avatar avatar-sm">
-              <span
-                class="avatar-title rounded-circle bg-primary-subtle text-primary"
-              >
-                {{ app.candidateName?.charAt(0) || "U" }}
-              </span>
+              <span class="badge rounded-pill {{ getStatusBgClass(app.status) }} flex-shrink-0">{{ getStatusLabel(app.status) }}</span>
             </div>
-            <div>
-              <strong>{{ app.candidateName || "Sin nombre" }}</strong>
-              <small class="d-block text-muted">{{ app.jobTitle }}</small>
+            <h6 class="job-title mb-0 fw-semibold text-dark">{{ app.jobTitle }}</h6>
+            <div class="d-flex gap-2 flex-wrap">
+              @if (app.jobLocation) {
+                <span class="chip chip-location"><i class="ti ti-map-pin me-1"></i>{{ app.jobLocation }}</span>
+              }
+              @if (app.jobType) {
+                <span class="chip chip-type">{{ getJobTypeLabel(app.jobType) }}</span>
+              }
+              @if (app.workMode) {
+                <span class="chip chip-mode">{{ getWorkModeLabel(app.workMode) }}</span>
+              }
+            </div>
+            @if (app.coverLetter) {
+              <p class="cover-preview text-muted fs-12 mb-0">{{ app.coverLetter }}</p>
+            }
+            <div class="flex-grow-1"></div>
+            <div class="d-flex justify-content-between align-items-center pt-2 border-top mt-auto">
+              <span class="text-muted fs-12"><i class="ti ti-calendar me-1"></i>{{ app.appliedAt | date:"dd/MM/yyyy" }}</span>
+              <button class="btn btn-sm btn-outline-primary" (click)="openChat(app)"><i class="ti ti-message me-1"></i>Contactar reclutador</button>
             </div>
           </div>
-          <span class="badge" [ngClass]="getStatusClass(app.status)">
-            {{ getStatusLabel(app.status) }}
-          </span>
-        </div>
-        <div class="card-body py-2">
-          <div class="d-flex justify-content-between mb-1">
-            <span class="text-muted">Empresa:</span>
-            <span>{{ app.companyName || "-" }}</span>
-          </div>
-          <div class="d-flex justify-content-between mb-1" *ngIf="!isRecruiterOrAdmin">
-            <span class="text-muted">Ubicación:</span>
-            <span>{{ app.job?.location || "-" }}</span>
-          </div>
-          <div class="d-flex justify-content-between mb-1" *ngIf="isRecruiterOrAdmin">
-            <span class="text-muted">Email:</span>
-            <span>{{ app.user?.email || "-" }}</span>
-          </div>
-          <div class="d-flex justify-content-between mb-1" *ngIf="isRecruiterOrAdmin">
-            <span class="text-muted">Teléfono:</span>
-            <span>{{ app.user?.phone || "-" }}</span>
-          </div>
-          <div class="d-flex justify-content-between">
-            <span class="text-muted">Fecha:</span>
-            <span>{{ app.appliedAt | date: "dd/MM/yyyy" }}</span>
-          </div>
-          <div class="mt-2">
-            <span class="text-muted">Carta:</span>
-            <div>{{ app.coverLetter || "-" }}</div>
-          </div>
-          <div class="mt-2" *ngIf="isRecruiterOrAdmin">
-            <span class="text-muted">Motivo rechazo:</span>
-            <div>{{ app.rejectionReason || "-" }}</div>
-          </div>
-        </div>
-        <div class="card-footer py-2">
-          <button
-            *ngIf="isRecruiterOrAdmin && app.user?.cvUrl"
-            type="button"
-            class="btn btn-sm btn-outline-secondary w-100 mb-2"
-            (click)="viewCV(app.user?.cvUrl || null)"
-          >
-            <i class="ti ti-file me-1"></i>
-            Ver CV
-          </button>
-          <button
-            type="button"
-            class="btn btn-sm btn-outline-primary w-100"
-            (click)="updateStatus(app)"
-          >
-            <i class="ti ti-edit me-1"></i>
-            Cambiar estado
-          </button>
-          <button
-            type="button"
-            class="btn btn-sm btn-outline-secondary w-100 mt-2"
-            (click)="openChat(app)"
-          >
-            <i class="ti ti-message me-1"></i>
-            Enviar mensaje
-          </button>
         </div>
       </div>
-    </div>
-
-    <div
-      class="d-flex justify-content-center mt-3 pt-3 border-top"
-      *ngIf="total > pageSize"
-    >
+    }
+  </div>
+  @if (getTotalPages() > 1) {
+    <div class="d-flex justify-content-center mt-4">
       <nav>
         <ul class="pagination pagination-sm mb-0">
           <li class="page-item" [class.disabled]="currentPage === 1">
-            <a
-              class="page-link rounded-2 me-1"
-              (click)="goToPage(currentPage - 1)"
-              >Anterior</a
-            >
+            <a class="page-link" (click)="goToPage(currentPage - 1)" role="button"><i class="ti ti-chevron-left"></i></a>
           </li>
-          <li
-            class="page-item"
-            *ngFor="let p of getPages()"
-            [class.active]="p === currentPage"
-          >
-            <a class="page-link rounded-2 me-1" (click)="goToPage(p)">{{
-              p
-            }}</a>
-          </li>
-          <li
-            class="page-item"
-            [class.disabled]="currentPage >= getTotalPages()"
-          >
-            <a class="page-link rounded-2" (click)="goToPage(currentPage + 1)"
-              >Siguiente</a
-            >
+          @for (page of getPages(); track page) {
+            <li class="page-item" [class.active]="page === currentPage">
+              <a class="page-link" (click)="goToPage(page)" role="button">{{ page }}</a>
+            </li>
+          }
+          <li class="page-item" [class.disabled]="currentPage === getTotalPages()">
+            <a class="page-link" (click)="goToPage(currentPage + 1)" role="button"><i class="ti ti-chevron-right"></i></a>
           </li>
         </ul>
       </nav>
     </div>
-  </div>
-</div>
+  }
+}

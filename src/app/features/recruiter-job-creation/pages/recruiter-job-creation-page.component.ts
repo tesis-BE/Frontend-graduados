@@ -77,10 +77,10 @@ export class RecruiterJobCreationPageComponent implements OnInit {
   }
 
   onViewApplications(jobId: number): void {
-    console.log('📄 Viendo postulaciones para job:', jobId);
-    this.router.navigate(['/applications'], { 
-      queryParams: { jobId: jobId },
-      queryParamsHandling: 'merge'
+    const job = this.jobs.find((j) => j.id === jobId);
+    this.router.navigate(['applicants', jobId], {
+      relativeTo: this.route,
+      state: { job },
     });
   }
 
