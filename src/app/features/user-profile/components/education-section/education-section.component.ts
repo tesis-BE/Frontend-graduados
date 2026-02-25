@@ -107,6 +107,12 @@ export class EducationSectionComponent implements OnInit {
     });
   }
 
+  private toNumberOrNull(value: unknown): number | null {
+    if (value === null || value === undefined || value === '') return null;
+    const numericValue = Number(value);
+    return Number.isNaN(numericValue) ? null : numericValue;
+  }
+
   ngOnInit(): void {
     this.loadUniversities();
     this.loadFaculties();
@@ -143,9 +149,11 @@ export class EducationSectionComponent implements OnInit {
 
   setupFormListeners(): void {
     this.educationForm.get('universityId')?.valueChanges.subscribe((universityId) => {
-      if (universityId) {
+      const universityIdNumber = this.toNumberOrNull(universityId);
+
+      if (universityIdNumber !== null) {
         this.faculties.set(
-          this.allFaculties().filter((f) => f.universityId === universityId)
+          this.allFaculties().filter((f) => this.toNumberOrNull(f.universityId) === universityIdNumber)
         );
         this.educationForm.patchValue({ facultyId: null, careerId: null }, { emitEvent: false });
         this.careers.set([]);
@@ -156,9 +164,11 @@ export class EducationSectionComponent implements OnInit {
     });
 
     this.educationForm.get('facultyId')?.valueChanges.subscribe((facultyId) => {
-      if (facultyId) {
+      const facultyIdNumber = this.toNumberOrNull(facultyId);
+
+      if (facultyIdNumber !== null) {
         this.careers.set(
-          this.allCareers().filter((c) => c.facultyId === facultyId)
+          this.allCareers().filter((c) => this.toNumberOrNull(c.facultyId) === facultyIdNumber)
         );
         this.educationForm.patchValue({ careerId: null }, { emitEvent: false });
       } else {
@@ -186,15 +196,17 @@ export class EducationSectionComponent implements OnInit {
     this.editingId.set(edu.id);
     this.showForm.set(true);
     
-    if (edu.universityId) {
+    const universityIdNumber = this.toNumberOrNull(edu.universityId);
+    if (universityIdNumber !== null) {
       this.faculties.set(
-        this.allFaculties().filter((f: any) => f.universityId === edu.universityId)
+        this.allFaculties().filter((f: any) => this.toNumberOrNull(f.universityId) === universityIdNumber)
       );
     }
     
-    if (edu.facultyId) {
+    const facultyIdNumber = this.toNumberOrNull(edu.facultyId);
+    if (facultyIdNumber !== null) {
       this.careers.set(
-        this.allCareers().filter((c: any) => c.facultyId === edu.facultyId)
+        this.allCareers().filter((c: any) => this.toNumberOrNull(c.facultyId) === facultyIdNumber)
       );
     }
     

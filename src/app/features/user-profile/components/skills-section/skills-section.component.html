@@ -24,14 +24,30 @@
       <form [formGroup]="skillForm" (ngSubmit)="addSkill()" class="mb-4">
         <div class="row g-2">
           <div class="col-12 col-sm-6">
+            <label class="form-label small mb-1">
+              Habilidad
+              <span class="text-danger">*</span>
+            </label>
             <input
               type="text"
               class="form-control form-control-sm"
               formControlName="name"
               placeholder="Nombre de la habilidad"
             />
+            @if (shouldShowError('name')) {
+              <div class="text-danger small mt-1">
+                @if (skillForm.get('name')?.errors?.['required']) {
+                  La habilidad es obligatoria.
+                } @else if (skillForm.get('name')?.errors?.['minlength']) {
+                  Debe tener al menos 2 caracteres.
+                } @else {
+                  Habilidad inválida.
+                }
+              </div>
+            }
           </div>
           <div class="col-8 col-sm-4">
+            <label class="form-label small mb-1">Nivel</label>
             <select class="form-select form-select-sm" formControlName="level">
               @for (level of levels; track level.value) {
                 <option [value]="level.value">{{ level.label }}</option>

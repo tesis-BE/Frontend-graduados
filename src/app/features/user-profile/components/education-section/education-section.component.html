@@ -45,9 +45,9 @@
           <div class="col-12">
             <label class="form-label small">Extensión (opcional)</label>
             <select class="form-select" formControlName="universityId">
-              <option [value]="null">Seleccione extensión (opcional)</option>
+              <option [ngValue]="null">Seleccione extensión (opcional)</option>
               @for (uni of universities(); track uni.id) {
-                <option [value]="uni.id">{{ uni.name }}</option>
+                <option [ngValue]="uni.id">{{ uni.name }}</option>
               }
             </select>
           </div>
@@ -58,9 +58,9 @@
               formControlName="facultyId"
               [disabled]="!educationForm.get('universityId')?.value"
             >
-              <option [value]="null">Seleccione facultad</option>
+              <option [ngValue]="null">Seleccione facultad</option>
               @for (faculty of faculties(); track faculty.id) {
-                <option [value]="faculty.id">{{ faculty.name }}</option>
+                <option [ngValue]="faculty.id">{{ faculty.name }}</option>
               }
             </select>
           </div>
@@ -71,9 +71,9 @@
               formControlName="careerId"
               [disabled]="!educationForm.get('facultyId')?.value"
             >
-              <option [value]="null">Seleccione carrera</option>
+              <option [ngValue]="null">Seleccione carrera</option>
               @for (career of careers(); track career.id) {
-                <option [value]="career.id">{{ career.name }}</option>
+                <option [ngValue]="career.id">{{ career.name }}</option>
               }
             </select>
           </div>

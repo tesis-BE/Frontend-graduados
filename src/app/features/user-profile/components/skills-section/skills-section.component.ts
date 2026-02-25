@@ -36,6 +36,7 @@ export class SkillsSectionComponent {
   isAdding = signal(false);
   showForm = signal(false);
   deletingId = signal<number | null>(null);
+  submitAttempted = signal(false);
 
   levels = [
     { value: 'beginner', label: 'Principiante', color: 'secondary' },
@@ -62,7 +63,13 @@ export class SkillsSectionComponent {
     this.showForm.update((v) => !v);
     if (!this.showForm()) {
       this.skillForm.reset({ level: 'intermediate' });
+      this.submitAttempted.set(false);
     }
+  }
+
+  shouldShowError(controlName: 'name'): boolean {
+    const control = this.skillForm.get(controlName);
+    return !!control && control.invalid && (control.touched || this.submitAttempted());
   }
 
   getLevelInfo(level: string): { label: string; color: string } {
@@ -75,6 +82,8 @@ export class SkillsSectionComponent {
   }
 
   addSkill(): void {
+    this.submitAttempted.set(true);
+
     if (this.skillForm.invalid) {
       this.skillForm.markAllAsTouched();
       return;
@@ -89,6 +98,7 @@ export class SkillsSectionComponent {
         this.sweetAlert.success('¡Éxito!', 'Habilidad agregada');
         this.skillForm.reset({ level: 'intermediate' });
         this.showForm.set(false);
+        this.submitAttempted.set(false);
         this.skillsChanged.emit();
       },
       error: (error) => {

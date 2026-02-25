@@ -24,36 +24,48 @@
       <form [formGroup]="projectForm" (ngSubmit)="saveProject()" class="mb-4">
         <div class="row g-3">
           <div class="col-12">
-            <label class="form-label small">Nombre del Proyecto *</label>
+            <label class="form-label small">
+              Nombre del Proyecto
+              <span class="text-danger">*</span>
+            </label>
             <input
               type="text"
               class="form-control"
               formControlName="name"
               placeholder="Ej: Sistema de Gestión de Inventarios"
             />
-            @if (
-              projectForm.get("name")?.touched &&
-              projectForm.get("name")?.invalid
-            ) {
+            @if (shouldShowError('name')) {
               <div class="text-danger small mt-1">
-                Campo requerido (mín. 2 caracteres)
+                @if (projectForm.get('name')?.errors?.['required']) {
+                  El nombre es obligatorio.
+                } @else if (projectForm.get('name')?.errors?.['minlength']) {
+                  Mínimo 2 caracteres.
+                } @else {
+                  Valor inválido.
+                }
               </div>
             }
           </div>
           <div class="col-12">
-            <label class="form-label small">Descripción *</label>
+            <label class="form-label small">
+              Descripción
+              <span class="text-danger">*</span>
+            </label>
             <textarea
               class="form-control"
               formControlName="description"
               rows="3"
               placeholder="Describe qué hace tu proyecto y tu rol en él"
             ></textarea>
-            @if (
-              projectForm.get("description")?.touched &&
-              projectForm.get("description")?.invalid
-            ) {
+            @if (shouldShowError('description')) {
               <div class="text-danger small mt-1">
-                Campo requerido (mín. 10 caracteres)
+                @if (projectForm.get('description')?.errors?.['required']) {
+                  La descripción es obligatoria.
+                } @else if (projectForm.get('description')?.errors?.['minlength']) {
+                  Mínimo 10 caracteres.
+                } @else {
+                  Valor inválido.
+                }
               </div>
             }
           </div>
@@ -73,7 +85,11 @@
               class="form-control"
               formControlName="projectUrl"
               placeholder="https://mi-proyecto.com"
+              (blur)="normalizeUrl('projectUrl')"
             />
+            @if (shouldShowError('projectUrl')) {
+              <div class="text-danger small mt-1">URL inválida. Usa http:// o https://</div>
+            }
           </div>
           <div class="col-md-6">
             <label class="form-label small">URL del Repositorio</label>
@@ -82,7 +98,11 @@
               class="form-control"
               formControlName="repositoryUrl"
               placeholder="https://github.com/..."
+              (blur)="normalizeUrl('repositoryUrl')"
             />
+            @if (shouldShowError('repositoryUrl')) {
+              <div class="text-danger small mt-1">URL inválida. Usa http:// o https://</div>
+            }
           </div>
           <div class="col-12">
             <label class="form-label small">URL de Imagen</label>
@@ -91,7 +111,11 @@
               class="form-control"
               formControlName="imageUrl"
               placeholder="https://... (captura de pantalla)"
+              (blur)="normalizeUrl('imageUrl')"
             />
+            @if (shouldShowError('imageUrl')) {
+              <div class="text-danger small mt-1">URL inválida. Usa http:// o https://</div>
+            }
           </div>
           <div class="col-md-5">
             <label class="form-label small">Fecha de Inicio</label>
@@ -123,6 +147,15 @@
               </label>
             </div>
           </div>
+          @if (projectForm.invalid && (projectForm.dirty || submitAttempted())) {
+            <div class="col-12">
+              <div class="alert alert-warning py-2 px-3 small mb-0">
+                @for (message of getValidationMessages(); track message) {
+                  <div>{{ message }}</div>
+                }
+              </div>
+            </div>
+          }
           <div class="col-12 d-flex gap-2">
             <button
               type="submit"

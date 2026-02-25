@@ -41,6 +41,7 @@ export class ProjectsSectionComponent {
   isSubmitting = signal(false);
   editingId = signal<number | null>(null);
   deletingId = signal<number | null>(null);
+  submitAttempted = signal(false);
 
   constructor() {
     this.projectForm = this.fb.group({
@@ -90,6 +91,54 @@ export class ProjectsSectionComponent {
     this.projectForm.reset({ isCurrent: false });
     this.projectForm.get('endDate')?.enable();
     this.editingId.set(null);
+    this.submitAttempted.set(false);
+  }
+
+  normalizeUrl(controlName: 'projectUrl' | 'repositoryUrl' | 'imageUrl'): void {
+    const control = this.projectForm.get(controlName);
+    const value = (control?.value || '').toString().trim();
+
+    if (!value) return;
+    if (!/^https?:\/\//i.test(value)) {
+      control?.setValue(`https://${value}`);
+    }
+  }
+
+  shouldShowError(controlName: 'name' | 'description' | 'projectUrl' | 'repositoryUrl' | 'imageUrl'): boolean {
+    const control = this.projectForm.get(controlName);
+    return !!control && control.invalid && (control.touched || this.submitAttempted());
+  }
+
+  getValidationMessages(): string[] {
+    const messages: string[] = [];
+    const nameControl = this.projectForm.get('name');
+    const descriptionControl = this.projectForm.get('description');
+
+    if (nameControl?.errors?.['required']) {
+      messages.push('El nombre del proyecto es obligatorio.');
+    } else if (nameControl?.errors?.['minlength']) {
+      messages.push('El nombre del proyecto debe tener al menos 2 caracteres.');
+    }
+
+    if (descriptionControl?.errors?.['required']) {
+      messages.push('La descripción es obligatoria.');
+    } else if (descriptionControl?.errors?.['minlength']) {
+      messages.push('La descripción debe tener al menos 10 caracteres.');
+    }
+
+    const urlControls: Array<{ key: 'projectUrl' | 'repositoryUrl' | 'imageUrl'; label: string }> = [
+      { key: 'projectUrl', label: 'URL del proyecto' },
+      { key: 'repositoryUrl', label: 'URL del repositorio' },
+      { key: 'imageUrl', label: 'URL de imagen' },
+    ];
+
+    for (const control of urlControls) {
+      if (this.projectForm.get(control.key)?.errors?.['pattern']) {
+        messages.push(`${control.label} inválida (usa http:// o https://).`);
+      }
+    }
+
+    return messages;
   }
 
   editProject(project: Project): void {
@@ -113,6 +162,8 @@ export class ProjectsSectionComponent {
   }
 
   saveProject(): void {
+    this.submitAttempted.set(true);
+
     if (this.projectForm.invalid) {
       this.projectForm.markAllAsTouched();
       return;

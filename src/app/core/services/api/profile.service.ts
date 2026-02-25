@@ -36,6 +36,29 @@ export class ProfileService {
 
   constructor(private http: HttpClient) {}
 
+  private toFrontendSkillLevel(level: string): Skill['level'] {
+    const backendToFrontend: Record<string, Skill['level']> = {
+      principiante: 'beginner',
+      intermedio: 'intermediate',
+      avanzado: 'advanced',
+      experto: 'expert',
+    };
+
+    const normalizedLevel = (level || '').toString().trim().toLowerCase();
+    return backendToFrontend[normalizedLevel] || (normalizedLevel as Skill['level']) || 'intermediate';
+  }
+
+  private toBackendSkillLevel(level: CreateSkill['level']): string {
+    const frontendToBackend: Record<CreateSkill['level'], string> = {
+      beginner: 'principiante',
+      intermediate: 'intermedio',
+      advanced: 'avanzado',
+      expert: 'experto',
+    };
+
+    return frontendToBackend[level] || frontendToBackend.intermediate;
+  }
+
   // ========== Perfil Completo ==========
   getCompleteProfile(): Observable<CompleteProfile> {
     return this.http
@@ -48,7 +71,7 @@ export class ProfileService {
             data.skills = data.skills.map((skill: any) => ({
               ...skill,
               name: skill.skillName || skill.name,
-              level: skill.proficiencyLevel || skill.level,
+              level: this.toFrontendSkillLevel(skill.proficiencyLevel || skill.level),
             }));
           }
           return data;
@@ -71,7 +94,7 @@ export class ProfileService {
             data.skills = data.skills.map((skill: any) => ({
               ...skill,
               name: skill.skillName || skill.name,
-              level: skill.proficiencyLevel || skill.level,
+              level: this.toFrontendSkillLevel(skill.proficiencyLevel || skill.level),
             }));
           }
           return data;
@@ -237,15 +260,20 @@ export class ProfileService {
 
   // ========== Habilidades ==========
   addSkill(data: CreateSkill): Observable<Skill> {
+    const payload = {
+      ...data,
+      level: this.toBackendSkillLevel(data.level),
+    };
+
     return this.http
-      .post<ApiResponse<Skill>>(`${this.usersUrl}/skills`, data)
+      .post<ApiResponse<Skill>>(`${this.usersUrl}/skills`, payload)
       .pipe(
         map((response) => {
           const skill = response.data as any;
           return {
             ...skill,
             name: skill.skillName || skill.name,
-            level: skill.proficiencyLevel || skill.level,
+            level: this.toFrontendSkillLevel(skill.proficiencyLevel || skill.level),
           };
         })
       );

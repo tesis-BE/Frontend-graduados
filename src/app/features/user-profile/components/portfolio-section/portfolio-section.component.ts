@@ -39,6 +39,7 @@ export class PortfolioSectionComponent {
   isAdding = signal(false);
   showForm = signal(false);
   deletingId = signal<number | null>(null);
+  submitAttempted = signal(false);
 
   types = [
     { value: 'github', label: 'GitHub', icon: 'mdi-github' },
@@ -69,7 +70,43 @@ export class PortfolioSectionComponent {
     this.showForm.update((v) => !v);
     if (!this.showForm()) {
       this.portfolioForm.reset({ type: 'website' });
+      this.submitAttempted.set(false);
     }
+  }
+
+  normalizeUrl(controlName: 'url'): void {
+    const control = this.portfolioForm.get(controlName);
+    const value = (control?.value || '').toString().trim();
+
+    if (!value) return;
+    if (!/^https?:\/\//i.test(value)) {
+      control?.setValue(`https://${value}`);
+    }
+  }
+
+  shouldShowError(controlName: 'title' | 'url'): boolean {
+    const control = this.portfolioForm.get(controlName);
+    return !!control && control.invalid && (control.touched || this.submitAttempted());
+  }
+
+  getValidationMessages(): string[] {
+    const messages: string[] = [];
+    const titleControl = this.portfolioForm.get('title');
+    const urlControl = this.portfolioForm.get('url');
+
+    if (titleControl?.errors?.['required']) {
+      messages.push('El título es obligatorio.');
+    } else if (titleControl?.errors?.['minlength']) {
+      messages.push('El título debe tener al menos 2 caracteres.');
+    }
+
+    if (urlControl?.errors?.['required']) {
+      messages.push('La URL es obligatoria.');
+    } else if (urlControl?.errors?.['pattern']) {
+      messages.push('La URL debe ser válida (ej: https://miportafolio.com).');
+    }
+
+    return messages;
   }
 
   getTypeInfo(type: string): { label: string; icon: string } {
@@ -82,6 +119,8 @@ export class PortfolioSectionComponent {
   }
 
   addPortfolio(): void {
+    this.submitAttempted.set(true);
+
     if (this.portfolioForm.invalid) {
       this.portfolioForm.markAllAsTouched();
       return;
@@ -96,6 +135,7 @@ export class PortfolioSectionComponent {
         this.sweetAlert.success('¡Éxito!', 'Enlace de portafolio agregado');
         this.portfolioForm.reset({ type: 'website' });
         this.showForm.set(false);
+        this.submitAttempted.set(false);
         this.portfoliosChanged.emit();
       },
       error: (error) => {
